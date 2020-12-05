@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edu.ustb.lesley.college:AddressBook
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:edu.ustb.lesley.college="https://edu/ustb/lesley/college"
+    name="ClassOne">
+  <persons name="Lesley"
+      age="23">
+    <college
+        name="USTB"/>
+  </persons>
+</edu.ustb.lesley.college:AddressBook>

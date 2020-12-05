@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.ui.newWizards">
+      <!-- @generated college -->
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="college.presentation.CollegeModelWizardID"
+            name="%_UI_CollegeModelWizard_label"
+            class="college.presentation.CollegeModelWizard"
+            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            icon="icons/full/obj16/CollegeModelFile.gif">
+         <description>%_UI_CollegeModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
+
+   <extension point="org.eclipse.ui.editors">
+      <!-- @generated college -->
+      <editor
+            id="college.presentation.CollegeEditorID"
+            name="%_UI_CollegeEditor_label"
+            icon="icons/full/obj16/CollegeModelFile.gif"
+            extensions="college"
+            class="college.presentation.CollegeEditor"
+            contributorClass="college.presentation.CollegeActionBarContributor">
+      </editor>
+   </extension>
+
+</plugin>
