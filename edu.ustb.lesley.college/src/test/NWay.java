@@ -1,5 +1,7 @@
 package test;
 
+import java.io.File;
+
 /**
  * 测试EMF Compare
  */
@@ -9,6 +11,7 @@ import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.regex.Matcher;
+import java.util.stream.Stream;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.BasicMonitor;
@@ -18,10 +21,13 @@ import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.Conflict;
+import org.eclipse.emf.compare.ConflictKind;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.DifferenceKind;
 import org.eclipse.emf.compare.EMFCompare;
 import org.eclipse.emf.compare.Match;
+import org.eclipse.emf.compare.conflict.MatchBasedConflictDetector;
+import org.eclipse.emf.compare.conflict.NWayMatchBasedConflictDetector;
 import org.eclipse.emf.compare.internal.spec.MatchSpec;
 import org.eclipse.emf.compare.internal.spec.ReferenceChangeSpec;
 import org.eclipse.emf.compare.match.DefaultMatchEngine;
@@ -50,18 +56,19 @@ public class NWay {
 	@Test
 	public void nWay() {
 		
-		URI uriBase = URI.createFileURI("E:/eclipse-dsl-workspace/edu.ustb.lesley.college/src/test/change.xmi");
-		URI uriBranch1 = URI.createFileURI("E:/eclipse-dsl-workspace/edu.ustb.lesley.college/src/test/change1.xmi");
-		URI uriBranch2 = URI.createFileURI("E:/eclipse-dsl-workspace/edu.ustb.lesley.college/src/test/change2.xmi");
-		URI uriBranch3 = URI.createFileURI("E:/eclipse-dsl-workspace/edu.ustb.lesley.college/src/test/change3.xmi");
-		URI uriBranch4 = URI.createFileURI("E:/eclipse-dsl-workspace/edu.ustb.lesley.college/src/test/change4.xmi");
+		
+		URI uriBase = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/delete.xmi");
+		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/delete1.xmi");
+		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/delete2.xmi");
+//		URI uriBranch3 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/change3.xmi");
+//		URI uriBranch4 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/change4.xmi");
 
 		ArrayList<URI> uriList = new ArrayList<>();
 
 		uriList.add(uriBase);
 		uriList.add(uriBranch1);
 		uriList.add(uriBranch2);
-		uriList.add(uriBranch3);
+//		uriList.add(uriBranch3);
 //		uriList.add(uriBranch4);
 
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
@@ -102,20 +109,43 @@ public class NWay {
 				}
 			}
 			
-			// 添加到全局differences和matches中
+			// 添加到全局diffs和matches中
 			comparison.getDifferences().addAll(branchComparison.getDifferences());
 			comparison.getMatches().addAll(branchComparison.getMatches());
 				
 		}
 		
+		
+		/** 冲突检测 */		
+		// 拿到全局的diffs和matches
+		EList<Diff> diffs = comparison.getDifferences();
+		EList<Match> matches = comparison.getMatches();
+		
+		// diffMap
+		Map<EObject, EList<Diff>> diffMap = new HashMap<>();
+		classifyDiffs(diffs, diffMap);
+	
+		// 对每个diff再按照RIGHT source一致的进行addAll
+		for(Diff diff: diffs) {
+			EObject right = diff.getMatch().getRight();
+			diff.getMatch().getDifferences().addAll(diffMap.get(right));
+		}
+					
+		NWayMatchBasedConflictDetector detector = new NWayMatchBasedConflictDetector();
+		detector.detect(comparison, new BasicMonitor());
+		
+		System.out.println("**********************************conflict");
+		comparison.getConflicts().forEach(conflict -> System.out.println(conflict));
+		System.out.println("******************************************");
+				
+		/** ADD元素的匹配 */						
 		// preMap
 		Map<EObject, EList<EObject>> preMap = new HashMap<>();
-		classifyMatches(comparison.getMatches(), preMap);
+		classifyMatches(matches, preMap);
 						
-		/** ADD元素的匹配 */				
 		for(int i=1; i<uriList.size()-1; i++) {							
 			Resource resourceI = resourceSet.getResource(uriList.get(i), true);									
-			for(int j=i+1; j<uriList.size(); j++) {								
+			for(int j = i+1; j<uriList.size(); j++) {								
 				Resource resourceJ = resourceSet.getResource(uriList.get(j), true);				
 				IComparisonScope scope = new DefaultComparisonScope(resourceI, resourceJ, null);	
 				EList<Match> preMatches = getPreMatches(preMap, new BasicEList<>());	
@@ -123,22 +153,22 @@ public class NWay {
 				NWayDefaultMatchEngine engine = (NWayDefaultMatchEngine) NWayDefaultMatchEngine.create(UseIdentifiers.NEVER);
 				Comparison comparisonN = engine.matchN(scope, preMatches, new BasicMonitor());	
 								
-				System.out.println(i + " " + j + ": ");
 				System.out.println("---------------------------------------------");
+				System.out.println(i + " " + j + ": ");
 				printMatches(comparisonN.getMatches());
 				System.out.println("---------------------------------------------");
 				
 			}
 		}
-
+		
 	}
 	
 //	@Test
 	public void threeWay() {
 
-		URI uriBase = URI.createFileURI("E:/eclipse-dsl-workspace/edu.ustb.lesley.college/src/test/change.xmi");
-		URI uriBranch1 = URI.createFileURI("E:/eclipse-dsl-workspace/edu.ustb.lesley.college/src/test/change1.xmi");
-		URI uriBranch2 = URI.createFileURI("E:/eclipse-dsl-workspace/edu.ustb.lesley.college/src/test/change3.xmi");
+		URI uriBase = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/delete.xmi");
+		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/delete1.xmi");
+		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/delete2.xmi");
 
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 		ResourceSet resourceSet = new ResourceSetImpl();
@@ -169,30 +199,29 @@ public class NWay {
 			System.out.println(conflict);
 		}
 
-		// Let's merge every diff
-		// in fact, three way is also use batch merging
-		IBatchMerger merger = new BatchMerger(IMerger.RegistryImpl.createStandaloneInstance());
-		merger.copyAllLeftToRight(differences, new BasicMonitor()); // 这里直接忽略右边的更改
-
-		System.out.println("\n--------------------------------------diff after merging");
-		for (Diff diff : differences) {
-			System.out.println(diff);
-		}
-
-		// check Resource
-		System.out.println("\n--------------------------------------branchResource1");
-		TreeIterator<EObject> allContents = branchResource1.getAllContents();
-		while (allContents.hasNext()) {
-			EObject next = allContents.next();
-			System.out.println(next.toString());
-		}
-		System.out.println("\n--------------------------------------branchResource2");
-		allContents = branchResource2.getAllContents();
-		while (allContents.hasNext()) {
-			EObject next = allContents.next();
-			System.out.println(next.toString());
-		}
-
+//		// Let's merge every diff
+//		// in fact, three way is also use batch merging
+//		IBatchMerger merger = new BatchMerger(IMerger.RegistryImpl.createStandaloneInstance());
+//		merger.copyAllLeftToRight(differences, new BasicMonitor()); // 这里直接忽略右边的更改
+//
+//		System.out.println("\n--------------------------------------diff after merging");
+//		for (Diff diff : differences) {
+//			System.out.println(diff);
+//		}
+//
+//		// check Resource
+//		System.out.println("\n--------------------------------------branchResource1");
+//		TreeIterator<EObject> allContents = branchResource1.getAllContents();
+//		while (allContents.hasNext()) {
+//			EObject next = allContents.next();
+//			System.out.println(next.toString());
+//		}
+//		System.out.println("\n--------------------------------------branchResource2");
+//		allContents = branchResource2.getAllContents();
+//		while (allContents.hasNext()) {
+//			EObject next = allContents.next();
+//			System.out.println(next.toString());
+//		}
 //		// check that models are equal after batch merging
 //		scope = new DefaultComparisonScope(branchResource1, branchResource2, null);		
 //		Comparison assertionComparison = EMFCompare.builder().build().compare(scope);		
@@ -203,6 +232,22 @@ public class NWay {
 	}
 	
 	
+	/** classifyDiffs */
+	public static void classifyDiffs(EList<Diff> diffs, Map<EObject, EList<Diff>> diffMap) {
+		for(Diff diff : diffs) {
+			EObject right = diff.getMatch().getRight();	// base中的元素
+			if(diffMap.get(right) == null) {
+				EList<Diff> list = new BasicEList<>();
+				list.add(diff);
+				diffMap.put(right, list);
+			}else {
+				diffMap.get(right).add(diff);
+			}			
+		}
+	}
+	
+	
+	/** getPreMatches */
 	public static EList<Match> getPreMatches(Map<EObject, EList<EObject>> preMap, EList<Match> preMatches) {
 		preMap.forEach((key, value) -> {
 			for (int i = 0; i < value.size(); i++) {
@@ -217,7 +262,6 @@ public class NWay {
 		});
 		return preMatches;
 	}
-	
 	
 	/** preMap */
 	public static void classifyMatches(EList<Match> matches, Map<EObject, EList<EObject>> preMap) {
