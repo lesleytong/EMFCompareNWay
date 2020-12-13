@@ -5,6 +5,7 @@ package test;
  */
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -61,10 +62,18 @@ public class NWay {
 
 		Resource baseResource = resourceSet.getResource(uriList.get(0), true);
 		Resource branchResource1 = resourceSet.getResource(uriList.get(1), true);
+		
+		// 为了对matches分组存储
+		Map<Integer, EList<Match>> matchesMap = new HashMap<>();
 
 		// 此comparison是第一个分支与base比较的结果，作为全局的comparison，之后会向其中添加信息
 		Comparison comparison = EMFCompare.builder().build()
 				.compare(new DefaultComparisonScope(branchResource1, baseResource, null));
+		
+		// base与第一个分支的matches
+		EList<Match> branch1Matches = new BasicEList<Match>();
+		branch1Matches.addAll(comparison.getMatches());
+		matchesMap.put(1, branch1Matches);
 
 		// 为了处理ADD元素
 		EList<EObject> allADDEList = new BasicEList<>();
@@ -76,12 +85,19 @@ public class NWay {
 			}
 		}
 
+	
 		Comparison branchComparison = null;
 		for (int i = 2; i < uriList.size(); i++) {
 			Resource branchResource = resourceSet.getResource(uriList.get(i), true);
 			branchComparison = EMFCompare.builder().build()
 					.compare(new DefaultComparisonScope(branchResource, baseResource, null));
-
+			
+			// base与其它分支的matches
+			EList<Match> branchMatches = new BasicEList<Match>();
+			branchMatches.addAll(branchComparison.getMatches());
+			matchesMap.put(i, branchMatches);	
+			
+		
 			// 为了处理ADD元素
 			for (Diff diff : branchComparison.getDifferences()) { // 这里是branchComparison
 				if (diff.getKind() == DifferenceKind.ADD) {
@@ -91,12 +107,15 @@ public class NWay {
 				}
 			}
 
+
 			// 添加到全局diffs和matches中
 			comparison.getDifferences().addAll(branchComparison.getDifferences());
-			comparison.getMatches().addAll(branchComparison.getMatches());
-
+			// 就这里会把branchComparsion.getMatches都移动到compariosn.getMatches中，也会影响matchesMap
+			comparison.getMatches().addAll(branchComparison.getMatches());	
+					
 		}
 
+			
 		/** 冲突检测 */
 		// 拿到全局的diffs和matches
 		EList<Diff> diffs = comparison.getDifferences();
@@ -120,20 +139,31 @@ public class NWay {
 		System.out.println("******************************************");
 
 		/** ADD元素的匹配 */
-		// preMap
-		Map<EObject, EList<EObject>> preMap = new HashMap<>();
-		classifyMatches(matches, preMap);
-
 		EList<Match> allADDMatches = new BasicEList<>();
 
 		for (int i = 1; i < uriList.size() - 1; i++) {
 			Resource resourceI = resourceSet.getResource(uriList.get(i), true);
+			
+			// 可以拿到base与分支i的匹配信息
+			EList<Match> matchListI = matchesMap.get(i);
 
 			for (int j = i + 1; j < uriList.size(); j++) {
 				Resource resourceJ = resourceSet.getResource(uriList.get(j), true);
+				
+				// 可以拿到base与分支j的匹配信息
+				EList<Match> matchListJ = matchesMap.get(j);
+				
+				// 需要对其进行解析
+				Map<EObject, EList<EObject>> preMap = new HashMap<>();
+				EList<Match> matchList = new BasicEList<Match>();
+				matchList.addAll(matchListI);
+				matchList.addAll(matchListJ);
+				classifyMatches(matchList, preMap);
+				
+				
 				IComparisonScope scope = new DefaultComparisonScope(resourceI, resourceJ, null);
 				EList<Match> preMatches = getPreMatches(preMap, new BasicEList<>());
-
+				
 				NWayDefaultMatchEngine engine = (NWayDefaultMatchEngine) NWayDefaultMatchEngine
 						.create(UseIdentifiers.NEVER);
 				Comparison comparisonN = engine.matchN(scope, preMatches, new BasicMonitor());
@@ -141,7 +171,7 @@ public class NWay {
 //				System.out.println("---------------------------------------------");
 //				System.out.println(i + " " + j + ": ");
 //				printMatches(comparisonN.getMatches());
-//				System.out.println("---------------------------------------------");				
+//				System.out.println("---------------------------------------------");
 
 				// 将新得到的关于ADD元素的匹配，放到allADDMatches中
 				filerADDMatches(allADDMatches, comparisonN.getMatches(), preMatches);
@@ -149,9 +179,11 @@ public class NWay {
 			}
 		}
 
-		/** 成团 */
+		System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++allADDMatches");
 		printMatches(allADDMatches);
-
+		System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++allADDMatches");
+		
+		/** 调用成团的方法 */
 		makeClosure(allADDEList, allADDMatches);
 
 	}
@@ -162,15 +194,15 @@ public class NWay {
 		List<Integer> record = new ArrayList<>();
 		record.add(0);
 		EObject eObject = allADDEList.get(0);
-		EList<EObject> matchList = getMatchList(eObject, allADDMatches);
-				
-		if (check(matchList, allADDEList) == false) {
+		EList<EObject> matchList = getSucMatchList(eObject, allADDMatches);
+
+		if (Collections.disjoint(allADDEList, matchList) == true) { // 如果交集为空的话
 			EList<EObject> closure = new BasicEList<>();
 			closure.add(eObject);
 			System.out.println("**********************************************");
 			System.out.println(closure);
 			System.out.println("**********************************************");
-			
+
 			EList<EObject> allADDEListCopy = new BasicEList<>();
 			allADDEListCopy.addAll(allADDEList);
 			allADDEListCopy.removeAll(closure);
@@ -178,28 +210,32 @@ public class NWay {
 			if (allADDEListCopy.size() > 0) {
 				makeClosure(allADDEListCopy, allADDMatches);
 			}
-			
+
 			return;
 		}
-		
-		
+
 		for (int i = 0; i < matchList.size(); i++) {
 
 			if (record.contains(i)) {
 				EList<EObject> closure = new BasicEList<>();
-			
-				closure.add(matchList.get(i));
-				for (int j = i + 1; j < matchList.size(); j++) {
-					EObject matchEObject = matchList.get(j);				
+
+				for (int j = i; j < matchList.size(); j++) {
+
+					EObject matchEObject = matchList.get(j);
+
+					if (allADDEList.contains(matchEObject) == false) {
+						continue;
+					}
+
 					if (check(closure, getMatchList(matchEObject, allADDMatches)) == true) {
 						// 加入条件是必须与团中所有对象都能匹配上
 						closure.add(matchEObject);
-					} else if(existMatch(j, getMatchList(matchEObject, allADDMatches), matchList) == false){
+					} else if (existMatch(j, getMatchList(matchEObject, allADDMatches), matchList) == false) {
 						// 如果之前在matchList中能有匹配的话肯定被加入团了，则不用record.add(j)
 						record.add(j);
 					}
 				}
-				
+
 				closure.add(eObject);
 
 				System.out.println("**********************************************");
@@ -213,23 +249,22 @@ public class NWay {
 				if (allADDEListCopy.size() > 0) {
 					makeClosure(allADDEListCopy, allADDMatches);
 				}
-				
+
 			}
 
 		}
 
 	}
-	
+
 	/** 如果与之前的对象存在匹配 */
-	public static boolean existMatch(int j, EList<EObject> myMatchList, EList<EObject> preList) {		
-		for(int i=0; i<j; i++) {
-			if(myMatchList.contains(preList.get(i))) {
+	public static boolean existMatch(int j, EList<EObject> myMatchList, EList<EObject> preList) {
+		for (int i = 0; i < j; i++) {
+			if (myMatchList.contains(preList.get(i))) {
 				return true;
-			}			
-		}			
+			}
+		}
 		return false;
 	}
-	
 
 	/** 检查前者为后者的子集 */
 	public static boolean check(EList<EObject> closure, EList<EObject> matchList) {
@@ -241,6 +276,19 @@ public class NWay {
 		}
 
 		return true;
+	}
+
+	/** 找allADDMatches中与此对象有关的匹配，向后看 */
+	public static EList<EObject> getSucMatchList(EObject element, EList<Match> allADDMatches) {
+		EList<EObject> myMatchEObjects = new BasicEList<>();
+		for (Match match : allADDMatches) {
+			EObject left = match.getLeft();
+			EObject right = match.getRight();
+			if (left == element && right != null) {
+				myMatchEObjects.add(right);
+			}
+		}
+		return myMatchEObjects;
 	}
 
 	/** 找allADDMatches中与此对象有关的匹配 */
@@ -337,9 +385,9 @@ public class NWay {
 //	@Test
 	public void threeWay() {
 
-		URI uriBase = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/delete.xmi");
-		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/delete1.xmi");
-		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/delete2.xmi");
+		URI uriBase = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add.xmi");
+		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add3.xmi");
+		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add4.xmi");
 
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 		ResourceSet resourceSet = new ResourceSetImpl();
@@ -349,7 +397,7 @@ public class NWay {
 		Resource branchResource1 = resourceSet.getResource(uriBranch1, true);
 		Resource branchResource2 = resourceSet.getResource(uriBranch2, true);
 
-		IComparisonScope scope = new DefaultComparisonScope(branchResource1, branchResource2, baseResource);
+		IComparisonScope scope = new DefaultComparisonScope(branchResource1, branchResource2, null); // tmp
 		Comparison comparison = EMFCompare.builder().build().compare(scope);
 
 		// check every match
