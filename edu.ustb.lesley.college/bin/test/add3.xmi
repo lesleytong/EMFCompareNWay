@@ -9,6 +9,6 @@
     <college
         name="USTB"/>
   </persons>
-  <persons name="Mars"
+  <persons name="Mars3"
       age="22"/>
 </edu.ustb.lesley.college:AddressBook>

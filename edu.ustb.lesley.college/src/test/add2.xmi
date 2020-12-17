@@ -9,8 +9,8 @@
     <college
         name="USTB"/>
   </persons>
-  <persons name="Lina"
+  <persons name="Lina2"
       age="22"/>
-  <persons name="Mars"
+  <persons name="Mars2"
       age="22"/>
 </edu.ustb.lesley.college:AddressBook>

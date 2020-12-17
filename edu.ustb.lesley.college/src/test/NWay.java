@@ -43,9 +43,9 @@ public class NWay {
 	public void nWay() {
 
 		URI uriBase = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add.xmi");
-		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add3.xmi");
+		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add1.xmi");
 		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add2.xmi");
-		URI uriBranch3 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add1.xmi");
+		URI uriBranch3 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add3.xmi");
 		URI uriBranch4 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add4.xmi");
 
 		ArrayList<URI> uriList = new ArrayList<>();
@@ -166,8 +166,16 @@ public class NWay {
 				
 				NWayDefaultMatchEngine engine = (NWayDefaultMatchEngine) NWayDefaultMatchEngine
 						.create(UseIdentifiers.NEVER);
+				
+				// tmp
+				if(i==1 && j==4) {
+					System.out.println(i);
+				}
+				
 				Comparison comparisonN = engine.matchN(scope, preMatches, new BasicMonitor());
 
+
+				
 //				System.out.println("---------------------------------------------");
 //				System.out.println(i + " " + j + ": ");
 //				printMatches(comparisonN.getMatches());
@@ -181,15 +189,42 @@ public class NWay {
 
 		System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++allADDMatches");
 		printMatches(allADDMatches);
-		System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++allADDMatches");
+		System.out.println("-----------------------------------------------allADDMatches");
 		
 		/** 调用成团的方法 */
-		makeClosure(allADDEList, allADDMatches);
+//		Map<Integer, EList<EObject>> closureMap = new HashMap<>();
+//		makeClosure(allADDEList, allADDMatches, closureMap );
+		
+		EList<Match> edges = new BasicEList<>();	
+		for (Match match : allADDMatches) {
+			EObject left = match.getLeft();
+			EObject right = match.getRight();
+			if (left != null && right != null) {
+				edges.add(match);
+			}
+		}
+		
+		MaximalCliquesWithoutPivot ff = new MaximalCliquesWithoutPivot();
+		ff.initGraph(allADDEList, edges);
+		EList<EList<EObject>> maximalCliques = new BasicEList<>();
+		ff.Bron_KerboschPivotExecute(maximalCliques);
 
+		System.out.println("+++++++++++++++++++++++++++clique");
+		maximalCliques.forEach(clique -> {
+			System.out.println(clique);
+		});
+		System.out.println("---------------------------clique");
+		
+		
+		
+		
+		
+		
+	
 	}
-
+	
 	/** 成团 */
-	public static void makeClosure(EList<EObject> allADDEList, EList<Match> allADDMatches) {
+	public static void makeClosure(EList<EObject> allADDEList, EList<Match> allADDMatches, Map<Integer, EList<EObject>> closureMap ) {
 
 		List<Integer> record = new ArrayList<>();
 		record.add(0);
@@ -202,13 +237,14 @@ public class NWay {
 			System.out.println("**********************************************");
 			System.out.println(closure);
 			System.out.println("**********************************************");
+			
 
 			EList<EObject> allADDEListCopy = new BasicEList<>();
 			allADDEListCopy.addAll(allADDEList);
 			allADDEListCopy.removeAll(closure);
 			// 这里递归
 			if (allADDEListCopy.size() > 0) {
-				makeClosure(allADDEListCopy, allADDMatches);
+				makeClosure(allADDEListCopy, allADDMatches, closureMap);
 			}
 
 			return;
@@ -217,6 +253,7 @@ public class NWay {
 		for (int i = 0; i < matchList.size(); i++) {
 
 			if (record.contains(i)) {
+				
 				EList<EObject> closure = new BasicEList<>();
 
 				for (int j = i; j < matchList.size(); j++) {
@@ -241,13 +278,23 @@ public class NWay {
 				System.out.println("**********************************************");
 				System.out.println(closure);
 				System.out.println("**********************************************");
+				
+				// try
+				EList<EObject> closureCopy = new BasicEList<EObject>();
+				closureCopy.addAll(closureCopy);
+				if(closureMap.get(i) == null) {
+					closureMap.put(i, closureCopy);
+				}else {					
+					closureMap.get(i).addAll(closureCopy);
+				}
+			
 
 				EList<EObject> allADDEListCopy = new BasicEList<>();
 				allADDEListCopy.addAll(allADDEList);
 				allADDEListCopy.removeAll(closure);
 				// 这里递归
 				if (allADDEListCopy.size() > 0) {
-					makeClosure(allADDEListCopy, allADDMatches);
+					makeClosure(allADDEListCopy, allADDMatches, closureMap);
 				}
 
 			}
@@ -386,7 +433,7 @@ public class NWay {
 	public void threeWay() {
 
 		URI uriBase = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add.xmi");
-		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add3.xmi");
+		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add1.xmi");
 		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add4.xmi");
 
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
@@ -449,5 +496,41 @@ public class NWay {
 //		assertEquals(0, assertionDifferences.size());
 
 	}
+	
+	// 最小编辑代价
+    public static int minCost(String str1, String str2){
+        if(str1 == null || str2 == null){
+            return 0;
+        }
+
+        char[] chs1 = str1.toCharArray();
+        char[] chs2 = str2.toCharArray();
+
+        int row = str1.length()+1;
+        int col = str2.length()+1;
+        int[][] dp = new int[row][col];
+        // dp矩阵的第一行
+        for(int j=1; j<col; j++){
+            dp[0][j] = j * 1;
+        }
+        // dp矩阵的第一列
+        for(int i=1; i<row; i++){
+            dp[i][0] = i * 1;
+        }
+        // dp[i][j]
+        for(int i=1; i<row; i++){
+            for(int j=1; j<col; j++){
+                if(chs1[i-1] == chs2[j-1]){
+                    dp[i][j] = dp[i-1][j-1];
+                }else{
+                    dp[i][j] = dp[i-1][j-1] + 1;
+                }
+                dp[i][j] = Math.min(dp[i][j], dp[i][j-1]+1);
+                dp[i][j] = Math.min(dp[i][j], dp[i-1][j]+1);
+            }
+        }
+
+        return dp[row-1][col-1];
+    }
 
 }
