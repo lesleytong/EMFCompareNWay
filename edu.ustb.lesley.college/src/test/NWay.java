@@ -9,6 +9,8 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.BasicMonitor;
@@ -209,19 +211,62 @@ public class NWay {
 		EList<EList<EObject>> maximalCliques = new BasicEList<>();
 		ff.Bron_KerboschPivotExecute(maximalCliques);
 
+		// tmp: 打印所有的极大团
 		System.out.println("+++++++++++++++++++++++++++clique");
 		maximalCliques.forEach(clique -> {
 			System.out.println(clique);
 		});
 		System.out.println("---------------------------clique");
 		
+		Map<Integer, Info> map = new HashMap<>();		
+		for(int i=0; i<maximalCliques.size(); i++) {
+			EList<EObject> eList = maximalCliques.get(i);
+			// 总的编辑代价
+			int sumMinCost = sumMinCost(eList);
+			Info info = new Info(eList.size(), sumMinCost);
+			map.put(i, info);
+		}
 		
+		// tmp 打印一下map
+		map.forEach( (key, value)-> {
+			System.out.print("key: " + key);
+			System.out.print(" size: " + value.size);
+			System.out.println(" sumMinCost: " + value.sumMinCost);
+			System.out.println("++++++++++++++++++++");
+		});
 		
 		
 		
 		
 	
 	}
+	
+	/** 总的编辑代价 */
+	public static int sumMinCost(EList<EObject> eList) {
+		
+		int sum = 0;	
+		Matcher m = null;
+		for(int i=0; i<eList.size()-1; i++) {
+			// 提取圆括号里的内容
+	        m = Pattern.compile("\\((.*?)\\)").matcher(eList.get(i).toString());
+	        String str1 = null;
+	        while(m.find()) {
+	            str1 = m.group(1);
+	        }	        
+			for(int j=i+1; j<eList.size(); j++) {
+		        m = Pattern.compile("\\((.*?)\\)").matcher(eList.get(j).toString());
+		        String str2 = null;
+		        while(m.find()) {
+		            str2 = m.group(1);
+		        }				
+		        sum += minCost(str1, str2);	// 调用计算最小编辑代价的方法
+			}
+		}
+		
+		return sum;
+	}
+	
+	
 	
 	/** 成团 */
 	public static void makeClosure(EList<EObject> allADDEList, EList<Match> allADDMatches, Map<Integer, EList<EObject>> closureMap ) {
