@@ -1,6 +1,7 @@
 package test;
 
 import java.util.ArrayList;
+import java.util.Set;
 
 import javax.xml.transform.Source;
 
@@ -83,8 +84,7 @@ public class MaximalCliquesWithoutPivot {
         	V.setX(eObject);
         	graph.add(V);
         });       
-        
-       
+             
         for(int i=0; i<edges.size(); i++) {
         	EObject left = edges.get(i).getLeft();
         	EObject right = edges.get(i).getRight();
@@ -98,8 +98,7 @@ public class MaximalCliquesWithoutPivot {
         			vertexV = v;
         		}
         	}
-        	vertexU.addNbr(vertexV);
-        	
+        	vertexU.addNbr(vertexV);        	
         }
         
     }

@@ -11,6 +11,4 @@
   </persons>
   <persons name="Lina4"
       age="22"/>
-  <persons name="Qilin4"
-      age="22"/>
 </edu.ustb.lesley.college:AddressBook>
