@@ -88,7 +88,7 @@ public class NWay {
 		matchesMap.put(1, comparison.getMatches());
 
 		// 保存类型为ADD的所有diff
-		Map<EObject, Diff> addDiffsMap = new LinkedHashMap<>();
+		Map<EObject, Diff> addDiffsMap = new HashMap<>();
 
 		// 为了处理ADD元素（base与第一个分支的）
 		for (Diff diff : comparison.getDifferences()) {
@@ -181,6 +181,7 @@ public class NWay {
 
 					// 为了之后计算编辑代价，resourceI和resourceJ作为键
 					table.put(resourceI, resourceJ, preMatches);
+					table.put(resourceJ, resourceI, preMatches);	// 由于极大团中节点无序
 
 					IComparisonScope scope = new DefaultComparisonScope(resourceI, resourceJ, null);
 					NWayDefaultMatchEngine engine = (NWayDefaultMatchEngine) NWayDefaultMatchEngine
@@ -207,17 +208,12 @@ public class NWay {
 				}
 			}
 
-			// 根据之前的addDiffsMap拿到新加元素的列表
-			EList<EObject> allADDList = new BasicEList<>();
-			addDiffsMap.forEach((key, value) -> {
-				allADDList.add(key);
-			});
-
-			MaximalCliquesWithoutPivot ff = new MaximalCliquesWithoutPivot();
-			ff.initGraph(allADDList, edges);
+			// BKWithPivot
+			MaximalCliquesWithPivot ff = new MaximalCliquesWithPivot();
+			ff.initGraph(addDiffsMap.keySet(), edges);
 			EList<EList<EObject>> maximalCliques = new BasicEList<>();
 			ff.Bron_KerboschPivotExecute(maximalCliques);
-
+			
 			// tmp: 打印所有的极大团
 			System.out.println("+++++++++++++++++++++++++++clique");
 			maximalCliques.forEach(clique -> {

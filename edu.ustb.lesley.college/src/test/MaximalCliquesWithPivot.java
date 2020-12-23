@@ -1,6 +1,7 @@
 package test;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Set;
 
 import org.eclipse.emf.common.util.BasicEList;
@@ -8,7 +9,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.compare.Match;
 import org.eclipse.emf.ecore.EObject;
 
-public class MaximalCliquesWithoutPivot {
+public class MaximalCliquesWithPivot {
 	
 	ArrayList<Vertex> graph = new ArrayList<Vertex>();
 	
@@ -105,15 +106,16 @@ public class MaximalCliquesWithoutPivot {
         ArrayList<Vertex> X = new ArrayList<Vertex>();
         ArrayList<Vertex> R = new ArrayList<Vertex>();
         ArrayList<Vertex> P = new ArrayList<Vertex>(graph);
-        Bron_KerboschWithoutPivot(R, P, X, "", maximalCliques);
+        Bron_KerboschWithPivot(R, P, X, "", maximalCliques);
     }
-    
-    // Version without a Pivot
-    void Bron_KerboschWithoutPivot(ArrayList<Vertex> R, ArrayList<Vertex> P,
-                                   ArrayList<Vertex> X, String pre, EList<EList<EObject>> maximalCliques) {
+        
+    // Version with a Pivot
+    void Bron_KerboschWithPivot(ArrayList<Vertex> R, ArrayList<Vertex> P,
+                                ArrayList<Vertex> X, String pre, EList<EList<EObject>> maximalCliques) {
 
         System.out.print(pre + " " + printSet(R) + ", " + printSet(P) + ", "
                 + printSet(X));
+        
         if ((P.size() == 0) && (X.size() == 0)) {
             printClique(R);
             // lyt: ±£´æÒ»ÏÂ
@@ -124,13 +126,18 @@ public class MaximalCliquesWithoutPivot {
             maximalCliques.add(eList);            
             return;
         }
+        
         System.out.println();
-
         ArrayList<Vertex> P1 = new ArrayList<Vertex>(P);
-
+        // Find Pivot
+        Vertex u = getMaxDegreeVertex(union(P, X));
+        System.out.println("" + pre + " Pivot is " + (u.x));
+        
+        // P = P \ Nbrs(u)
+        P = removeNbrs(P, u);
         for (Vertex v : P) {
             R.add(v);
-            Bron_KerboschWithoutPivot(R, intersect(P1, getNbrs(v)),
+            Bron_KerboschWithPivot(R, intersect(P1, getNbrs(v)),
                     intersect(X, getNbrs(v)), pre + "\t", maximalCliques);
             R.remove(v);
             P1.remove(v);
@@ -180,4 +187,27 @@ public class MaximalCliquesWithoutPivot {
         arlHold.retainAll(arlSecond);
         return arlHold;
     }
+    
+    // Union of two sets
+    ArrayList<Vertex> union(ArrayList<Vertex> arlFirst,
+                            ArrayList<Vertex> arlSecond) {
+        ArrayList<Vertex> arlHold = new ArrayList<Vertex>(arlFirst);
+        arlHold.addAll(arlSecond);
+        return arlHold;
+    }
+    
+    // get max degree vertex in g
+    Vertex getMaxDegreeVertex(ArrayList<Vertex> g) {
+        Collections.sort(g);
+        return g.get(g.size() - 1);
+    }
+    
+    // Removes the neigbours
+    ArrayList<Vertex> removeNbrs(ArrayList<Vertex> arlFirst, Vertex v) {
+        ArrayList<Vertex> arlHold = new ArrayList<Vertex>(arlFirst);
+        arlHold.removeAll(v.getNbrs());
+        return arlHold;
+    }
+    
+    
 }
