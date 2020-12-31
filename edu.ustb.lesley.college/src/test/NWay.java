@@ -8,15 +8,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.Set;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
-
+import my.ComparisonN;
 import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.BasicMonitor;
 import org.eclipse.emf.common.util.EList;
@@ -27,13 +23,10 @@ import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.DifferenceKind;
 import org.eclipse.emf.compare.EMFCompare;
 import org.eclipse.emf.compare.Match;
-import org.eclipse.emf.compare.conflict.NWayMatchBasedConflictDetector;
 import org.eclipse.emf.compare.internal.spec.ComparisonSpec;
 import org.eclipse.emf.compare.internal.spec.MatchSpec;
 import org.eclipse.emf.compare.internal.spec.ReferenceChangeSpec;
-import org.eclipse.emf.compare.match.NWayDefaultMatchEngine;
 import org.eclipse.emf.compare.match.eobject.EditionDistance;
-import org.eclipse.emf.compare.match.eobject.ProximityEObjectMatcher;
 import org.eclipse.emf.compare.match.eobject.ProximityEObjectMatcher.DistanceFunction;
 import org.eclipse.emf.compare.scope.DefaultComparisonScope;
 import org.eclipse.emf.compare.scope.IComparisonScope;
@@ -125,14 +118,16 @@ public class NWay {
 			comparison.getMatches().addAll(branchComparison.getMatches());
 
 		}
-
+		
+		
+				
 		/** 冲突检测 */
 		// 拿到全局的diffs
 		EList<Diff> diffs = comparison.getDifferences();
 
 		// diffMap
 		Map<EObject, EList<Diff>> diffMap = new HashMap<>();
-		classifyDiffs(diffs, diffMap);
+		groupDiffs(diffs, diffMap);
 
 		// 对每个diff再按照RIGHT source一致的，进行addAll
 		for (Diff diff : diffs) {
@@ -149,6 +144,7 @@ public class NWay {
 		conflicts.forEach(c -> {
 			System.out.println(c.getKind());
 			System.out.println(c.getDifferences());
+			
 		});
 		System.out.println("---------------------------------conflict");
 
@@ -181,7 +177,7 @@ public class NWay {
 
 					// 为了之后计算编辑代价，resourceI和resourceJ作为键
 					table.put(resourceI, resourceJ, preMatches);
-					table.put(resourceJ, resourceI, preMatches);	// 由于极大团中节点无序
+					table.put(resourceJ, resourceI, preMatches); // 由于极大团中节点无序
 
 					IComparisonScope scope = new DefaultComparisonScope(resourceI, resourceJ, null);
 					NWayDefaultMatchEngine engine = (NWayDefaultMatchEngine) NWayDefaultMatchEngine
@@ -213,7 +209,7 @@ public class NWay {
 			ff.initGraph(addDiffsMap.keySet(), edges);
 			EList<EList<EObject>> maximalCliques = new BasicEList<>();
 			ff.Bron_KerboschPivotExecute(maximalCliques);
-			
+
 			// tmp: 打印所有的极大团
 			System.out.println("+++++++++++++++++++++++++++clique");
 			maximalCliques.forEach(clique -> {
@@ -328,8 +324,8 @@ public class NWay {
 
 	}
 
-	/** 将diffs分类 */
-	public static void classifyDiffs(EList<Diff> diffs, Map<EObject, EList<Diff>> diffMap) {
+	/** 将diffs分组 */
+	public static void groupDiffs(EList<Diff> diffs, Map<EObject, EList<Diff>> diffMap) {
 		for (Diff diff : diffs) {
 			EObject right = diff.getMatch().getRight(); // base中的元素
 			if (diffMap.get(right) == null) {
