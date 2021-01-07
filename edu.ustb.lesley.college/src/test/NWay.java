@@ -19,9 +19,7 @@ import my.MatchN;
 import my.impl.ComparisonNImpl;
 import my.impl.MatchNImpl;
 
-import org.eclipse.emf.common.util.BasicEList;
 import org.eclipse.emf.common.util.BasicMonitor;
-import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.TreeIterator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.Comparison;
@@ -65,7 +63,6 @@ public class NWay {
 		URI uriBranch4 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add4.xmi");
 
 		ArrayList<URI> uriList = new ArrayList<>();
-
 		uriList.add(uriBase);
 		uriList.add(uriBranch1);
 		uriList.add(uriBranch2);
@@ -76,11 +73,17 @@ public class NWay {
 		ResourceSet resourceSet = new ResourceSetImpl();
 		resourceSet.getPackageRegistry().put("https://edu/ustb/lesley/college", CollegePackage.eINSTANCE);
 
+		
 		Resource baseResource = resourceSet.getResource(uriList.get(0), true);
 		Resource branchResource1 = resourceSet.getResource(uriList.get(1), true);
+		
+		// 方便传给我们的合并方法
+		ArrayList<Resource> resources = new ArrayList<>();
+		resources.add(baseResource);
+		resources.add(branchResource1);
 
 		// 为了对matches分组存储
-		Map<Integer, EList<Match>> matchesMap = new HashMap<>();
+		Map<Integer, List<Match>> matchesMap = new HashMap<>();
 
 		// 此comparison是第一个分支与base比较的结果，作为全局的comparison，之后会向其中添加信息
 		Comparison comparison = EMFCompare.builder().build()
@@ -104,11 +107,14 @@ public class NWay {
 		Comparison branchComparison = null;
 		for (int i = 2; i < uriList.size(); i++) {
 			Resource branchResource = resourceSet.getResource(uriList.get(i), true);
+			
+			resources.add(branchResource);
+			
 			branchComparison = EMFCompare.builder().build()
 					.compare(new DefaultComparisonScope(branchResource, baseResource, null));
 
 			// base与其它分支的matches
-			EList<Match> branchMatches = new BasicEList<Match>(branchComparison.getMatches());
+			List<Match> branchMatches = new ArrayList<Match>(branchComparison.getMatches());
 			matchesMap.put(i, branchMatches);
 
 			// 为了处理ADD元素（base与其它分支的）
@@ -125,14 +131,14 @@ public class NWay {
 			comparison.getDifferences().addAll(branchComparison.getDifferences());
 
 			// 就这里会把branchComparsion.getMatches都移动到compariosn.getMatches中，也会影响matchesMap
-			// 因此对于matchesMap，我采用了新申请EList
+			// 因此对于matchesMap，我采用了新申请List
 			comparison.getMatches().addAll(branchComparison.getMatches());
 
 		}
 
 		// 用comparisonN保存base与各个分支的元素匹配信息
 		ComparisonN comparisonN = new ComparisonNImpl();
-		Map<EObject, EList<EObject>> haveBaseMap = new HashMap<>();
+		Map<EObject, List<EObject>> haveBaseMap = new HashMap<>();
 		groupMatches(comparison.getMatches(), haveBaseMap);
 		haveBaseMap.forEach((key, value) -> {
 			MatchN matchN = new MatchNImpl();
@@ -143,10 +149,10 @@ public class NWay {
 
 //		/** 冲突检测 - 暂时只能检测出都修改冲突*/
 //		// 拿到全局的diffs
-//		EList<Diff> diffs = comparison.getDifferences();
+//		List<Diff> diffs = comparison.getDifferences();
 //
 //		// diffMap
-//		Map<EObject, EList<Diff>> diffMap = new HashMap<>();
+//		Map<EObject, List<Diff>> diffMap = new HashMap<>();
 //		groupDiffs(diffs, diffMap);
 //
 //		// 对每个diff再按照RIGHT source一致的，进行addAll
@@ -158,7 +164,7 @@ public class NWay {
 //		NWayMatchBasedConflictDetector detector = new NWayMatchBasedConflictDetector();
 //		detector.detect(comparison, new BasicMonitor());
 //
-//		EList<Conflict> conflicts = comparison.getConflicts();
+//		List<Conflict> conflicts = comparison.getConflicts();
 //
 //		System.out.println("+++++++++++++++++++++++++++++++++conflict");
 //		conflicts.forEach(c -> {
@@ -169,29 +175,29 @@ public class NWay {
 //		System.out.println("---------------------------------conflict");
 
 		// 为了之后计算编辑代价
-		Table<Resource, Resource, EList<Match>> table = HashBasedTable.create();
+		Table<Resource, Resource, List<Match>> table = HashBasedTable.create();
 
 		/** ADD元素的匹配 */
-		EList<Match> allADDMatches = new BasicEList<>();
+		List<Match> allADDMatches = new ArrayList<>();
 
 		for (int i = 1; i < uriList.size() - 1; i++) {
 			Resource resourceI = resourceSet.getResource(uriList.get(i), true);
 
 			// 可以拿到base与分支i的匹配信息
-			EList<Match> matchListI = matchesMap.get(i);
+			List<Match> matchListI = matchesMap.get(i);
 
 			for (int j = i + 1; j < uriList.size(); j++) {
 				Resource resourceJ = resourceSet.getResource(uriList.get(j), true);
 				// 可以拿到base与分支j的匹配信息
-				EList<Match> matchListJ = matchesMap.get(j);
+				List<Match> matchListJ = matchesMap.get(j);
 				// 匹配上base中同一元素的分组到一起
-				EList<Match> matchList = new BasicEList<Match>();
+				List<Match> matchList = new ArrayList<Match>();
 				matchList.addAll(matchListI);
 				matchList.addAll(matchListJ);
-				Map<EObject, EList<EObject>> preMap = new HashMap<>();
+				Map<EObject, List<EObject>> preMap = new HashMap<>();
 				groupMatches(matchList, preMap);
 				// 拿到预匹配，有助于ADD元素之后的匹配
-				EList<Match> preMatches = getPreMatches(preMap);
+				List<Match> preMatches = getPreMatches(preMap);
 
 				// 为了之后计算编辑代价，resourceI和resourceJ作为键
 				table.put(resourceI, resourceJ, preMatches);
@@ -210,10 +216,10 @@ public class NWay {
 
 		System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++allADDMatches");
 		printMatches(allADDMatches);
-		System.out.println("-----------------------------------------------allADDMatches");
+		System.out.println("-----------------------------------------------allADDMatches\n");
 
 		/** 成团 */
-		EList<Match> edges = new BasicEList<>();
+		List<Match> edges = new ArrayList<>();
 		for (Match match : allADDMatches) {
 			EObject left = match.getLeft();
 			EObject right = match.getRight();
@@ -225,7 +231,7 @@ public class NWay {
 		// BKWithPivot
 		MaximalCliquesWithPivot ff = new MaximalCliquesWithPivot();
 		ff.initGraph(addDiffsMap.keySet(), edges);
-		EList<EList<EObject>> maximalCliques = new BasicEList<>();
+		List<List<EObject>> maximalCliques = new ArrayList<>();
 		ff.Bron_KerboschPivotExecute(maximalCliques);
 
 		// tmp: 打印所有的极大团
@@ -233,14 +239,14 @@ public class NWay {
 		maximalCliques.forEach(clique -> {
 			System.out.println(clique);
 		});
-		System.out.println("---------------------------clique");
+		System.out.println("---------------------------clique\n");
 
 		// 用EMF Compare自带的编辑距离计算每个极大团的分数
 		Map<Integer, Info> map = new HashMap<>();
 		for (int i = 0; i < maximalCliques.size(); i++) {
-			EList<EObject> eList = maximalCliques.get(i);
-			int sumCost = sumEditionDistance(eList, table); // 这个团总的编辑代价
-			Info info = new Info(eList.size(), sumCost);
+			List<EObject> List = maximalCliques.get(i);
+			int sumCost = sumEditionDistance(List, table); // 这个团总的编辑代价
+			Info info = new Info(List.size(), sumCost);
 			map.put(i, info);
 		}
 
@@ -251,7 +257,7 @@ public class NWay {
 			System.out.print(" size: " + value.size);
 			System.out.println(" sumMinCost: " + value.sumMinCost);
 		});
-		System.out.println("--------------------map");
+		System.out.println("--------------------map\n");
 
 		// 先比较size（值大的排前面），当size相同时再比较sumMinCost（值小的排前面）
 		List<Integer> sortedList = map.entrySet().stream()
@@ -262,13 +268,13 @@ public class NWay {
 		// tmp: 打印sortedList
 		System.out.println("++++++++++++++++++++sortedList");
 		sortedList.forEach(System.out::println);
-		System.out.println("--------------------sortedList");
+		System.out.println("--------------------sortedList\n");
 
 		// 更新sortedList
 		for (int i = 0; i < sortedList.size() - 1; i++) {
-			EList<EObject> preClique = maximalCliques.get(sortedList.get(i));
+			List<EObject> preClique = maximalCliques.get(sortedList.get(i));
 			for (int j = i + 1; j < sortedList.size(); j++) {
-				EList<EObject> sucClique = maximalCliques.get(sortedList.get(j));
+				List<EObject> sucClique = maximalCliques.get(sortedList.get(j));
 				if (Collections.disjoint(preClique, sucClique) == false) { // 如果交集不为空的话
 					sortedList.remove(j);
 					j--; // 由于remove后整体往前移了一个
@@ -279,49 +285,49 @@ public class NWay {
 		// tmp: 打印更新后的sortedList
 		System.out.println("++++++++++++++++++++更新后的sortedList");
 		sortedList.forEach(System.out::println);
-		System.out.println("--------------------更新后的sortedList");
+		System.out.println("--------------------更新后的sortedList\n");
 
 		// 用comparisonN保存一下
 		sortedList.forEach(i -> {
 			// 根据更新后的sortedList对应到maximalCliques中
-			EList<EObject> eList = maximalCliques.get(i);
+			List<EObject> List = maximalCliques.get(i);
 			MatchN matchN = new MatchNImpl();
-			matchN.getBranches().addAll(eList);
+			matchN.getBranches().addAll(List);
 			comparisonN.getMatches().add(matchN);
 		});
 
 //		/** 去掉重复的ADD Diff，因为EMF Compare的merger看的是diffs，之前想的是这里执行EMF Compare的合并方法 */
-//		EList<EObject> removeEObjects = new BasicEList<>();
+//		List<EObject> removeEObjects = new BasicList<>();
 //		for (int i = 0; i < sortedList.size(); i++) {
-//			EList<EObject> clique = maximalCliques.get(sortedList.get(i));
+//			List<EObject> clique = maximalCliques.get(sortedList.get(i));
 //			for (int j = 1; j < clique.size(); j++) {
 //				removeEObjects.add(clique.get(j));
 //			}
 //		}
-//		EList<Diff> removeDiffs = new BasicEList<>();
+//		List<Diff> removeDiffs = new BasicList<>();
 //		removeEObjects.forEach(e -> {
 //			removeDiffs.add(addDiffsMap.get(e));
 //
 //		});
 //
 //		// 更新比较器的diffs
-//		EList<Diff> comparisonDiffs = comparison.getDifferences();
+//		List<Diff> comparisonDiffs = comparison.getDifferences();
 //		comparisonDiffs.removeAll(removeDiffs);
 
-		/** 执行合并 matchN传入我们的合并方法 */
+		/** 执行合并 matchN传入我们的合并方法 */		
+		List<MatchN> matches = comparisonN.getMatches();
+		Runner runner = new Runner();
+		runner.testMerge(resources, matches);
 		
-		// tmp 看一下
-		
-		
-		
+				
 	}
 
 	/** 将diffs分组 */
-	public static void groupDiffs(EList<Diff> diffs, Map<EObject, EList<Diff>> diffMap) {
+	public static void groupDiffs(List<Diff> diffs, Map<EObject, List<Diff>> diffMap) {
 		for (Diff diff : diffs) {
 			EObject right = diff.getMatch().getRight(); // base中的元素
 			if (diffMap.get(right) == null) {
-				EList<Diff> list = new BasicEList<>();
+				List<Diff> list = new ArrayList<>();
 				list.add(diff);
 				diffMap.put(right, list);
 			} else {
@@ -331,17 +337,17 @@ public class NWay {
 	}
 
 	/** 计算团总的编辑代价 */
-	public static int sumEditionDistance(EList<EObject> eList, Table<Resource, Resource, EList<Match>> table) {
+	public static int sumEditionDistance(List<EObject> List, Table<Resource, Resource, List<Match>> table) {
 
 		int sum = 0;
 		DistanceFunction distanceFunction = new EditionDistance();
 
-		for (int i = 0; i < eList.size() - 1; i++) {
-			EObject eObjectI = eList.get(i);
+		for (int i = 0; i < List.size() - 1; i++) {
+			EObject eObjectI = List.get(i);
 			EObject eObjectJ = null;
-			for (int j = i + 1; j < eList.size(); j++) {
-				eObjectJ = eList.get(j);
-				EList<Match> preMatches = table.get(eObjectI.eResource(), eObjectJ.eResource());
+			for (int j = i + 1; j < List.size(); j++) {
+				eObjectJ = List.get(j);
+				List<Match> preMatches = table.get(eObjectI.eResource(), eObjectJ.eResource());
 				Comparison comparisonTmp = new ComparisonSpec();
 				comparisonTmp.getMatches().addAll(preMatches);
 				sum += distanceFunction.distance(comparisonTmp, eObjectI, eObjectJ);
@@ -352,12 +358,12 @@ public class NWay {
 	}
 
 	/** 获得新得到的ADD元素的匹配 */
-	public static void filerADDMatches(EList<Match> allADDMatches, EList<Match> matches, EList<Match> preMatches) {
+	public static void filerADDMatches(List<Match> allADDMatches, List<Match> matches, List<Match> preMatches) {
 		matches.forEach(match -> {
 			if (preMatches.contains(match) == false) {
 				allADDMatches.add(match);
 			}
-			EList<Match> submatches = match.getSubmatches();
+			List<Match> submatches = match.getSubmatches();
 			if (submatches != null) {
 				filerADDMatches(allADDMatches, submatches, preMatches);
 			}
@@ -366,8 +372,8 @@ public class NWay {
 	}
 
 	/** 得到预匹配 */
-	public static EList<Match> getPreMatches(Map<EObject, EList<EObject>> preMap) {
-		EList<Match> preMatches = new BasicEList<>();
+	public static List<Match> getPreMatches(Map<EObject, List<EObject>> preMap) {
+		List<Match> preMatches = new ArrayList<>();
 		preMap.forEach((key, value) -> {
 			for (int i = 0; i < value.size(); i++) {
 				for (int j = i + 1; j < value.size(); j++) {
@@ -383,19 +389,19 @@ public class NWay {
 	}
 
 	/** preMap */
-	public static void groupMatches(EList<Match> matches, Map<EObject, EList<EObject>> preMap) {
+	public static void groupMatches(List<Match> matches, Map<EObject, List<EObject>> preMap) {
 		for (Match match : matches) {
 			EObject right = match.getRight();
 			EObject left = match.getLeft(); // 考虑有删除的情况. 会不会用diff.kind去判断会好些？
 			if (right != null && left != null) {
-				EList<Match> submatches = match.getSubmatches();
+				List<Match> submatches = match.getSubmatches();
 				if (submatches != null) {
 					groupMatches(submatches, preMap); // 递归
 				}
 				if (preMap.get(right) == null) {
-					EList<EObject> eList = new BasicEList<>();
-					eList.add(left);
-					preMap.put(right, eList);
+					List<EObject> List = new ArrayList<>();
+					List.add(left);
+					preMap.put(right, List);
 				} else {
 					preMap.get(right).add(left); // right是base中的元素
 				}
@@ -404,10 +410,10 @@ public class NWay {
 	}
 
 	/** 打印元素匹配的结果 */
-	public static void printMatches(EList<Match> matches) {
+	public static void printMatches(List<Match> matches) {
 		for (Match match : matches) {
 			System.out.println(match);
-			EList<Match> submatches = match.getSubmatches();
+			List<Match> submatches = match.getSubmatches();
 			if (submatches != null) {
 				printMatches(submatches);
 			}
@@ -438,7 +444,7 @@ public class NWay {
 
 		// check the state of every diff before merging
 		System.out.println("\n--------------------------------------diff before merging");
-		EList<Diff> differences = comparison.getDifferences();
+		List<Diff> differences = comparison.getDifferences();
 
 		for (Diff diff : differences) {
 			Match m = diff.getMatch();
@@ -455,7 +461,7 @@ public class NWay {
 
 		// check the conflicts
 		System.out.println("\n--------------------------------------conflicts");
-		EList<Conflict> conflicts = comparison.getConflicts();
+		List<Conflict> conflicts = comparison.getConflicts();
 		for (Conflict c : conflicts) {
 			System.out.println(c.getKind());
 			System.out.println(c.getDifferences());
@@ -488,7 +494,7 @@ public class NWay {
 			// check that models are equal after batch merging
 			scope = new DefaultComparisonScope(branchResource1, branchResource2, null);
 			Comparison assertionComparison = EMFCompare.builder().build().compare(scope);
-			EList<Diff> assertionDifferences = assertionComparison.getDifferences();
+			List<Diff> assertionDifferences = assertionComparison.getDifferences();
 			System.out.println("after batch merging: " + assertionDifferences.size());
 			assertEquals(0, assertionDifferences.size());
 		}

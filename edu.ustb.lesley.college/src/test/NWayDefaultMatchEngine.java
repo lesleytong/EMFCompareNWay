@@ -4,6 +4,7 @@ import static java.util.Collections.emptyIterator;
 
 import java.util.Collection;
 import java.util.Iterator;
+import java.util.List;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.notify.Notifier;
@@ -55,7 +56,7 @@ public class NWayDefaultMatchEngine extends DefaultMatchEngine {
 	}
 
 	// lyt: 新加的方法
-	public Comparison matchN(IComparisonScope scope, EList<Match> preMatches, Monitor monitor) {
+	public Comparison matchN(IComparisonScope scope, List<Match> preMatches, Monitor monitor) {
 		long start = System.currentTimeMillis();
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug(String.format("detect matches - START")); //$NON-NLS-1$

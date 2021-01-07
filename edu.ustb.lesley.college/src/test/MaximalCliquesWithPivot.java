@@ -2,6 +2,7 @@ package test;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 import java.util.Set;
 
 import org.eclipse.emf.common.util.BasicEList;
@@ -76,7 +77,7 @@ public class MaximalCliquesWithPivot {
     }
 	
     // lyt: 需要传入参数
-    void initGraph(Set<EObject> vertices, EList<Match> edges) {
+    void initGraph(Set<EObject> vertices, List<Match> edges) {
         graph.clear();
         vertices.forEach( eObject -> {
         	Vertex V = new Vertex();
@@ -102,7 +103,7 @@ public class MaximalCliquesWithPivot {
         
     }
     
-    void Bron_KerboschPivotExecute(EList<EList<EObject>> maximalCliques) {
+    void Bron_KerboschPivotExecute(List<List<EObject>> maximalCliques) {
         ArrayList<Vertex> X = new ArrayList<Vertex>();
         ArrayList<Vertex> R = new ArrayList<Vertex>();
         ArrayList<Vertex> P = new ArrayList<Vertex>(graph);
@@ -111,7 +112,7 @@ public class MaximalCliquesWithPivot {
         
     // Version with a Pivot
     void Bron_KerboschWithPivot(ArrayList<Vertex> R, ArrayList<Vertex> P,
-                                ArrayList<Vertex> X, String pre, EList<EList<EObject>> maximalCliques) {
+                                ArrayList<Vertex> X, String pre, List<List<EObject>> maximalCliques) {
 
         System.out.print(pre + " " + printSet(R) + ", " + printSet(P) + ", "
                 + printSet(X));
