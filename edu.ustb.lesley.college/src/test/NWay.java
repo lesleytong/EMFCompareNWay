@@ -67,16 +67,15 @@ public class NWay {
 		uriList.add(uriBranch1);
 		uriList.add(uriBranch2);
 		uriList.add(uriBranch3);
-		uriList.add(uriBranch4);
+//		uriList.add(uriBranch4);
 
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 		ResourceSet resourceSet = new ResourceSetImpl();
 		resourceSet.getPackageRegistry().put("https://edu/ustb/lesley/college", CollegePackage.eINSTANCE);
 
-		
 		Resource baseResource = resourceSet.getResource(uriList.get(0), true);
 		Resource branchResource1 = resourceSet.getResource(uriList.get(1), true);
-		
+
 		// 方便传给我们的合并方法
 		ArrayList<Resource> resources = new ArrayList<>();
 		resources.add(baseResource);
@@ -107,9 +106,9 @@ public class NWay {
 		Comparison branchComparison = null;
 		for (int i = 2; i < uriList.size(); i++) {
 			Resource branchResource = resourceSet.getResource(uriList.get(i), true);
-			
+
 			resources.add(branchResource);
-			
+
 			branchComparison = EMFCompare.builder().build()
 					.compare(new DefaultComparisonScope(branchResource, baseResource, null));
 
@@ -147,33 +146,6 @@ public class NWay {
 			comparisonN.getMatches().add(matchN);
 		});
 
-//		/** 冲突检测 - 暂时只能检测出都修改冲突*/
-//		// 拿到全局的diffs
-//		List<Diff> diffs = comparison.getDifferences();
-//
-//		// diffMap
-//		Map<EObject, List<Diff>> diffMap = new HashMap<>();
-//		groupDiffs(diffs, diffMap);
-//
-//		// 对每个diff再按照RIGHT source一致的，进行addAll
-//		for (Diff diff : diffs) {
-//			EObject right = diff.getMatch().getRight();
-//			diff.getMatch().getDifferences().addAll(diffMap.get(right));
-//		}
-//
-//		NWayMatchBasedConflictDetector detector = new NWayMatchBasedConflictDetector();
-//		detector.detect(comparison, new BasicMonitor());
-//
-//		List<Conflict> conflicts = comparison.getConflicts();
-//
-//		System.out.println("+++++++++++++++++++++++++++++++++conflict");
-//		conflicts.forEach(c -> {
-//			System.out.println(c.getKind());
-//			System.out.println(c.getDifferences());
-//			
-//		});
-//		System.out.println("---------------------------------conflict");
-
 		// 为了之后计算编辑代价
 		Table<Resource, Resource, List<Match>> table = HashBasedTable.create();
 
@@ -201,7 +173,7 @@ public class NWay {
 
 				// 为了之后计算编辑代价，resourceI和resourceJ作为键
 				table.put(resourceI, resourceJ, preMatches);
-				table.put(resourceJ, resourceI, preMatches); // 由于极大团中节点无序
+				table.put(resourceJ, resourceI, preMatches); // 方便之后针对极大团中节点无序
 
 				IComparisonScope scope = new DefaultComparisonScope(resourceI, resourceJ, null);
 				NWayDefaultMatchEngine engine = (NWayDefaultMatchEngine) NWayDefaultMatchEngine
@@ -219,121 +191,104 @@ public class NWay {
 		System.out.println("-----------------------------------------------allADDMatches\n");
 
 		/** 成团 */
-		List<Match> edges = new ArrayList<>();
-		for (Match match : allADDMatches) {
-			EObject left = match.getLeft();
-			EObject right = match.getRight();
-			if (left != null && right != null) {
-				edges.add(match);
-			}
-		}
-
-		// BKWithPivot
-		MaximalCliquesWithPivot ff = new MaximalCliquesWithPivot();
-		ff.initGraph(addDiffsMap.keySet(), edges);
-		List<List<EObject>> maximalCliques = new ArrayList<>();
-		ff.Bron_KerboschPivotExecute(maximalCliques);
-
-		// tmp: 打印所有的极大团
-		System.out.println("+++++++++++++++++++++++++++clique");
-		maximalCliques.forEach(clique -> {
-			System.out.println(clique);
-		});
-		System.out.println("---------------------------clique\n");
-
-		// 用EMF Compare自带的编辑距离计算每个极大团的分数
-		Map<Integer, Info> map = new HashMap<>();
-		for (int i = 0; i < maximalCliques.size(); i++) {
-			List<EObject> List = maximalCliques.get(i);
-			int sumCost = sumEditionDistance(List, table); // 这个团总的编辑代价
-			Info info = new Info(List.size(), sumCost);
-			map.put(i, info);
-		}
-
-		// tmp 打印一下map
-		System.out.println("++++++++++++++++++++map");
-		map.forEach((key, value) -> {
-			System.out.print("key: " + key);
-			System.out.print(" size: " + value.size);
-			System.out.println(" sumMinCost: " + value.sumMinCost);
-		});
-		System.out.println("--------------------map\n");
-
-		// 先比较size（值大的排前面），当size相同时再比较sumMinCost（值小的排前面）
-		List<Integer> sortedList = map.entrySet().stream()
-				.sorted(Entry.comparingByValue(
-						Comparator.comparing(Info::getSize).reversed().thenComparing(Info::getMinCost)))
-				.map(Map.Entry::getKey).collect(Collectors.toList());
-
-		// tmp: 打印sortedList
-		System.out.println("++++++++++++++++++++sortedList");
-		sortedList.forEach(System.out::println);
-		System.out.println("--------------------sortedList\n");
-
-		// 更新sortedList
-		for (int i = 0; i < sortedList.size() - 1; i++) {
-			List<EObject> preClique = maximalCliques.get(sortedList.get(i));
-			for (int j = i + 1; j < sortedList.size(); j++) {
-				List<EObject> sucClique = maximalCliques.get(sortedList.get(j));
-				if (Collections.disjoint(preClique, sucClique) == false) { // 如果交集不为空的话
-					sortedList.remove(j);
-					j--; // 由于remove后整体往前移了一个
+		if (allADDMatches.size() > 1) {
+			List<Match> edges = new ArrayList<>();
+			for (Match match : allADDMatches) {
+				EObject left = match.getLeft();
+				EObject right = match.getRight();
+				if (left != null && right != null) {
+					edges.add(match);
 				}
 			}
-		}
 
-		// tmp: 打印更新后的sortedList
-		System.out.println("++++++++++++++++++++更新后的sortedList");
-		sortedList.forEach(System.out::println);
-		System.out.println("--------------------更新后的sortedList\n");
+			// BKWithPivot
+			MaximalCliquesWithPivot ff = new MaximalCliquesWithPivot();
+			ff.initGraph(addDiffsMap.keySet(), edges);
+			List<List<EObject>> maximalCliques = new ArrayList<>();
+			ff.Bron_KerboschPivotExecute(maximalCliques);
 
-		// 用comparisonN保存一下
-		sortedList.forEach(i -> {
-			// 根据更新后的sortedList对应到maximalCliques中
-			List<EObject> List = maximalCliques.get(i);
-			MatchN matchN = new MatchNImpl();
-			matchN.getBranches().addAll(List);
-			comparisonN.getMatches().add(matchN);
-		});
+			// tmp: 打印所有的极大团
+			System.out.println("+++++++++++++++++++++++++++clique");
+			maximalCliques.forEach(clique -> {
+				System.out.println(clique);
+			});
+			System.out.println("---------------------------clique\n");
 
-//		/** 去掉重复的ADD Diff，因为EMF Compare的merger看的是diffs，之前想的是这里执行EMF Compare的合并方法 */
-//		List<EObject> removeEObjects = new BasicList<>();
-//		for (int i = 0; i < sortedList.size(); i++) {
-//			List<EObject> clique = maximalCliques.get(sortedList.get(i));
-//			for (int j = 1; j < clique.size(); j++) {
-//				removeEObjects.add(clique.get(j));
-//			}
-//		}
-//		List<Diff> removeDiffs = new BasicList<>();
-//		removeEObjects.forEach(e -> {
-//			removeDiffs.add(addDiffsMap.get(e));
-//
-//		});
-//
-//		// 更新比较器的diffs
-//		List<Diff> comparisonDiffs = comparison.getDifferences();
-//		comparisonDiffs.removeAll(removeDiffs);
-
-		/** 执行合并 matchN传入我们的合并方法 */		
-		List<MatchN> matches = comparisonN.getMatches();
-		Runner runner = new Runner();
-		runner.testMerge(resources, matches);
-		
-				
-	}
-
-	/** 将diffs分组 */
-	public static void groupDiffs(List<Diff> diffs, Map<EObject, List<Diff>> diffMap) {
-		for (Diff diff : diffs) {
-			EObject right = diff.getMatch().getRight(); // base中的元素
-			if (diffMap.get(right) == null) {
-				List<Diff> list = new ArrayList<>();
-				list.add(diff);
-				diffMap.put(right, list);
-			} else {
-				diffMap.get(right).add(diff);
+			// 用EMF Compare自带的编辑距离计算每个极大团的分数
+			Map<Integer, Info> map = new HashMap<>();
+			for (int i = 0; i < maximalCliques.size(); i++) {
+				List<EObject> List = maximalCliques.get(i);
+				int sumCost = sumEditionDistance(List, table); // 这个团总的编辑代价
+				Info info = new Info(List.size(), sumCost);
+				map.put(i, info);
 			}
+
+			// tmp 打印一下map
+			System.out.println("++++++++++++++++++++map");
+			map.forEach((key, value) -> {
+				System.out.print("key: " + key);
+				System.out.print(" size: " + value.size);
+				System.out.println(" sumMinCost: " + value.sumMinCost);
+			});
+			System.out.println("--------------------map\n");
+
+			// 先比较size（值大的排前面），当size相同时再比较sumMinCost（值小的排前面）
+			List<Integer> sortedList = map.entrySet().stream()
+					.sorted(Entry.comparingByValue(
+							Comparator.comparing(Info::getSize).reversed().thenComparing(Info::getMinCost)))
+					.map(Map.Entry::getKey).collect(Collectors.toList());
+
+			// tmp: 打印sortedList
+			System.out.println("++++++++++++++++++++sortedList");
+			sortedList.forEach(System.out::println);
+			System.out.println("--------------------sortedList\n");
+
+			// 更新sortedList
+			for (int i = 0; i < sortedList.size() - 1; i++) {
+				List<EObject> preClique = maximalCliques.get(sortedList.get(i));
+				for (int j = i + 1; j < sortedList.size(); j++) {
+					List<EObject> sucClique = maximalCliques.get(sortedList.get(j));
+					if (Collections.disjoint(preClique, sucClique) == false) { // 如果交集不为空的话
+						sortedList.remove(j);
+						j--; // 由于remove后整体往前移了一个
+					}
+				}
+			}
+
+			// tmp: 打印更新后的sortedList
+			System.out.println("++++++++++++++++++++更新后的sortedList");
+			sortedList.forEach(System.out::println);
+			System.out.println("--------------------更新后的sortedList\n");
+
+			// 用comparisonN保存一下
+			sortedList.forEach(i -> {
+				// 根据更新后的sortedList对应到maximalCliques中
+				List<EObject> List = maximalCliques.get(i);
+				MatchN matchN = new MatchNImpl();
+				matchN.getBranches().addAll(List);
+				comparisonN.getMatches().add(matchN);
+			});
+		} else if (allADDMatches.size() == 1) {
+			Match match = allADDMatches.get(0);
+			EObject left = match.getLeft();
+			EObject right = match.getRight();
+
+			MatchN matchN = new MatchNImpl();
+			if (left != null) {
+				matchN.getBranches().add(left);
+			}
+			if (right != null) {
+				matchN.getBranches().add(right);
+			}
+			comparisonN.getMatches().add(matchN);
 		}
+
+		/** matchN传入我们的合并方法 */
+		List<MatchN> matches = comparisonN.getMatches();
+		Runner_New runner = new Runner_New();
+//		Runner runner = new Runner();
+		runner.testMerge(resources, matches);
+
 	}
 
 	/** 计算团总的编辑代价 */

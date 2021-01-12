@@ -4,13 +4,10 @@
     xmlns:xmi="http://www.omg.org/XMI"
     xmlns:edu.ustb.lesley.college="https://edu/ustb/lesley/college"
     name="ClassOne">
-  <persons name="Lesley"
-      age="23">
-    <college
-        name="USTB"/>
-  </persons>
-  <persons name="Lina"
+  <persons name="B"
       age="22"/>
-  <persons name="Mars"
+  <persons name="C"
       age="22"/>
+  <persons name="A"
+      age="23"/>
 </edu.ustb.lesley.college:AddressBook>

@@ -66,10 +66,6 @@ public class NWayDefaultMatchEngine extends DefaultMatchEngine {
 
 		comparison.getMatches().addAll(preMatches); // lyt: 实际上就添加了这行
 
-		// // lyt
-		// comparison.getMatches().add(new MatchSpec());
-		// printMatches(preMatches);
-
 		final Notifier left = scope.getLeft();
 		final Notifier right = scope.getRight();
 		final Notifier origin = scope.getOrigin();
@@ -86,16 +82,16 @@ public class NWayDefaultMatchEngine extends DefaultMatchEngine {
 	}
 
 	@Override
-	// 没改动。这个不是必须的，防止又跳转到DefaultMatchEngine
-	protected void match(Comparison comparison, IComparisonScope scope, final Notifier left,
-			final Notifier right, final Notifier origin, Monitor monitor) {
+	// 没改动，这个不是必须的，防止又跳转到DefaultMatchEngine
+	protected void match(Comparison comparison, IComparisonScope scope, final Notifier left, final Notifier right,
+			final Notifier origin, Monitor monitor) {
 		// FIXME side-effect coding
 		if (left instanceof ResourceSet || right instanceof ResourceSet) {
-			match(comparison, scope, (ResourceSet)left, (ResourceSet)right, (ResourceSet)origin, monitor);
+			match(comparison, scope, (ResourceSet) left, (ResourceSet) right, (ResourceSet) origin, monitor);
 		} else if (left instanceof Resource || right instanceof Resource) {
-			match(comparison, scope, (Resource)left, (Resource)right, (Resource)origin, monitor);
+			match(comparison, scope, (Resource) left, (Resource) right, (Resource) origin, monitor);
 		} else if (left instanceof EObject || right instanceof EObject) {
-			match(comparison, scope, (EObject)left, (EObject)right, (EObject)origin, monitor);
+			match(comparison, scope, (EObject) left, (EObject) right, (EObject) origin, monitor);
 		} else {
 			// TODO Cannot happen ... for now. Should we log an exception?
 		}
@@ -103,8 +99,8 @@ public class NWayDefaultMatchEngine extends DefaultMatchEngine {
 
 	@Override
 	// 加了过滤
-	protected void match(Comparison comparison, IComparisonScope scope, Resource left, Resource right,
-			Resource origin, Monitor monitor) {
+	protected void match(Comparison comparison, IComparisonScope scope, Resource left, Resource right, Resource origin,
+			Monitor monitor) {
 		monitor.subTask(EMFCompareMessages.getString("DefaultMatchEngine.monitor.match.resource")); //$NON-NLS-1$
 		// Our "roots" are Resources. Consider them matched
 		final MatchResource match = CompareFactory.eINSTANCE.createMatchResource();
@@ -139,8 +135,8 @@ public class NWayDefaultMatchEngine extends DefaultMatchEngine {
 		// We need at least two resources to match them
 		if (atLeastTwo(left == null, right == null, origin == null)) {
 			/*
-			 * TODO But if we have only one resource, which is then unmatched, should we not still do
-			 * something with it?
+			 * TODO But if we have only one resource, which is then unmatched, should we not
+			 * still do something with it?
 			 */
 			return;
 		}
@@ -199,12 +195,10 @@ public class NWayDefaultMatchEngine extends DefaultMatchEngine {
 				EqualityHelperExtensionProviderDescriptorRegistryImpl.createStandaloneInstance(), null);
 	}
 
-	public static IMatchEngine create(UseIdentifiers useIDs,
-			WeightProvider.Descriptor.Registry weightProviderRegistry,
+	public static IMatchEngine create(UseIdentifiers useIDs, WeightProvider.Descriptor.Registry weightProviderRegistry,
 			EqualityHelperExtensionProvider.Descriptor.Registry equalityHelperExtensionProviderRegistry,
 			Collection<IResourceMatchingStrategy> strategies) {
-		final IComparisonFactory comparisonFactory = new DefaultComparisonFactory(
-				new DefaultEqualityHelperFactory());
+		final IComparisonFactory comparisonFactory = new DefaultComparisonFactory(new DefaultEqualityHelperFactory());
 		final IEObjectMatcher eObjectMatcher = createDefaultEObjectMatcher(useIDs, weightProviderRegistry,
 				equalityHelperExtensionProviderRegistry);
 
@@ -215,20 +209,7 @@ public class NWayDefaultMatchEngine extends DefaultMatchEngine {
 			resourceMatcher = new StrategyResourceMatcher(strategies);
 		}
 
-		final IMatchEngine matchEngine = new NWayDefaultMatchEngine(eObjectMatcher, resourceMatcher,
-				comparisonFactory);
+		final IMatchEngine matchEngine = new NWayDefaultMatchEngine(eObjectMatcher, resourceMatcher, comparisonFactory);
 		return matchEngine;
 	}
-
-	// lyt
-	public static void printMatches(EList<Match> matches) {
-		for (Match match : matches) {
-			System.out.println(match);
-			EList<Match> submatches = match.getSubmatches();
-			if (submatches != null) {
-				printMatches(submatches);
-			}
-		}
-	}
-
 }

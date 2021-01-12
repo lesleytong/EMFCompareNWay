@@ -72,7 +72,7 @@ public class EcoreModelUtilN extends EcoreModelUtil {
 					graph.addValueNode(vn);
 					ValueEdge valueEdge = new ValueEdge(rootNode, vn, propertyEdge);
 					graph.addValueEdge(valueEdge);
-					// lyt - 此ValueEdge需要记录下
+					// record valueEdge
 					valueEdgeTable.put(rootNode, propertyEdge, valueEdge);
 
 				});
@@ -89,7 +89,7 @@ public class EcoreModelUtilN extends EcoreModelUtil {
 					graph.addValueNode(vn);
 					ValueEdge valueEdge = new ValueEdge(rootNode, vn, propertyEdge);
 					graph.addValueEdge(valueEdge);
-					// lyt - 此ValueEdge需要记录下
+					// record valueEdge
 					valueEdgeTable.put(rootNode, propertyEdge, valueEdge);
 
 				}
@@ -103,10 +103,10 @@ public class EcoreModelUtilN extends EcoreModelUtil {
 	private static void addTypedEdges(EObject root, TypeGraph typeGraph, TypedGraph graph,
 			Map<EObject, TypedNode> typedNodeMap, Table<EObject, EReference, TypedEdge> typedEdgeTable) {
 		EClass cls = root.eClass();
-		TypeNode tn = typeGraph.getTypeNode(cls.getName());
+		TypeNode typeNode = typeGraph.getTypeNode(cls.getName());
 
 		cls.getEAllReferences().forEach(r -> {
-			TypeEdge typeEdge = typeGraph.getTypeEdge(tn, r.getName());
+			TypeEdge typeEdge = typeGraph.getTypeEdge(typeNode, r.getName());
 			if (r.isMany()) {
 				Collection<EObject> targets = (Collection<EObject>) root.eGet(r);
 				targets.forEach(t -> {
@@ -117,11 +117,12 @@ public class EcoreModelUtilN extends EcoreModelUtil {
 					} else {
 						TypedEdge typedEdge = new TypedEdge(typedNodeMap.get(root), targetNode, typeEdge);
 						graph.addTypedEdge(typedEdge);
-						// lyt - 此TypedEdge需要记录下					
-						typedEdgeTable.put(t, r, typedEdge);
+						// record typedEdge				
+						typedEdgeTable.put(t, r, typedEdge);	// 考虑不完善：Lina和Lesley，Lina和Mars之间的reference是一致的
 						
-						if (r.isContainment())
+						if (r.isContainment()) {
 							addTypedEdges(t, typeGraph, graph, typedNodeMap, typedEdgeTable);
+						}
 					}
 				});
 			} else {
@@ -134,7 +135,7 @@ public class EcoreModelUtilN extends EcoreModelUtil {
 					} else {
 						TypedEdge typedEdge = new TypedEdge(typedNodeMap.get(root), targetNode, typeEdge);
 						graph.addTypedEdge(typedEdge);
-						// lyt - 此TypedEdge需要记录下
+						// record typedEdge
 						typedEdgeTable.put(t, r, typedEdge);
 
 						if (r.isContainment())
