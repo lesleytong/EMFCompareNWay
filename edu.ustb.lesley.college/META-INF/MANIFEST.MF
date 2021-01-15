@@ -10,7 +10,8 @@ Bundle-Localization: plugin
 Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: college,
  college.impl,
- college.util
+ college.util,
+ test
 Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.emf.ecore;visibility:=reexport,
  org.junit;bundle-version="4.12.0",

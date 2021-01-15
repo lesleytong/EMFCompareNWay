@@ -140,13 +140,22 @@ public interface CollegePackage extends EPackage {
 	int PERSON__AGE = 2;
 
 	/**
+	 * The feature id for the '<em><b>Friends</b></em>' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 * @ordered
+	 */
+	int PERSON__FRIENDS = 3;
+
+	/**
 	 * The number of structural features of the '<em>Person</em>' class.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
 	 * @ordered
 	 */
-	int PERSON_FEATURE_COUNT = 3;
+	int PERSON_FEATURE_COUNT = 4;
 
 	/**
 	 * The number of operations of the '<em>Person</em>' class.
@@ -271,6 +280,17 @@ public interface CollegePackage extends EPackage {
 	EAttribute getPerson_Age();
 
 	/**
+	 * Returns the meta object for the reference list '{@link college.Person#getFriends <em>Friends</em>}'.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the meta object for the reference list '<em>Friends</em>'.
+	 * @see college.Person#getFriends()
+	 * @see #getPerson()
+	 * @generated
+	 */
+	EReference getPerson_Friends();
+
+	/**
 	 * Returns the meta object for class '{@link college.College <em>College</em>}'.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
@@ -373,6 +393,14 @@ public interface CollegePackage extends EPackage {
 		 * @generated
 		 */
 		EAttribute PERSON__AGE = eINSTANCE.getPerson_Age();
+
+		/**
+		 * The meta object literal for the '<em><b>Friends</b></em>' reference list feature.
+		 * <!-- begin-user-doc -->
+		 * <!-- end-user-doc -->
+		 * @generated
+		 */
+		EReference PERSON__FRIENDS = eINSTANCE.getPerson_Friends();
 
 		/**
 		 * The meta object literal for the '{@link college.impl.CollegeImpl <em>College</em>}' class.

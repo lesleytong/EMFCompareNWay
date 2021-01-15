@@ -24,14 +24,12 @@ public class TestCollege {
 		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add1.xmi");
 		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add2.xmi");
 		URI uriBranch3 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add3.xmi");
-		URI uriBranch4 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add4.xmi");
 
 		ArrayList<URI> uriList = new ArrayList<>();
 		uriList.add(uriBase);
 		uriList.add(uriBranch1);
 		uriList.add(uriBranch2);
 		uriList.add(uriBranch3);
-//		uriList.add(uriBranch4);
 		
 		TypeGraph typeGraph = getCollegeTypeGraph();
 		
@@ -62,6 +60,7 @@ public class TestCollege {
 		// TypedEdge
 		typeGraph.declare("@persons:AddressBook->Person*");
 		typeGraph.declare("@college:Person->College*");
+		typeGraph.declare("@friends:Person->Person*");
 		return typeGraph;
 	}
 	

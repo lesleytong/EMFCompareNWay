@@ -77,7 +77,7 @@ public class NWay extends XmuProgram {
 	String mergeModelPath = null;
 	ArrayList<Resource> resources = new ArrayList<>();
 
-	public NWay(String NsURI, EPackageImpl packageImpl, ArrayList<URI> uriList, TypeGraph typeGraph, 
+	public NWay(String NsURI, EPackageImpl packageImpl, ArrayList<URI> uriList, TypeGraph typeGraph,
 			String metaModelPath, String mergeModelPath) {
 		this.NsURI = NsURI;
 		this.packageImpl = packageImpl;
@@ -118,7 +118,10 @@ public class NWay extends XmuProgram {
 			if (diff.getKind() == DifferenceKind.ADD) {
 				ReferenceChangeSpec diffADD = (ReferenceChangeSpec) diff;
 				EObject left = diffADD.getValue();
-				addDiffsMap.put(left, diff); // 保存一下此EObject对应的ADD diff
+				EObject right = diffADD.getMatch().getComparison().getMatch(left).getRight();
+				if (right == null) { // 只有涉及到新加EObject的才能加入到addDiffsMap
+					addDiffsMap.put(left, diff); // 保存一下此EObject对应的ADD diff
+				}
 			}
 		}
 
@@ -170,44 +173,45 @@ public class NWay extends XmuProgram {
 
 		/** ADD元素的匹配 */
 		List<Match> allADDMatches = new ArrayList<>();
+		if (addDiffsMap.size() > 1) {
+			for (int i = 1; i < uriList.size() - 1; i++) {
+				Resource resourceI = resourceSet.getResource(uriList.get(i), true);
 
-		for (int i = 1; i < uriList.size() - 1; i++) {
-			Resource resourceI = resourceSet.getResource(uriList.get(i), true);
+				// 可以拿到base与分支i的匹配信息
+				List<Match> matchListI = matchesMap.get(i);
 
-			// 可以拿到base与分支i的匹配信息
-			List<Match> matchListI = matchesMap.get(i);
+				for (int j = i + 1; j < uriList.size(); j++) {
+					Resource resourceJ = resourceSet.getResource(uriList.get(j), true);
+					// 可以拿到base与分支j的匹配信息
+					List<Match> matchListJ = matchesMap.get(j);
+					// 匹配上base中同一元素的分组到一起
+					List<Match> matchList = new ArrayList<Match>();
+					matchList.addAll(matchListI);
+					matchList.addAll(matchListJ);
+					Map<EObject, List<EObject>> preMap = new HashMap<>();
+					groupMatches(matchList, preMap);
+					// 拿到预匹配，有助于ADD元素之后的匹配
+					List<Match> preMatches = getPreMatches(preMap);
 
-			for (int j = i + 1; j < uriList.size(); j++) {
-				Resource resourceJ = resourceSet.getResource(uriList.get(j), true);
-				// 可以拿到base与分支j的匹配信息
-				List<Match> matchListJ = matchesMap.get(j);
-				// 匹配上base中同一元素的分组到一起
-				List<Match> matchList = new ArrayList<Match>();
-				matchList.addAll(matchListI);
-				matchList.addAll(matchListJ);
-				Map<EObject, List<EObject>> preMap = new HashMap<>();
-				groupMatches(matchList, preMap);
-				// 拿到预匹配，有助于ADD元素之后的匹配
-				List<Match> preMatches = getPreMatches(preMap);
+					// 为了之后计算编辑代价，resourceI和resourceJ作为键
+					table.put(resourceI, resourceJ, preMatches);
+					table.put(resourceJ, resourceI, preMatches); // 方便之后针对极大团中节点无序
 
-				// 为了之后计算编辑代价，resourceI和resourceJ作为键
-				table.put(resourceI, resourceJ, preMatches);
-				table.put(resourceJ, resourceI, preMatches); // 方便之后针对极大团中节点无序
+					IComparisonScope scope = new DefaultComparisonScope(resourceI, resourceJ, null);
+					NWayDefaultMatchEngine engine = (NWayDefaultMatchEngine) NWayDefaultMatchEngine
+							.create(UseIdentifiers.NEVER);
+					Comparison comparisonADD = engine.matchN(scope, preMatches, new BasicMonitor());
 
-				IComparisonScope scope = new DefaultComparisonScope(resourceI, resourceJ, null);
-				NWayDefaultMatchEngine engine = (NWayDefaultMatchEngine) NWayDefaultMatchEngine
-						.create(UseIdentifiers.NEVER);
-				Comparison comparisonADD = engine.matchN(scope, preMatches, new BasicMonitor());
+					// 将新得到的关于ADD元素的匹配，放到allADDMatches中
+					filerADDMatches(allADDMatches, comparisonADD.getMatches(), preMatches);
 
-				// 将新得到的关于ADD元素的匹配，放到allADDMatches中
-				filerADDMatches(allADDMatches, comparisonADD.getMatches(), preMatches);
-
+				}
 			}
-		}
 
-		System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++allADDMatches");
-		printMatches(allADDMatches);
-		System.out.println("-----------------------------------------------allADDMatches\n");
+			System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++allADDMatches");
+			printMatches(allADDMatches);
+			System.out.println("-----------------------------------------------allADDMatches\n");
+		}
 
 		/** 成团 */
 		if (allADDMatches.size() > 1) {
@@ -515,7 +519,7 @@ public class NWay extends XmuProgram {
 			TypedGraph mergeModel = BXMerge3.threeOrder(baseGraph, resultGraph, forceOrd, branchGraphs);
 
 			saveSabModel(URI.createFileURI(mergeModelPath), mergeModel);
-			
+
 			return mergeModel;
 
 		} catch (NothingReturnedException e) {

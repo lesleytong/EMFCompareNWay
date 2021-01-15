@@ -10,7 +10,8 @@
         name="USTB"/>
   </persons>
   <persons name="Lina"
-      age="22"/>
+      age="22"
+      friends="//@persons.0"/>
   <persons name="Mars"
       age="22"/>
 </edu.ustb.lesley.college:AddressBook>

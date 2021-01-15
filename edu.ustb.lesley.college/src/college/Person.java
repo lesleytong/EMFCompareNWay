@@ -18,6 +18,7 @@ import org.eclipse.emf.ecore.EObject;
  *   <li>{@link college.Person#getCollege <em>College</em>}</li>
  *   <li>{@link college.Person#getName <em>Name</em>}</li>
  *   <li>{@link college.Person#getAge <em>Age</em>}</li>
+ *   <li>{@link college.Person#getFriends <em>Friends</em>}</li>
  * </ul>
  *
  * @see college.CollegePackage#getPerson()
@@ -80,5 +81,17 @@ public interface Person extends EObject {
 	 * @generated
 	 */
 	void setAge(int value);
+
+	/**
+	 * Returns the value of the '<em><b>Friends</b></em>' reference list.
+	 * The list contents are of type {@link college.Person}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Friends</em>' reference list.
+	 * @see college.CollegePackage#getPerson_Friends()
+	 * @model
+	 * @generated
+	 */
+	EList<Person> getFriends();
 
 } // Person
