@@ -11,6 +11,6 @@
   </persons>
   <persons name="Lina"
       age="22"/>
-  <persons name="Mars"
+  <persons name="Mars_1"
       age="22"/>
 </edu.ustb.lesley.college:AddressBook>

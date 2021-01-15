@@ -1,18 +1,18 @@
 package test;
 
-import static org.junit.Assert.assertEquals;
-
 /**
  * 扩展EMF Compare
  */
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.logging.Level;
 import java.util.stream.Collectors;
 import my.ComparisonN;
 import my.MatchN;
@@ -20,10 +20,10 @@ import my.impl.ComparisonNImpl;
 import my.impl.MatchNImpl;
 
 import org.eclipse.emf.common.util.BasicMonitor;
-import org.eclipse.emf.common.util.TreeIterator;
+import org.eclipse.emf.common.util.EList;
+import org.eclipse.emf.common.util.Enumerator;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.Comparison;
-import org.eclipse.emf.compare.Conflict;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.DifferenceKind;
 import org.eclipse.emf.compare.EMFCompare;
@@ -33,13 +33,13 @@ import org.eclipse.emf.compare.internal.spec.MatchSpec;
 import org.eclipse.emf.compare.internal.spec.ReferenceChangeSpec;
 import org.eclipse.emf.compare.match.eobject.EditionDistance;
 import org.eclipse.emf.compare.match.eobject.ProximityEObjectMatcher.DistanceFunction;
-import org.eclipse.emf.compare.merge.BatchMerger;
-import org.eclipse.emf.compare.merge.IBatchMerger;
-import org.eclipse.emf.compare.merge.IMerger;
 import org.eclipse.emf.compare.scope.DefaultComparisonScope;
 import org.eclipse.emf.compare.scope.IComparisonScope;
 import org.eclipse.emf.compare.utils.UseIdentifiers;
+import org.eclipse.emf.ecore.EClass;
+import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.impl.EPackageImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -47,37 +47,56 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import org.junit.Test;
 
 import college.CollegePackage;
+import edu.ustb.sei.mde.bxcore.XmuCoreUtils;
+import edu.ustb.sei.mde.bxcore.exceptions.NothingReturnedException;
+import edu.ustb.sei.mde.bxcore.util.EcoreModelUtil;
+import edu.ustb.sei.mde.bxcore.util.XmuProgram;
+import edu.ustb.sei.mde.graph.type.DataTypeNode;
+import edu.ustb.sei.mde.graph.type.PropertyEdge;
+import edu.ustb.sei.mde.graph.type.TypeEdge;
+import edu.ustb.sei.mde.graph.type.TypeGraph;
+import edu.ustb.sei.mde.graph.type.TypeNode;
+import edu.ustb.sei.mde.graph.typedGraph.BXMerge3;
+import edu.ustb.sei.mde.graph.typedGraph.TypedEdge;
+import edu.ustb.sei.mde.graph.typedGraph.TypedGraph;
+import edu.ustb.sei.mde.graph.typedGraph.TypedNode;
+import edu.ustb.sei.mde.graph.typedGraph.ValueEdge;
+import edu.ustb.sei.mde.graph.typedGraph.ValueNode;
+
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
 
 @SuppressWarnings("restriction")
-public class NWay {
+public class NWay extends XmuProgram {
 
-	@Test
-	public void nWay() {
+	String NsURI = null;
+	EPackageImpl packageImpl = null;
+	ArrayList<URI> uriList = null;
+	TypeGraph typeGraph = null;
+	String metaModelPath = null;
+	String mergeModelPath = null;
+	ArrayList<Resource> resources = new ArrayList<>();
 
-		URI uriBase = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add.xmi");
-		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add1.xmi");
-		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add2.xmi");
-		URI uriBranch3 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add3.xmi");
-		URI uriBranch4 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add4.xmi");
+	public NWay(String NsURI, EPackageImpl packageImpl, ArrayList<URI> uriList, TypeGraph typeGraph, 
+			String metaModelPath, String mergeModelPath) {
+		this.NsURI = NsURI;
+		this.packageImpl = packageImpl;
+		this.uriList = uriList;
+		this.typeGraph = typeGraph;
+		this.metaModelPath = metaModelPath;
+		this.mergeModelPath = mergeModelPath;
+	}
 
-		ArrayList<URI> uriList = new ArrayList<>();
-		uriList.add(uriBase);
-		uriList.add(uriBranch1);
-		uriList.add(uriBranch2);
-		uriList.add(uriBranch3);
-//		uriList.add(uriBranch4);
+	public List<MatchN> nMatch() {
 
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 		ResourceSet resourceSet = new ResourceSetImpl();
-		resourceSet.getPackageRegistry().put("https://edu/ustb/lesley/college", CollegePackage.eINSTANCE);
+		resourceSet.getPackageRegistry().put(NsURI, packageImpl);
 
 		Resource baseResource = resourceSet.getResource(uriList.get(0), true);
 		Resource branchResource1 = resourceSet.getResource(uriList.get(1), true);
 
 		// 方便传给我们的合并方法
-		ArrayList<Resource> resources = new ArrayList<>();
 		resources.add(baseResource);
 		resources.add(branchResource1);
 
@@ -285,9 +304,7 @@ public class NWay {
 
 		/** matchN传入我们的合并方法 */
 		List<MatchN> matches = comparisonN.getMatches();
-		Runner_New runner = new Runner_New();
-//		Runner runner = new Runner();
-		runner.testMerge(resources, matches);
+		return matches;
 
 	}
 
@@ -375,84 +392,353 @@ public class NWay {
 		}
 	}
 
-//	 @Test
-	public void threeWay() {
+	/** MatchN传入我们的合并方法，进行diff和merge */
+	public TypedGraph nMerge(List<MatchN> matches) {
 
-		URI uriBase = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add.xmi");
-		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add3.xmi");
-		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add4.xmi");
+		registerCollegePackage(URI.createFileURI(metaModelPath));
 
-		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
-		ResourceSet resourceSet = new ResourceSetImpl();
-		resourceSet.getPackageRegistry().put("https://edu/ustb/lesley/college", CollegePackage.eINSTANCE);
+		Map<Resource, TypedGraph> typedGraphMap = new HashMap<>();
+		HashMap<EObject, TypedNode> typedNodeMap = new HashMap<>();
 
-		Resource baseResource = resourceSet.getResource(uriBase, true);
-		Resource branchResource1 = resourceSet.getResource(uriBranch1, true);
-		Resource branchResource2 = resourceSet.getResource(uriBranch2, true);
+		resources.parallelStream().forEach(r -> {
+			typedGraphMap.put(r, new TypedGraph(typeGraph));
+		});
 
-		IComparisonScope scope = new DefaultComparisonScope(branchResource1, branchResource2, baseResource);
-		Comparison comparison = EMFCompare.builder().build().compare(scope);
+		// MatchN -> new TypedNode
+		for (MatchN m : matches) {
+			EObject base = m.getBase();
 
-		// check every match
-		System.out.println("\n--------------------------------------match before merging");
-		printMatches(comparison.getMatches());
+			EList<EObject> branches = m.getBranches();
+			if (base != null) {
+				// TypedNode
+				EClass cls = base.eClass();
+				TypeNode typeNode = typeGraph.getTypeNode(cls.getName());
+				TypedNode baseNode = new TypedNode(typeNode);
+				TypedGraph baseGraph = typedGraphMap.get(base.eResource());
+				baseGraph.addTypedNode(baseNode);
+				typedNodeMap.put(base, baseNode);
 
-		// check the state of every diff before merging
-		System.out.println("\n--------------------------------------diff before merging");
-		List<Diff> differences = comparison.getDifferences();
+				// ValueEdge and ValueNode
+				Table<PropertyEdge, ValueNode, ValueEdge> valueEdgeTable = HashBasedTable.create();
+				Map<PropertyEdge, ValueEdge> valueEdgeMap = new HashMap<>();
+				addValueEdgesBase(base, baseNode, baseGraph, valueEdgeTable, valueEdgeMap);
 
-		for (Diff diff : differences) {
-			Match m = diff.getMatch();
-			System.out.println("//");
+				for (EObject b : branches) {
+					// TypedNode
+					TypedGraph branchGraph = typedGraphMap.get(b.eResource());
+					branchGraph.addTypedNode(baseNode);
+					typedNodeMap.put(b, baseNode);
 
-			// tmp
-			if (diff instanceof ReferenceChangeSpec) {
-				ReferenceChangeSpec r = (ReferenceChangeSpec) diff;
-				EObject value = r.getValue();
-				Match match = comparison.getMatch(value);
-				System.out.println("//");
+					// ValueEdge and ValueNode
+					addValueEdges(b, baseNode, branchGraph, valueEdgeTable, valueEdgeMap);
+
+				}
+
+			} else { // without base
+				// TypedNode
+				EObject branchFirst = branches.get(0);
+				TypeNode typeNode = typeGraph.getTypeNode(branchFirst.eClass().getName());
+				TypedNode branchFirstNode = new TypedNode(typeNode);
+				TypedGraph branchFirstGraph = typedGraphMap.get(branchFirst.eResource());
+				branchFirstGraph.addTypedNode(branchFirstNode);
+				typedNodeMap.put(branchFirst, branchFirstNode);
+
+				// ValueEdge and ValueNode
+				Table<PropertyEdge, ValueNode, ValueEdge> valueEdgeTable = HashBasedTable.create();
+				Map<PropertyEdge, ValueEdge> valueEdgeMap = new HashMap<>();
+				addValueEdgesBase(branchFirst, branchFirstNode, branchFirstGraph, valueEdgeTable, valueEdgeMap);
+
+				branches.parallelStream().skip(1).forEach(b -> {
+					// TypedNode
+					TypedGraph branchGraph = typedGraphMap.get(b.eResource());
+					branchGraph.addTypedNode(branchFirstNode);
+					typedNodeMap.put(b, branchFirstNode);
+
+					// ValueEdge and ValueNode
+					addValueEdges(b, branchFirstNode, branchGraph, valueEdgeTable, valueEdgeMap);
+
+				});
+
+			}
+
+		}
+
+		// TypedEdge
+		for (MatchN m : matches) {
+			EObject base = m.getBase();
+			EList<EObject> branches = m.getBranches();
+
+			if (base != null) {
+
+				TypedNode baseNode = typedNodeMap.get(base);
+				TypedGraph baseGraph = typedGraphMap.get(base.eResource());
+				// TypedEdge
+				Table<TypedNode, TypedNode, TypedEdge> typedEdgeTable = HashBasedTable.create();
+				addTypedEdgesBase(base, baseNode, baseGraph, typedNodeMap, typedEdgeTable);
+
+				for (EObject b : branches) {
+					TypedGraph branchGraph = typedGraphMap.get(b.eResource());
+
+					// TypedEdge
+					addTypedEdges(b, baseNode, branchGraph, typedNodeMap, typedEdgeTable);
+				}
+
+			} else {
+
+				EObject branchFirst = branches.get(0);
+				TypedNode branchFirstNode = typedNodeMap.get(branchFirst);
+				TypedGraph branchFirstGraph = typedGraphMap.get(branchFirst.eResource());
+
+				// TypedEdge
+				Table<TypedNode, TypedNode, TypedEdge> typedEdgeTable = HashBasedTable.create();
+				addTypedEdgesBase(branchFirst, branchFirstNode, branchFirstGraph, typedNodeMap, typedEdgeTable);
+
+				// TypedEdge
+				branches.parallelStream().skip(1).forEach(b -> {
+					TypedGraph branchGraph = typedGraphMap.get(b.eResource());
+					addTypedEdges(b, branchFirstNode, branchGraph, typedNodeMap, typedEdgeTable);
+				});
+
 			}
 		}
 
-		// check the conflicts
-		System.out.println("\n--------------------------------------conflicts");
-		List<Conflict> conflicts = comparison.getConflicts();
-		for (Conflict c : conflicts) {
-			System.out.println(c.getKind());
-			System.out.println(c.getDifferences());
+		TypedGraph[] branchGraphs = new TypedGraph[resources.size() - 1];
+		for (int i = 1; i < resources.size(); i++) {
+			branchGraphs[i - 1] = typedGraphMap.get(resources.get(i));
 		}
 
-		if (conflicts.size() == 0) {
-			// Let's merge every diff
-			// in fact, three way is also use batch merging
-			IBatchMerger merger = new BatchMerger(IMerger.RegistryImpl.createStandaloneInstance());
-			merger.copyAllLeftToRight(differences, new BasicMonitor()); // 这里直接忽略右边的更改
+		try {
+			TypedGraph baseGraph = typedGraphMap.get(resources.get(0));
+			TypedGraph resultGraph = BXMerge3.merge(baseGraph, branchGraphs);
 
-			System.out.println("\n--------------------------------------diff after merging");
-			for (Diff diff : differences) {
-				System.out.println(diff);
-			}
+			HashMap<TypedEdge, TypedEdge> forceOrd = new HashMap<>();
+			TypedGraph mergeModel = BXMerge3.threeOrder(baseGraph, resultGraph, forceOrd, branchGraphs);
 
-			// check Resource
-			System.out.println("\n--------------------------------------branchResource1");
-			TreeIterator<EObject> allContents = branchResource1.getAllContents();
-			while (allContents.hasNext()) {
-				EObject next = allContents.next();
-				System.out.println(next.toString());
-			}
-			System.out.println("\n--------------------------------------branchResource2");
-			allContents = branchResource2.getAllContents();
-			while (allContents.hasNext()) {
-				EObject next = allContents.next();
-				System.out.println(next.toString());
-			}
-			// check that models are equal after batch merging
-			scope = new DefaultComparisonScope(branchResource1, branchResource2, null);
-			Comparison assertionComparison = EMFCompare.builder().build().compare(scope);
-			List<Diff> assertionDifferences = assertionComparison.getDifferences();
-			System.out.println("after batch merging: " + assertionDifferences.size());
-			assertEquals(0, assertionDifferences.size());
+			saveSabModel(URI.createFileURI(mergeModelPath), mergeModel);
+			
+			return mergeModel;
+
+		} catch (NothingReturnedException e) {
+			e.printStackTrace();
 		}
+		return null;
+
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addTypedEdges(EObject b, TypedNode baseNode, TypedGraph branchGraph,
+			HashMap<EObject, TypedNode> typedNodeMap, Table<TypedNode, TypedNode, TypedEdge> typedEdgeTable) {
+		EClass cls = b.eClass();
+		TypeNode typeNode = typeGraph.getTypeNode(cls.getName());
+
+		cls.getEAllReferences().forEach(r -> {
+			TypeEdge typeEdge = typeGraph.getTypeEdge(typeNode, r.getName());
+			if (r.isMany()) { // multi-reference
+				Collection<EObject> targets = (Collection<EObject>) b.eGet(r);
+				targets.forEach(t -> {
+					TypedNode targetNode = typedNodeMap.get(t);
+					TypedEdge typedEdge = typedEdgeTable.get(baseNode, targetNode);
+					if (typedEdge != null) {
+						branchGraph.addTypedEdge(typedEdge);
+					} else { // 不视作被修改
+						TypedEdge typedEdgeBranch = new TypedEdge(baseNode, targetNode, typeEdge);
+						branchGraph.addTypedEdge(typedEdgeBranch);
+					}
+					if (r.isContainment()) {
+						addTypedEdges(t, baseNode, branchGraph, typedNodeMap, typedEdgeTable);
+					}
+
+				});
+			} else { // single-reference
+				EObject t = (EObject) b.eGet(r);
+				if (t != null) {
+					TypedNode targetNode = typedNodeMap.get(t);
+					TypedEdge typedEdge = typedEdgeTable.get(baseNode, targetNode);
+					if (typedEdge != null) {
+						branchGraph.addTypedEdge(typedEdge);
+					} else { // 也不视作被修改
+						TypedEdge typedEdgeBranch = new TypedEdge(baseNode, targetNode, typeEdge);
+						branchGraph.addTypedEdge(typedEdgeBranch);
+					}
+					if (r.isContainment()) {
+						addTypedEdges(t, baseNode, branchGraph, typedNodeMap, typedEdgeTable);
+					}
+				}
+			}
+		});
+	}
+
+	@SuppressWarnings("unchecked")
+	public void addTypedEdgesBase(EObject base, TypedNode baseNode, TypedGraph baseGraph,
+			HashMap<EObject, TypedNode> typedNodeMap, Table<TypedNode, TypedNode, TypedEdge> typedEdgeTable) {
+		EClass cls = base.eClass();
+		TypeNode typeNode = typeGraph.getTypeNode(cls.getName());
+
+		cls.getEAllReferences().forEach(r -> {
+			TypeEdge typeEdge = typeGraph.getTypeEdge(typeNode, r.getName());
+			if (r.isMany()) { // multi-reference
+				Collection<EObject> targets = (Collection<EObject>) base.eGet(r);
+				targets.forEach(t -> {
+					TypedNode targetNode = typedNodeMap.get(t);
+					if (targetNode == null) {
+						XmuCoreUtils.log(Level.WARNING,
+								"The target node is not registered. The loader will ignore this edge: " + r, null);
+					} else {
+						TypedEdge typedEdge = new TypedEdge(baseNode, targetNode, typeEdge);
+						baseGraph.addTypedEdge(typedEdge);
+						// record typedEdge
+						typedEdgeTable.put(baseNode, targetNode, typedEdge);
+
+						if (r.isContainment()) {
+							addTypedEdgesBase(t, baseNode, baseGraph, typedNodeMap, typedEdgeTable);
+						}
+					}
+				});
+			} else { // single-reference
+				EObject t = (EObject) base.eGet(r);
+				if (t != null) {
+					TypedNode targetNode = typedNodeMap.get(t);
+					if (targetNode == null) {
+						XmuCoreUtils.log(Level.WARNING,
+								"The target node is not registered. The loader will ignore this edge: " + r, null);
+					} else {
+						TypedEdge typedEdge = new TypedEdge(baseNode, targetNode, typeEdge);
+						baseGraph.addTypedEdge(typedEdge);
+						// record typedEdge
+						typedEdgeTable.put(baseNode, targetNode, typedEdge);
+
+						if (r.isContainment()) {
+							addTypedEdgesBase(t, baseNode, baseGraph, typedNodeMap, typedEdgeTable);
+						}
+					}
+				}
+			}
+		});
+	}
+
+	public void addValueEdges(EObject b, TypedNode baseNode, TypedGraph branchGraph,
+			Table<PropertyEdge, ValueNode, ValueEdge> valueEdgeTable, Map<PropertyEdge, ValueEdge> valueEdgeMap) {
+		EClass cls = b.eClass();
+		TypeNode typeNode = typeGraph.getTypeNode(cls.getName());
+
+		cls.getEAllAttributes().forEach(a -> {
+			DataTypeNode dataTypeNode = typeGraph.getDataTypeNode(a.getEAttributeType().getName());
+			PropertyEdge propertyEdge = typeGraph.getPropertyEdge(typeNode, a.getName());
+
+			if (a.isMany()) {
+				@SuppressWarnings("unchecked")
+				Collection<Object> values = (Collection<Object>) b.eGet(a);
+				values.forEach(v -> {
+					if (a.getEAttributeType() instanceof EEnum) {
+						if (v instanceof Enumerator)
+							v = ((Enumerator) v).getLiteral();
+						else
+							v = v.toString();
+					}
+					ValueNode vn = ValueNode.createConstantNode(v, dataTypeNode);
+					ValueEdge valueEdge = valueEdgeTable.get(propertyEdge, vn);
+					if (valueEdge != null) {
+						branchGraph.addValueEdge(valueEdge);
+					} else { // 多值属性不看作被修改
+						branchGraph.addValueNode(vn);
+						ValueEdge branchValueEdge = new ValueEdge(baseNode, vn, propertyEdge);
+						branchGraph.addValueEdge(branchValueEdge);
+					}
+				});
+			} else { // single-valued
+				Object v = b.eGet(a);
+				if (v != null) {
+					if (a.getEAttributeType() instanceof EEnum) {
+						if (v instanceof Enumerator)
+							v = ((Enumerator) v).getLiteral();
+						else
+							v = v.toString();
+					}
+
+					ValueEdge valueEdge = valueEdgeMap.get(propertyEdge);
+					if (valueEdge.getTarget().getValue() == v) {
+						branchGraph.addValueEdge(valueEdge);
+					} else { // 单值属性看作被修改
+						ValueNode vn = ValueNode.createConstantNode(v, dataTypeNode);
+						branchGraph.addValueNode(vn);
+						ValueEdge branchValueEdge = new ValueEdge(baseNode, vn, propertyEdge);
+						branchGraph.addValueEdge(branchValueEdge);
+						// need mergeIndex
+						branchValueEdge.mergeIndex(valueEdge);
+						branchGraph.reindexing(branchValueEdge);
+					}
+				}
+			}
+
+		});
+	}
+
+	// ValueEdge and ValueNode
+	public void addValueEdgesBase(EObject base, TypedNode baseNode, TypedGraph baseGraph,
+			Table<PropertyEdge, ValueNode, ValueEdge> valueEdgeTable, Map<PropertyEdge, ValueEdge> valueEdgeMap) {
+		EClass cls = base.eClass();
+		TypeNode typeNode = typeGraph.getTypeNode(cls.getName());
+
+		cls.getEAllAttributes().forEach(a -> {
+			DataTypeNode dataTypeNode = typeGraph.getDataTypeNode(a.getEAttributeType().getName());
+			PropertyEdge propertyEdge = typeGraph.getPropertyEdge(typeNode, a.getName());
+
+			if (a.isMany()) { // multi-valued
+				@SuppressWarnings("unchecked")
+				Collection<Object> values = (Collection<Object>) base.eGet(a);
+				values.forEach(v -> {
+					if (a.getEAttributeType() instanceof EEnum) {
+						if (v instanceof Enumerator)
+							v = ((Enumerator) v).getLiteral();
+						else
+							v = v.toString();
+					}
+
+					ValueNode vn = ValueNode.createConstantNode(v, dataTypeNode);
+					baseGraph.addValueNode(vn);
+					ValueEdge valueEdge = new ValueEdge(baseNode, vn, propertyEdge);
+					baseGraph.addValueEdge(valueEdge);
+					// record valueEdge
+					valueEdgeTable.put(propertyEdge, vn, valueEdge);
+
+				});
+			} else { // single-valued
+				Object v = base.eGet(a);
+				if (v != null) {
+					if (a.getEAttributeType() instanceof EEnum) {
+						if (v instanceof Enumerator)
+							v = ((Enumerator) v).getLiteral();
+						else
+							v = v.toString();
+					}
+					ValueNode vn = ValueNode.createConstantNode(v, dataTypeNode);
+					baseGraph.addValueNode(vn);
+					ValueEdge valueEdge = new ValueEdge(baseNode, vn, propertyEdge);
+					baseGraph.addValueEdge(valueEdge);
+					// record valueEdge
+					valueEdgeMap.put(propertyEdge, valueEdge);
+
+				}
+			}
+
+		});
+	}
+
+	public void saveSabModel(final URI uri, final TypedGraph graph) throws NothingReturnedException {
+		EcoreModelUtil.save(uri, graph, null, getPackage(NsURI));
+	}
+
+	public void registerCollegePackage(final URI metamodelUri) {
+		registerPackage(NsURI, metamodelUri);
+	}
+
+	public void print(TypedGraph typedGraph) {
+		System.out.println("TypedNodes: " + typedGraph.getAllTypedNodes().toString());
+		System.out.println("TypedEdges: " + typedGraph.getAllTypedEdges().toString());
+		System.out.println("ValueNodes: " + typedGraph.getAllValueNodes().toString());
+		System.out.println("ValueEdges: " + typedGraph.getAllValueEdges().toString());
+		System.out.println("*********************************************************************");
+		System.out.println();
 	}
 
 }
