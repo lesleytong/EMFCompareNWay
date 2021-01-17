@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="ASCII"?>
 <edu.ustb.lesley.college:AddressBook xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:edu.ustb.lesley.college="https://edu/ustb/lesley/college" xsi:schemaLocation="https://edu/ustb/lesley/college ../../model/college.ecore" name="ClassOne">
   <persons name="Lesley" age="23"/>
-  <persons name="Lina" age="22" friends="//@persons.2 //@persons.0"/>
+  <persons name="Lina" age="22" friends="//@persons.2"/>
   <persons name="Mars_1" age="22"/>
 </edu.ustb.lesley.college:AddressBook>

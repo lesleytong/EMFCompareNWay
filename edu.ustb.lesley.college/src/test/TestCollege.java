@@ -8,10 +8,12 @@ import org.eclipse.emf.ecore.impl.EPackageImpl;
 import org.junit.Test;
 
 import college.CollegePackage;
+import edu.ustb.sei.mde.bxcore.exceptions.NothingReturnedException;
 import edu.ustb.sei.mde.graph.type.TypeGraph;
 import edu.ustb.sei.mde.graph.typedGraph.TypedGraph;
 import my.MatchN;
 import nway.NWay;
+import nway.ThreeWayCompare;
 
 public class TestCollege {
 
@@ -30,7 +32,7 @@ public class TestCollege {
 		uriList.add(uriBase);
 		uriList.add(uriBranch1);
 		uriList.add(uriBranch2);
-		uriList.add(uriBranch3);
+//		uriList.add(uriBranch3);
 
 		TypeGraph typeGraph = getCollegeTypeGraph();
 
@@ -40,13 +42,28 @@ public class TestCollege {
 		NWay nWay = new NWay(NsURI, packageImpl, uriList, typeGraph, metaModelPath, mergeModelPath);
 		long start = System.currentTimeMillis();
 		List<MatchN> matches = nWay.nMatch();
-		TypedGraph mergeModel = nWay.nMerge(matches);
 		long end = System.currentTimeMillis();
-		System.out.println("the whole cost time: " + (end - start) + " ms.");
+		System.out.println("match cost time of NWay: " + (end - start) + " ms.");
 		
+		start = System.currentTimeMillis();
+		TypedGraph mergeModel = nWay.nMerge(matches);
+		end = System.currentTimeMillis();
+		System.out.println("merge cost time of NWay: " + (end - start) + " ms.");
 		
 		System.out.println("************************************merge model");
-		nWay.print(mergeModel);
+		nWay.print(mergeModel);		
+		try {
+			nWay.saveModel(URI.createFileURI(mergeModelPath), mergeModel);
+		} catch (NothingReturnedException e) {
+			e.printStackTrace();
+		}
+						
+		ThreeWayCompare t = new ThreeWayCompare(NsURI, packageImpl, uriBase, uriBranch1, uriBranch2);
+		start = System.currentTimeMillis();
+		t.threeWay();
+		end = System.currentTimeMillis();
+		System.out.println("the whole cost time of EMF Compare: " + (end - start) + " ms");
+						
 	}
 
 	public TypeGraph getCollegeTypeGraph() {

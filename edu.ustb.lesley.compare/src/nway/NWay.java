@@ -74,7 +74,7 @@ public class NWay extends XmuProgram {
 	String metaModelPath = null;
 	String mergeModelPath = null;
 	ArrayList<Resource> resources = new ArrayList<>();
-
+	
 	public NWay(String NsURI, EPackageImpl packageImpl, ArrayList<URI> uriList, TypeGraph typeGraph,
 			String metaModelPath, String mergeModelPath) {
 		this.NsURI = NsURI;
@@ -231,13 +231,6 @@ public class NWay extends XmuProgram {
 			List<List<EObject>> maximalCliques = new ArrayList<>();
 			ff.Bron_KerboschPivotExecute(maximalCliques);
 
-			// tmp: 打印所有的极大团
-			System.out.println("+++++++++++++++++++++++++++clique");
-			maximalCliques.forEach(clique -> {
-				System.out.println(clique);
-			});
-			System.out.println("---------------------------clique\n");
-
 			// 用EMF Compare自带的编辑距离计算每个极大团的分数
 			Map<Integer, Info> map = new HashMap<>();
 			for (int i = 0; i < maximalCliques.size(); i++) {
@@ -247,25 +240,11 @@ public class NWay extends XmuProgram {
 				map.put(i, info);
 			}
 
-			// tmp 打印一下map
-			System.out.println("++++++++++++++++++++map");
-			map.forEach((key, value) -> {
-				System.out.print("key: " + key);
-				System.out.print(" size: " + value.size);
-				System.out.println(" sumMinCost: " + value.sumMinCost);
-			});
-			System.out.println("--------------------map\n");
-
 			// 先比较size（值大的排前面），当size相同时再比较sumMinCost（值小的排前面）
 			List<Integer> sortedList = map.entrySet().stream()
 					.sorted(Entry.comparingByValue(
 							Comparator.comparing(Info::getSize).reversed().thenComparing(Info::getMinCost)))
 					.map(Map.Entry::getKey).collect(Collectors.toList());
-
-			// tmp: 打印sortedList
-			System.out.println("++++++++++++++++++++sortedList");
-			sortedList.forEach(System.out::println);
-			System.out.println("--------------------sortedList\n");
 
 			// 更新sortedList
 			for (int i = 0; i < sortedList.size() - 1; i++) {
@@ -278,11 +257,6 @@ public class NWay extends XmuProgram {
 					}
 				}
 			}
-
-			// tmp: 打印更新后的sortedList
-			System.out.println("++++++++++++++++++++更新后的sortedList");
-			sortedList.forEach(System.out::println);
-			System.out.println("--------------------更新后的sortedList\n");
 
 			// 用comparisonN保存一下
 			sortedList.forEach(i -> {
@@ -316,7 +290,7 @@ public class NWay extends XmuProgram {
 	/** MatchN传入我们的合并方法，进行diff和merge */
 	public TypedGraph nMerge(List<MatchN> matches) {
 	
-		registerCollegePackage(URI.createFileURI(metaModelPath));
+		registerPackage(URI.createFileURI(metaModelPath));
 	
 		Map<Resource, TypedGraph> typedGraphMap = new HashMap<>();
 		HashMap<EObject, TypedNode> typedNodeMap = new HashMap<>();
@@ -430,16 +404,10 @@ public class NWay extends XmuProgram {
 	
 		try {
 			TypedGraph baseGraph = typedGraphMap.get(resources.get(0));
-//			long start = System.currentTimeMillis();
 			TypedGraph resultGraph = BXMerge3.merge(baseGraph, branchGraphs);
-//			long end = System.currentTimeMillis();
-//			System.out.println("the whole cost time: " + (end - start) + " ms");
 	
 			HashMap<TypedEdge, TypedEdge> forceOrd = new HashMap<>();
 			TypedGraph mergeModel = BXMerge3.threeOrder(baseGraph, resultGraph, forceOrd, branchGraphs);
-	
-			saveSabModel(URI.createFileURI(mergeModelPath), mergeModel);
-	
 			return mergeModel;
 	
 		} catch (NothingReturnedException e) {
@@ -732,11 +700,12 @@ public class NWay extends XmuProgram {
 		});
 	}
 
-	public void saveSabModel(final URI uri, final TypedGraph graph) throws NothingReturnedException {
-		EcoreModelUtil.save(uri, graph, null, getPackage(NsURI));
+	public void saveModel(final URI uri, final TypedGraph graph) throws NothingReturnedException {
+		EcoreModelUtil.save(uri, graph, null, getPackage(NsURI));		
 	}
+	
 
-	public void registerCollegePackage(final URI metamodelUri) {
+	public void registerPackage(final URI metamodelUri) {
 		registerPackage(NsURI, metamodelUri);
 	}
 
