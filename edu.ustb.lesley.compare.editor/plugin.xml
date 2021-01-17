@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.0"?>
+
+<!--
+-->
+
+<plugin>
+
+   <extension point="org.eclipse.ui.newWizards">
+      <!-- @generated my -->
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="my.presentation.MyModelWizardID"
+            name="%_UI_MyModelWizard_label"
+            class="my.presentation.MyModelWizard"
+            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            icon="icons/full/obj16/MyModelFile.gif">
+         <description>%_UI_MyModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
+
+   <extension point="org.eclipse.ui.editors">
+      <!-- @generated my -->
+      <editor
+            id="my.presentation.MyEditorID"
+            name="%_UI_MyEditor_label"
+            icon="icons/full/obj16/MyModelFile.gif"
+            extensions="my"
+            class="my.presentation.MyEditor"
+            contributorClass="my.presentation.MyActionBarContributor">
+      </editor>
+   </extension>
+
+   <extension point="org.eclipse.ui.newWizards">
+      <!-- @generated my -->
+      <category
+            id="org.eclipse.emf.ecore.Wizard.category.ID"
+            name="%_UI_Wizard_category"/>
+      <wizard
+            id="compare.presentation.CompareModelWizardID"
+            name="%_UI_CompareModelWizard_label"
+            class="compare.presentation.CompareModelWizard"
+            category="org.eclipse.emf.ecore.Wizard.category.ID"
+            icon="icons/full/obj16/CompareModelFile.gif">
+         <description>%_UI_CompareModelWizard_description</description>
+         <selection class="org.eclipse.core.resources.IResource"/>
+      </wizard>
+   </extension>
+
+   <extension point="org.eclipse.ui.editors">
+      <!-- @generated my -->
+      <editor
+            id="compare.presentation.CompareEditorID"
+            name="%_UI_CompareEditor_label"
+            icon="icons/full/obj16/CompareModelFile.gif"
+            extensions="compare"
+            class="compare.presentation.CompareEditor"
+            contributorClass="compare.presentation.CompareActionBarContributor">
+      </editor>
+   </extension>
+
+</plugin>

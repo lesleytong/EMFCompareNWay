@@ -11,15 +11,16 @@ import college.CollegePackage;
 import edu.ustb.sei.mde.graph.type.TypeGraph;
 import edu.ustb.sei.mde.graph.typedGraph.TypedGraph;
 import my.MatchN;
+import nway.NWay;
 
 public class TestCollege {
-	
+
 	@Test
 	public void testMerge() {
-		
+
 		String NsURI = "https://edu/ustb/lesley/college";
 		EPackageImpl packageImpl = (EPackageImpl) CollegePackage.eINSTANCE;
-		
+
 		URI uriBase = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add.xmi");
 		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add1.xmi");
 		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add2.xmi");
@@ -30,19 +31,24 @@ public class TestCollege {
 		uriList.add(uriBranch1);
 		uriList.add(uriBranch2);
 		uriList.add(uriBranch3);
-		
+
 		TypeGraph typeGraph = getCollegeTypeGraph();
-		
+
 		String metaModelPath = "E:/git/n-way/edu.ustb.lesley.college/model/college.ecore";
 		String mergeModelPath = "E:/git/n-way/edu.ustb.lesley.college/src/test/merge.xmi";
-		
+
 		NWay nWay = new NWay(NsURI, packageImpl, uriList, typeGraph, metaModelPath, mergeModelPath);
+		long start = System.currentTimeMillis();
 		List<MatchN> matches = nWay.nMatch();
 		TypedGraph mergeModel = nWay.nMerge(matches);
+		long end = System.currentTimeMillis();
+		System.out.println("the whole cost time: " + (end - start) + " ms.");
+		
+		
 		System.out.println("************************************merge model");
 		nWay.print(mergeModel);
 	}
-	
+
 	public TypeGraph getCollegeTypeGraph() {
 		TypeGraph typeGraph = new TypeGraph();
 		// TypedNode
@@ -63,5 +69,5 @@ public class TestCollege {
 		typeGraph.declare("@friends:Person->Person*");
 		return typeGraph;
 	}
-	
+
 }
