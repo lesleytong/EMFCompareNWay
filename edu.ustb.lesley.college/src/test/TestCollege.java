@@ -44,26 +44,26 @@ public class TestCollege {
 		List<MatchN> matches = nWay.nMatch();
 		long end = System.currentTimeMillis();
 		System.out.println("match cost time of NWay: " + (end - start) + " ms.");
-		
+
 		start = System.currentTimeMillis();
 		TypedGraph mergeModel = nWay.nMerge(matches);
 		end = System.currentTimeMillis();
 		System.out.println("merge cost time of NWay: " + (end - start) + " ms.");
-		
+
 		System.out.println("************************************merge model");
-		nWay.print(mergeModel);		
+		nWay.print(mergeModel);
 		try {
 			nWay.saveModel(URI.createFileURI(mergeModelPath), mergeModel);
 		} catch (NothingReturnedException e) {
 			e.printStackTrace();
 		}
-						
+
 		ThreeWayCompare t = new ThreeWayCompare(NsURI, packageImpl, uriBase, uriBranch1, uriBranch2);
 		start = System.currentTimeMillis();
 		t.threeWay();
 		end = System.currentTimeMillis();
 		System.out.println("the whole cost time of EMF Compare: " + (end - start) + " ms");
-						
+
 	}
 
 	public TypeGraph getCollegeTypeGraph() {

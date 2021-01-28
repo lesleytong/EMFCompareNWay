@@ -21,8 +21,11 @@ Import-Package: edu.ustb.sei.mde.bxcore.exceptions,
  org.eclipse.emf.compare.merge,
  org.eclipse.emf.compare.scope,
  org.eclipse.emf.ecore.impl,
+ org.eclipse.emf.ecore.xmi,
  org.eclipse.emf.ecore.xmi.impl,
+ org.eclipse.ui.internal,
  org.junit;version="4.12.0"
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.16.0",
  org.eclipse.emf.ecore,
- edu.ustb.lesley.compare
+ edu.ustb.lesley.compare,
+ org.eclipse.uml2.uml;bundle-version="5.5.0"

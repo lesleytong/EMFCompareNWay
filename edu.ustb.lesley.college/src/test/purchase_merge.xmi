@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="ASCII"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xsi:schemaLocation="http://www.eclipse.org/emf/2002/Ecore ../../../edu.ustb.lesley.compare/model/Ecore.ecore" name="po" nsURI="http://www.example.com/SimplePO" nsPrefix="po">
+  <eClassifiers xsi:type="ecore:EClass" name="PurchaseOrder" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="shipTo"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="items" upperBound="-1" eType="//@eClassifiers.1" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="billTo"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Item" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="productName"/>
+  </eClassifiers>
+</ecore:EPackage>

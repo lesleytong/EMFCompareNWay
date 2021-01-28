@@ -15,6 +15,7 @@ import java.util.Map.Entry;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.eclipse.emf.common.util.BasicMonitor;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.Enumerator;
@@ -35,7 +36,7 @@ import org.eclipse.emf.compare.utils.UseIdentifiers;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.impl.EPackageImpl;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -68,17 +69,17 @@ import my.impl.MatchNImpl;
 public class NWay extends XmuProgram {
 
 	String NsURI = null;
-	EPackageImpl packageImpl = null;
+	EPackage ep = null;
 	ArrayList<URI> uriList = null;
 	TypeGraph typeGraph = null;
 	String metaModelPath = null;
 	String mergeModelPath = null;
 	ArrayList<Resource> resources = new ArrayList<>();
-	
-	public NWay(String NsURI, EPackageImpl packageImpl, ArrayList<URI> uriList, TypeGraph typeGraph,
-			String metaModelPath, String mergeModelPath) {
+
+	public NWay(String NsURI, EPackage ep, ArrayList<URI> uriList, TypeGraph typeGraph, String metaModelPath,
+			String mergeModelPath) {
 		this.NsURI = NsURI;
-		this.packageImpl = packageImpl;
+		this.ep = ep;
 		this.uriList = uriList;
 		this.typeGraph = typeGraph;
 		this.metaModelPath = metaModelPath;
@@ -89,7 +90,7 @@ public class NWay extends XmuProgram {
 
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 		ResourceSet resourceSet = new ResourceSetImpl();
-		resourceSet.getPackageRegistry().put(NsURI, packageImpl);
+		resourceSet.getPackageRegistry().put(NsURI, ep);
 
 		Resource baseResource = resourceSet.getResource(uriList.get(0), true);
 		Resource branchResource1 = resourceSet.getResource(uriList.get(1), true);
@@ -173,8 +174,12 @@ public class NWay extends XmuProgram {
 		Table<Resource, Resource, List<Match>> table = HashBasedTable.create();
 
 		/** ADD元素的匹配 */
-		List<Match> allADDMatches = new ArrayList<>();
-		if (addDiffsMap.size() > 1) {
+		if (addDiffsMap.size() == 1) {
+			MatchN matchN = new MatchNImpl();
+			matchN.getBranches().add(addDiffsMap.entrySet().stream().findFirst().get().getKey());
+			comparisonN.getMatches().add(matchN);
+		} else {
+			List<Match> allADDMatches = new ArrayList<>();
 			for (int i = 1; i < uriList.size() - 1; i++) {
 				Resource resourceI = resourceSet.getResource(uriList.get(i), true);
 
@@ -209,100 +214,93 @@ public class NWay extends XmuProgram {
 				}
 			}
 
-			System.out.println("+++++++++++++++++++++++++++++++++++++++++++++++allADDMatches");
-			printMatches(allADDMatches);
-			System.out.println("-----------------------------------------------allADDMatches\n");
-		}
-
-		/** 成团 */
-		if (allADDMatches.size() > 1) {
-			List<Match> edges = new ArrayList<>();
-			for (Match match : allADDMatches) {
-				EObject left = match.getLeft();
-				EObject right = match.getRight();
-				if (left != null && right != null) {
-					edges.add(match);
-				}
-			}
-
-			// BKWithPivot
-			MaximalCliquesWithPivot ff = new MaximalCliquesWithPivot();
-			ff.initGraph(addDiffsMap.keySet(), edges);
-			List<List<EObject>> maximalCliques = new ArrayList<>();
-			ff.Bron_KerboschPivotExecute(maximalCliques);
-
-			// 用EMF Compare自带的编辑距离计算每个极大团的分数
-			Map<Integer, Info> map = new HashMap<>();
-			for (int i = 0; i < maximalCliques.size(); i++) {
-				List<EObject> List = maximalCliques.get(i);
-				int sumCost = sumEditionDistance(List, table); // 这个团总的编辑代价
-				Info info = new Info(List.size(), sumCost);
-				map.put(i, info);
-			}
-
-			// 先比较size（值大的排前面），当size相同时再比较sumMinCost（值小的排前面）
-			List<Integer> sortedList = map.entrySet().stream()
-					.sorted(Entry.comparingByValue(
-							Comparator.comparing(Info::getSize).reversed().thenComparing(Info::getMinCost)))
-					.map(Map.Entry::getKey).collect(Collectors.toList());
-
-			// 更新sortedList
-			for (int i = 0; i < sortedList.size() - 1; i++) {
-				List<EObject> preClique = maximalCliques.get(sortedList.get(i));
-				for (int j = i + 1; j < sortedList.size(); j++) {
-					List<EObject> sucClique = maximalCliques.get(sortedList.get(j));
-					if (Collections.disjoint(preClique, sucClique) == false) { // 如果交集不为空的话
-						sortedList.remove(j);
-						j--; // 由于remove后整体往前移了一个
+			/** 成团 */
+			if (allADDMatches.size() > 1) {
+				List<Match> edges = new ArrayList<>();
+				for (Match match : allADDMatches) {
+					EObject left = match.getLeft();
+					EObject right = match.getRight();
+					if (left != null && right != null) {
+						edges.add(match);
 					}
 				}
-			}
 
-			// 用comparisonN保存一下
-			sortedList.forEach(i -> {
-				// 根据更新后的sortedList对应到maximalCliques中
-				List<EObject> List = maximalCliques.get(i);
+				// BKWithPivot
+				MaximalCliquesWithPivot ff = new MaximalCliquesWithPivot();
+				ff.initGraph(addDiffsMap.keySet(), edges);
+				List<List<EObject>> maximalCliques = new ArrayList<>();
+				ff.Bron_KerboschPivotExecute(maximalCliques);
+
+				// 用EMF Compare自带的编辑距离计算每个极大团的分数
+				Map<Integer, Info> map = new HashMap<>();
+				for (int i = 0; i < maximalCliques.size(); i++) {
+					List<EObject> List = maximalCliques.get(i);
+					int sumCost = sumEditionDistance(List, table); // 这个团总的编辑代价
+					Info info = new Info(List.size(), sumCost);
+					map.put(i, info);
+				}
+
+				// 先比较size（值大的排前面），当size相同时再比较sumMinCost（值小的排前面）
+				List<Integer> sortedList = map.entrySet().stream()
+						.sorted(Entry.comparingByValue(
+								Comparator.comparing(Info::getSize).reversed().thenComparing(Info::getMinCost)))
+						.map(Map.Entry::getKey).collect(Collectors.toList());
+
+				// 更新sortedList
+				for (int i = 0; i < sortedList.size() - 1; i++) {
+					List<EObject> preClique = maximalCliques.get(sortedList.get(i));
+					for (int j = i + 1; j < sortedList.size(); j++) {
+						List<EObject> sucClique = maximalCliques.get(sortedList.get(j));
+						if (Collections.disjoint(preClique, sucClique) == false) { // 如果交集不为空的话
+							sortedList.remove(j);
+							j--; // 由于remove后整体往前移了一个
+						}
+					}
+				}
+
+				// 用comparisonN保存一下
+				sortedList.forEach(i -> {
+					// 根据更新后的sortedList对应到maximalCliques中
+					List<EObject> List = maximalCliques.get(i);
+					MatchN matchN = new MatchNImpl();
+					matchN.getBranches().addAll(List);
+					comparisonN.getMatches().add(matchN);
+				});
+			} else if (allADDMatches.size() == 1) {
+				Match match = allADDMatches.get(0);
+				EObject left = match.getLeft();
+				EObject right = match.getRight();
+
 				MatchN matchN = new MatchNImpl();
-				matchN.getBranches().addAll(List);
+				if (left != null) {
+					matchN.getBranches().add(left);
+				}
+				if (right != null) {
+					matchN.getBranches().add(right);
+				}
 				comparisonN.getMatches().add(matchN);
-			});
-		} else if (allADDMatches.size() == 1) {
-			Match match = allADDMatches.get(0);
-			EObject left = match.getLeft();
-			EObject right = match.getRight();
-
-			MatchN matchN = new MatchNImpl();
-			if (left != null) {
-				matchN.getBranches().add(left);
 			}
-			if (right != null) {
-				matchN.getBranches().add(right);
-			}
-			comparisonN.getMatches().add(matchN);
 		}
 
-		/** matchN传入我们的合并方法 */
-		List<MatchN> matches = comparisonN.getMatches();
-		return matches;
-
+		return comparisonN.getMatches();
 	}
 
 	/** MatchN传入我们的合并方法，进行diff和merge */
 	public TypedGraph nMerge(List<MatchN> matches) {
-	
+
 		registerPackage(URI.createFileURI(metaModelPath));
-	
+
 		Map<Resource, TypedGraph> typedGraphMap = new HashMap<>();
 		HashMap<EObject, TypedNode> typedNodeMap = new HashMap<>();
-	
+
 		resources.parallelStream().forEach(r -> {
 			typedGraphMap.put(r, new TypedGraph(typeGraph));
 		});
-	
+
 		// MatchN -> new TypedNode
 		for (MatchN m : matches) {
 			EObject base = m.getBase();
-	
+
 			EList<EObject> branches = m.getBranches();
 			if (base != null) {
 				// TypedNode
@@ -312,23 +310,23 @@ public class NWay extends XmuProgram {
 				TypedGraph baseGraph = typedGraphMap.get(base.eResource());
 				baseGraph.addTypedNode(baseNode);
 				typedNodeMap.put(base, baseNode);
-	
+
 				// ValueEdge and ValueNode
-				Table<PropertyEdge, ValueNode, ValueEdge> valueEdgeTable = HashBasedTable.create();
+				MultiKeyMap multiKeyMap = new MultiKeyMap();
 				Map<PropertyEdge, ValueEdge> valueEdgeMap = new HashMap<>();
-				addValueEdgesBase(base, baseNode, baseGraph, valueEdgeTable, valueEdgeMap);
-	
+				addValueEdgesBase(base, baseNode, baseGraph, multiKeyMap, valueEdgeMap);
+
 				for (EObject b : branches) {
 					// TypedNode
 					TypedGraph branchGraph = typedGraphMap.get(b.eResource());
 					branchGraph.addTypedNode(baseNode);
 					typedNodeMap.put(b, baseNode);
-	
+
 					// ValueEdge and ValueNode
-					addValueEdges(b, baseNode, branchGraph, valueEdgeTable, valueEdgeMap);
-	
+					addValueEdges(b, baseNode, branchGraph, multiKeyMap, valueEdgeMap);
+
 				}
-	
+
 			} else { // without base
 				// TypedNode
 				EObject branchFirst = branches.get(0);
@@ -337,84 +335,88 @@ public class NWay extends XmuProgram {
 				TypedGraph branchFirstGraph = typedGraphMap.get(branchFirst.eResource());
 				branchFirstGraph.addTypedNode(branchFirstNode);
 				typedNodeMap.put(branchFirst, branchFirstNode);
-	
+
 				// ValueEdge and ValueNode
-				Table<PropertyEdge, ValueNode, ValueEdge> valueEdgeTable = HashBasedTable.create();
+				MultiKeyMap multiKeyMap = new MultiKeyMap();
 				Map<PropertyEdge, ValueEdge> valueEdgeMap = new HashMap<>();
-				addValueEdgesBase(branchFirst, branchFirstNode, branchFirstGraph, valueEdgeTable, valueEdgeMap);
-	
+				addValueEdgesBase(branchFirst, branchFirstNode, branchFirstGraph, multiKeyMap, valueEdgeMap);
+
 				branches.parallelStream().skip(1).forEach(b -> {
 					// TypedNode
 					TypedGraph branchGraph = typedGraphMap.get(b.eResource());
 					branchGraph.addTypedNode(branchFirstNode);
 					typedNodeMap.put(b, branchFirstNode);
-	
+
 					// ValueEdge and ValueNode
-					addValueEdges(b, branchFirstNode, branchGraph, valueEdgeTable, valueEdgeMap);
-	
+					addValueEdges(b, branchFirstNode, branchGraph, multiKeyMap, valueEdgeMap);
+
 				});
-	
+
 			}
-	
+
 		}
-	
+
 		// TypedEdge
 		for (MatchN m : matches) {
 			EObject base = m.getBase();
 			EList<EObject> branches = m.getBranches();
-	
+
 			if (base != null) {
-	
+
 				TypedNode baseNode = typedNodeMap.get(base);
 				TypedGraph baseGraph = typedGraphMap.get(base.eResource());
+
 				// TypedEdge
-				Table<TypedNode, TypedNode, TypedEdge> typedEdgeTable = HashBasedTable.create();
-				addTypedEdgesBase(base, baseNode, baseGraph, typedNodeMap, typedEdgeTable);
-	
+				MultiKeyMap multiKeyMap = new MultiKeyMap();
+				addTypedEdgesBase(base, baseNode, baseGraph, typedNodeMap, multiKeyMap);
+
 				for (EObject b : branches) {
 					TypedGraph branchGraph = typedGraphMap.get(b.eResource());
-	
 					// TypedEdge
-					addTypedEdges(b, baseNode, branchGraph, typedNodeMap, typedEdgeTable);
+					addTypedEdges(b, baseNode, branchGraph, typedNodeMap, multiKeyMap);
 				}
-	
+
 			} else {
-	
+
 				EObject branchFirst = branches.get(0);
 				TypedNode branchFirstNode = typedNodeMap.get(branchFirst);
 				TypedGraph branchFirstGraph = typedGraphMap.get(branchFirst.eResource());
-	
+
 				// TypedEdge
-				Table<TypedNode, TypedNode, TypedEdge> typedEdgeTable = HashBasedTable.create();
-				addTypedEdgesBase(branchFirst, branchFirstNode, branchFirstGraph, typedNodeMap, typedEdgeTable);
-	
+				MultiKeyMap multiKeyMap = new MultiKeyMap();
+				addTypedEdgesBase(branchFirst, branchFirstNode, branchFirstGraph, typedNodeMap, multiKeyMap);
+
 				// TypedEdge
 				branches.parallelStream().skip(1).forEach(b -> {
 					TypedGraph branchGraph = typedGraphMap.get(b.eResource());
-					addTypedEdges(b, branchFirstNode, branchGraph, typedNodeMap, typedEdgeTable);
+					addTypedEdges(b, branchFirstNode, branchGraph, typedNodeMap, multiKeyMap);
 				});
-	
+
 			}
 		}
-	
+
+		// tmp
+		System.out.println("//");
+
 		TypedGraph[] branchGraphs = new TypedGraph[resources.size() - 1];
 		for (int i = 1; i < resources.size(); i++) {
 			branchGraphs[i - 1] = typedGraphMap.get(resources.get(i));
 		}
-	
+
 		try {
 			TypedGraph baseGraph = typedGraphMap.get(resources.get(0));
+
 			TypedGraph resultGraph = BXMerge3.merge(baseGraph, branchGraphs);
-	
+
 			HashMap<TypedEdge, TypedEdge> forceOrd = new HashMap<>();
 			TypedGraph mergeModel = BXMerge3.threeOrder(baseGraph, resultGraph, forceOrd, branchGraphs);
 			return mergeModel;
-	
+
 		} catch (NothingReturnedException e) {
 			e.printStackTrace();
 		}
 		return null;
-	
+
 	}
 
 	/** 计算团总的编辑代价 */
@@ -503,7 +505,7 @@ public class NWay extends XmuProgram {
 
 	@SuppressWarnings("unchecked")
 	public void addTypedEdges(EObject b, TypedNode baseNode, TypedGraph branchGraph,
-			HashMap<EObject, TypedNode> typedNodeMap, Table<TypedNode, TypedNode, TypedEdge> typedEdgeTable) {
+			HashMap<EObject, TypedNode> typedNodeMap, MultiKeyMap multiKeyMap) {
 		EClass cls = b.eClass();
 		TypeNode typeNode = typeGraph.getTypeNode(cls.getName());
 
@@ -511,17 +513,25 @@ public class NWay extends XmuProgram {
 			TypeEdge typeEdge = typeGraph.getTypeEdge(typeNode, r.getName());
 			if (r.isMany()) { // multi-reference
 				Collection<EObject> targets = (Collection<EObject>) b.eGet(r);
+
 				targets.forEach(t -> {
 					TypedNode targetNode = typedNodeMap.get(t);
-					TypedEdge typedEdge = typedEdgeTable.get(baseNode, targetNode);
-					if (typedEdge != null) {
-						branchGraph.addTypedEdge(typedEdge);
-					} else { // 不视作被修改
-						TypedEdge typedEdgeBranch = new TypedEdge(baseNode, targetNode, typeEdge);
-						branchGraph.addTypedEdge(typedEdgeBranch);
+
+					if (targetNode != null) {
+						TypedEdge typedEdge = (TypedEdge) multiKeyMap.get(targetNode, typeEdge);
+
+						if (typedEdge != null) {
+							branchGraph.addTypedEdge(typedEdge);
+
+						} else { // 不视作被修改
+
+							TypedEdge typedEdgeBranch = new TypedEdge(baseNode, targetNode, typeEdge);
+							branchGraph.addTypedEdge(typedEdgeBranch);
+						}
 					}
+
 					if (r.isContainment()) {
-						addTypedEdges(t, baseNode, branchGraph, typedNodeMap, typedEdgeTable);
+						addTypedEdges(t, baseNode, branchGraph, typedNodeMap, multiKeyMap);
 					}
 
 				});
@@ -529,15 +539,22 @@ public class NWay extends XmuProgram {
 				EObject t = (EObject) b.eGet(r);
 				if (t != null) {
 					TypedNode targetNode = typedNodeMap.get(t);
-					TypedEdge typedEdge = typedEdgeTable.get(baseNode, targetNode);
-					if (typedEdge != null) {
-						branchGraph.addTypedEdge(typedEdge);
-					} else { // 也不视作被修改
-						TypedEdge typedEdgeBranch = new TypedEdge(baseNode, targetNode, typeEdge);
-						branchGraph.addTypedEdge(typedEdgeBranch);
+
+					if (targetNode != null) {
+						TypedEdge typedEdge = (TypedEdge) multiKeyMap.get(targetNode, typeEdge);
+
+						if (typedEdge != null) {
+							branchGraph.addTypedEdge(typedEdge);
+
+						} else { // 也不视作被修改
+							TypedEdge typedEdgeBranch = new TypedEdge(baseNode, targetNode, typeEdge);
+
+							branchGraph.addTypedEdge(typedEdgeBranch);
+						}
 					}
+
 					if (r.isContainment()) {
-						addTypedEdges(t, baseNode, branchGraph, typedNodeMap, typedEdgeTable);
+						addTypedEdges(t, baseNode, branchGraph, typedNodeMap, multiKeyMap);
 					}
 				}
 			}
@@ -546,14 +563,16 @@ public class NWay extends XmuProgram {
 
 	@SuppressWarnings("unchecked")
 	public void addTypedEdgesBase(EObject base, TypedNode baseNode, TypedGraph baseGraph,
-			HashMap<EObject, TypedNode> typedNodeMap, Table<TypedNode, TypedNode, TypedEdge> typedEdgeTable) {
+			HashMap<EObject, TypedNode> typedNodeMap, MultiKeyMap multiKeyMap) {
 		EClass cls = base.eClass();
 		TypeNode typeNode = typeGraph.getTypeNode(cls.getName());
 
 		cls.getEAllReferences().forEach(r -> {
 			TypeEdge typeEdge = typeGraph.getTypeEdge(typeNode, r.getName());
+
 			if (r.isMany()) { // multi-reference
 				Collection<EObject> targets = (Collection<EObject>) base.eGet(r);
+
 				targets.forEach(t -> {
 					TypedNode targetNode = typedNodeMap.get(t);
 					if (targetNode == null) {
@@ -562,11 +581,12 @@ public class NWay extends XmuProgram {
 					} else {
 						TypedEdge typedEdge = new TypedEdge(baseNode, targetNode, typeEdge);
 						baseGraph.addTypedEdge(typedEdge);
+
 						// record typedEdge
-						typedEdgeTable.put(baseNode, targetNode, typedEdge);
+						multiKeyMap.put(targetNode, typeEdge, typedEdge);
 
 						if (r.isContainment()) {
-							addTypedEdgesBase(t, baseNode, baseGraph, typedNodeMap, typedEdgeTable);
+							addTypedEdgesBase(t, baseNode, baseGraph, typedNodeMap, multiKeyMap);
 						}
 					}
 				});
@@ -581,10 +601,10 @@ public class NWay extends XmuProgram {
 						TypedEdge typedEdge = new TypedEdge(baseNode, targetNode, typeEdge);
 						baseGraph.addTypedEdge(typedEdge);
 						// record typedEdge
-						typedEdgeTable.put(baseNode, targetNode, typedEdge);
+						multiKeyMap.put(targetNode, typeEdge, typedEdge);
 
 						if (r.isContainment()) {
-							addTypedEdgesBase(t, baseNode, baseGraph, typedNodeMap, typedEdgeTable);
+							addTypedEdgesBase(t, baseNode, baseGraph, typedNodeMap, multiKeyMap);
 						}
 					}
 				}
@@ -593,7 +613,7 @@ public class NWay extends XmuProgram {
 	}
 
 	public void addValueEdges(EObject b, TypedNode baseNode, TypedGraph branchGraph,
-			Table<PropertyEdge, ValueNode, ValueEdge> valueEdgeTable, Map<PropertyEdge, ValueEdge> valueEdgeMap) {
+			MultiKeyMap multiKeyMap, Map<PropertyEdge, ValueEdge> valueEdgeMap) {
 		EClass cls = b.eClass();
 		TypeNode typeNode = typeGraph.getTypeNode(cls.getName());
 
@@ -612,7 +632,7 @@ public class NWay extends XmuProgram {
 							v = v.toString();
 					}
 					ValueNode vn = ValueNode.createConstantNode(v, dataTypeNode);
-					ValueEdge valueEdge = valueEdgeTable.get(propertyEdge, vn);
+					ValueEdge valueEdge = (ValueEdge) multiKeyMap.get(vn, propertyEdge);
 					if (valueEdge != null) {
 						branchGraph.addValueEdge(valueEdge);
 					} else { // 多值属性不看作被修改
@@ -651,7 +671,7 @@ public class NWay extends XmuProgram {
 
 	// ValueEdge and ValueNode
 	public void addValueEdgesBase(EObject base, TypedNode baseNode, TypedGraph baseGraph,
-			Table<PropertyEdge, ValueNode, ValueEdge> valueEdgeTable, Map<PropertyEdge, ValueEdge> valueEdgeMap) {
+			MultiKeyMap multiKeyMap, Map<PropertyEdge, ValueEdge> valueEdgeMap) {
 		EClass cls = base.eClass();
 		TypeNode typeNode = typeGraph.getTypeNode(cls.getName());
 
@@ -674,8 +694,9 @@ public class NWay extends XmuProgram {
 					baseGraph.addValueNode(vn);
 					ValueEdge valueEdge = new ValueEdge(baseNode, vn, propertyEdge);
 					baseGraph.addValueEdge(valueEdge);
+
 					// record valueEdge
-					valueEdgeTable.put(propertyEdge, vn, valueEdge);
+					multiKeyMap.put(vn, propertyEdge, valueEdge);
 
 				});
 			} else { // single-valued
@@ -701,9 +722,8 @@ public class NWay extends XmuProgram {
 	}
 
 	public void saveModel(final URI uri, final TypedGraph graph) throws NothingReturnedException {
-		EcoreModelUtil.save(uri, graph, null, getPackage(NsURI));		
+		EcoreModelUtil.save(uri, graph, null, getPackage(NsURI));
 	}
-	
 
 	public void registerPackage(final URI metamodelUri) {
 		registerPackage(NsURI, metamodelUri);
