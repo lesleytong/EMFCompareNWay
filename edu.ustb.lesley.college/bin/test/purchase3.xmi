@@ -12,34 +12,37 @@
       name="PurchaseOrder">
     <eStructuralFeatures
         xsi:type="ecore:EAttribute"
-        name="shipTo">
-      <eType
-          xsi:type="ecore:EDataType"
-          href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    </eStructuralFeatures>
+        name="shipTo"
+        eType="//EString"/>
+    <eStructuralFeatures
+        xsi:type="ecore:EAttribute"
+        name="billTo"
+        eType="//EString"/>
     <eStructuralFeatures
         xsi:type="ecore:EReference"
         name="items"
         upperBound="-1"
         eType="//Item"
         containment="true"/>
-    <eStructuralFeatures
-        xsi:type="ecore:EAttribute"
-        name="billTo">
-      <eType
-          xsi:type="ecore:EDataType"
-          href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    </eStructuralFeatures>
   </eClassifiers>
   <eClassifiers
       xsi:type="ecore:EClass"
       name="Item">
     <eStructuralFeatures
         xsi:type="ecore:EAttribute"
-        name="productName">
-      <eType
-          xsi:type="ecore:EDataType"
-          href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    </eStructuralFeatures>
+        name="a"
+        eType="//EString"/>
+    <eStructuralFeatures
+        xsi:type="ecore:EAttribute"
+        name="c"
+        eType="//EFloat"/>
   </eClassifiers>
+  <eClassifiers
+      xsi:type="ecore:EDataType"
+      name="EString"
+      instanceClassName="java.lang.String"/>
+  <eClassifiers
+      xsi:type="ecore:EDataType"
+      name="EFloat"
+      instanceClassName="float"/>
 </ecore:EPackage>

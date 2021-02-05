@@ -32,12 +32,12 @@ public class TestCollege {
 		uriList.add(uriBase);
 		uriList.add(uriBranch1);
 		uriList.add(uriBranch2);
-//		uriList.add(uriBranch3);
+		uriList.add(uriBranch3);
 
 		TypeGraph typeGraph = getCollegeTypeGraph();
 
 		String metaModelPath = "E:/git/n-way/edu.ustb.lesley.college/model/college.ecore";
-		String mergeModelPath = "E:/git/n-way/edu.ustb.lesley.college/src/test/merge.xmi";
+		String mergeModelPath = "E:/git/n-way/edu.ustb.lesley.college/src/test/college_merge.xmi";
 
 		NWay nWay = new NWay(NsURI, packageImpl, uriList, typeGraph, metaModelPath, mergeModelPath);
 		long start = System.currentTimeMillis();

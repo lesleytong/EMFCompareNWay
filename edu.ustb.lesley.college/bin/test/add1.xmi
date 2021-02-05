@@ -7,11 +7,8 @@
   <persons name="Lesley"
       age="23">
     <college
+        name="AAA"/>
+    <college
         name="USTB"/>
   </persons>
-  <persons name="Lina"
-      age="22"
-      friends="//@persons.2"/>
-  <persons name="Mars_1"
-      age="22"/>
 </edu.ustb.lesley.college:AddressBook>

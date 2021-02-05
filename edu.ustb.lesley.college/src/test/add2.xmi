@@ -5,10 +5,8 @@
     xmlns:edu.ustb.lesley.college="https://edu/ustb/lesley/college"
     name="ClassOne">
   <persons name="Lesley"
-      age="23"/>
-  <persons name="Lina"
-      age="22"
-      friends="//@persons.2"/>
-  <persons name="Mars"
-      age="22"/>
+      age="23">
+    <college
+        name="USTB"/>
+  </persons>
 </edu.ustb.lesley.college:AddressBook>

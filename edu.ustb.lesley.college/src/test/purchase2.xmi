@@ -11,6 +11,14 @@
       xsi:type="ecore:EClass"
       name="PurchaseOrder">
     <eStructuralFeatures
+        xsi:type="ecore:EAttribute"
+        name="shipTo"
+        eType="//EString"/>
+    <eStructuralFeatures
+        xsi:type="ecore:EAttribute"
+        name="billTo"
+        eType="//EString"/>
+    <eStructuralFeatures
         xsi:type="ecore:EReference"
         name="items"
         upperBound="-1"
@@ -22,10 +30,19 @@
       name="Item">
     <eStructuralFeatures
         xsi:type="ecore:EAttribute"
-        name="productName">
-      <eType
-          xsi:type="ecore:EDataType"
-          href="http://www.eclipse.org/emf/2002/Ecore#//EString"/>
-    </eStructuralFeatures>
+        name="a"
+        eType="//EString"/>
+    <eStructuralFeatures
+        xsi:type="ecore:EAttribute"
+        name="b"
+        eType="//EInt"/>
   </eClassifiers>
+  <eClassifiers
+      xsi:type="ecore:EDataType"
+      name="EString"
+      instanceClassName="java.lang.String"/>
+  <eClassifiers
+      xsi:type="ecore:EDataType"
+      name="EInt"
+      instanceClassName="int"/>
 </ecore:EPackage>

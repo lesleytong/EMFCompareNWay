@@ -13,14 +13,10 @@ import my.MatchN;
 import nway.EcoreTypeGraph;
 import nway.NWay;
 
-
-
 public class TestPurchase {
 
 	public static void main(String[] args) {
-		
 
-		
 		String NsURI = EcorePackage.eNS_URI;
 		EcorePackage ep = EcorePackage.eINSTANCE;
 
@@ -34,27 +30,25 @@ public class TestPurchase {
 		uriList.add(uriBranch1);
 		uriList.add(uriBranch2);
 		uriList.add(uriBranch3);
-		
-		EcoreTypeGraph et  = new EcoreTypeGraph();
+
+		EcoreTypeGraph et = new EcoreTypeGraph();
 		TypeGraph typeGraph = et.getTypeGraph_Ecore();
-		
+
 		String metaModelPath = "E:\\git\\n-way\\edu.ustb.lesley.compare\\model\\Ecore.ecore";
 		String mergeModelPath = "E:/git/n-way/edu.ustb.lesley.college/src/test/purchase_merge.xmi";
-		
+
 		NWay nWay = new NWay(NsURI, ep, uriList, typeGraph, metaModelPath, mergeModelPath);
-		List<MatchN> matches = nWay.nMatch();
+		List<MatchN> matches = nWay.nMatch();		
 		TypedGraph mergeModel = nWay.nMerge(matches);
-		
+
 		try {
 			nWay.saveModel(URI.createFileURI(mergeModelPath), mergeModel);
-			
+
 			System.out.println("down");
 		} catch (NothingReturnedException e) {
 			e.printStackTrace();
 		}
-		
-		
-		
+
 	}
 
 }
