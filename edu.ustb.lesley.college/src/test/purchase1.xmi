@@ -12,18 +12,18 @@
       name="PurchaseOrder">
     <eStructuralFeatures
         xsi:type="ecore:EAttribute"
-        name="shipTo"
-        eType="//EString"/>
-    <eStructuralFeatures
-        xsi:type="ecore:EAttribute"
-        name="billTo"
+        name="A"
         eType="//EString"/>
     <eStructuralFeatures
         xsi:type="ecore:EReference"
-        name="items"
+        name="C"
         upperBound="-1"
         eType="//Item"
         containment="true"/>
+    <eStructuralFeatures
+        xsi:type="ecore:EAttribute"
+        name="B"
+        eType="//EString"/>
   </eClassifiers>
   <eClassifiers
       xsi:type="ecore:EClass"
@@ -34,12 +34,12 @@
         eType="//EString"/>
     <eStructuralFeatures
         xsi:type="ecore:EAttribute"
-        name="b"
-        eType="//EInt"/>
-    <eStructuralFeatures
-        xsi:type="ecore:EAttribute"
         name="c"
         eType="//EFloat"/>
+    <eStructuralFeatures
+        xsi:type="ecore:EAttribute"
+        name="b"
+        eType="//EInt"/>
   </eClassifiers>
   <eClassifiers
       xsi:type="ecore:EDataType"

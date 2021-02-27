@@ -6,8 +6,8 @@
     name="ClassOne">
   <persons name="A"
       age="23"/>
-  <persons name="C"
-      age="22"/>
   <persons name="B"
+      age="22"/>
+  <persons name="C"
       age="22"/>
 </edu.ustb.lesley.college:AddressBook>

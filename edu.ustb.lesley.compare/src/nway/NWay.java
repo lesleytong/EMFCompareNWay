@@ -288,13 +288,12 @@ public class NWay extends XmuProgram {
 	}
 
 	/** MatchN传入我们的合并方法，进行diff和merge */
-	public TypedGraph nMerge(List<MatchN> matches) {
+	public TypedGraph nMerge(List<MatchN> matches, String typeEdgeName) {
 
 		registerPackage(URI.createFileURI(metaModelPath));
 
 		Map<Resource, TypedGraph> typedGraphMap = new HashMap<>();
 		HashMap<EObject, TypedNode> typedNodeMap = new HashMap<>();
-		HashMap<EObject, ValueNode> valueNodeMap = new HashMap<>();
 
 		resources.forEach(r -> {
 			typedGraphMap.put(r, new TypedGraph(typeGraph));
@@ -427,16 +426,14 @@ public class NWay extends XmuProgram {
 
 		try {
 			TypedGraph baseGraph = typedGraphMap.get(resources.get(0));
-
+			TypedGraph resultGraph = BXMerge3.mergeSerial(baseGraph, branchGraphs);			
+			
 			// tmp
-			System.out.println("NWay line 431");
-
-			TypedGraph resultGraph = BXMerge3.merge(baseGraph, branchGraphs);
-
-//			HashMap<TypedEdge, TypedEdge> forceOrd = new HashMap<>();
-//			TypedGraph mergeModel = BXMerge3.threeOrder(baseGraph, resultGraph, forceOrd, branchGraphs);
-//			return mergeModel;
-
+			System.out.println("NWay line 432");
+			
+			HashMap<TypedEdge, TypedEdge> forceOrd = new HashMap<>();
+			BXMerge3.topoOrder(baseGraph, resultGraph, forceOrd, typeEdgeName, branchGraphs);
+			
 			return resultGraph;
 
 		} catch (NothingReturnedException e) {
@@ -445,9 +442,10 @@ public class NWay extends XmuProgram {
 		return null;
 
 	}
-
+	
+	
 	/** 计算团总的编辑代价 */
-	public static int sumEditionDistance(List<EObject> List, Table<Resource, Resource, List<Match>> table) {
+	public int sumEditionDistance(List<EObject> List, Table<Resource, Resource, List<Match>> table) {
 
 		int sum = 0;
 		DistanceFunction distanceFunction = new EditionDistance();
@@ -468,7 +466,7 @@ public class NWay extends XmuProgram {
 	}
 
 	/** 获得新得到的ADD元素的匹配 */
-	public static void filerADDMatches(List<Match> allADDMatches, List<Match> matches, List<Match> preMatches) {
+	public void filerADDMatches(List<Match> allADDMatches, List<Match> matches, List<Match> preMatches) {
 		matches.forEach(match -> {
 			if (preMatches.contains(match) == false) {
 				allADDMatches.add(match);
@@ -482,7 +480,7 @@ public class NWay extends XmuProgram {
 	}
 
 	/** 得到预匹配 */
-	public static List<Match> getPreMatches(Map<EObject, List<EObject>> preMap) {
+	public List<Match> getPreMatches(Map<EObject, List<EObject>> preMap) {
 		List<Match> preMatches = new ArrayList<>();
 		preMap.forEach((key, value) -> {
 			for (int i = 0; i < value.size(); i++) {
@@ -499,7 +497,7 @@ public class NWay extends XmuProgram {
 	}
 
 	/** preMap */
-	public static void groupMatches(List<Match> matches, Map<EObject, List<EObject>> preMap) {
+	public void groupMatches(List<Match> matches, Map<EObject, List<EObject>> preMap) {
 		for (Match match : matches) {
 			EObject right = match.getRight();
 			EObject left = match.getLeft(); // 考虑有删除的情况. 会不会用diff.kind去判断会好些？
@@ -520,7 +518,7 @@ public class NWay extends XmuProgram {
 	}
 
 	/** 打印元素匹配的结果 */
-	public static void printMatches(List<Match> matches) {
+	public void printMatches(List<Match> matches) {
 		for (Match match : matches) {
 			System.out.println(match);
 			List<Match> submatches = match.getSubmatches();

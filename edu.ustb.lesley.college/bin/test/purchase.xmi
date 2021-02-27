@@ -12,15 +12,15 @@
       name="PurchaseOrder">
     <eStructuralFeatures
         xsi:type="ecore:EAttribute"
-        name="shipTo"
+        name="A"
         eType="//EString"/>
     <eStructuralFeatures
         xsi:type="ecore:EAttribute"
-        name="billTo"
+        name="B"
         eType="//EString"/>
     <eStructuralFeatures
         xsi:type="ecore:EReference"
-        name="items"
+        name="C"
         upperBound="-1"
         eType="//Item"
         containment="true"/>
@@ -32,9 +32,25 @@
         xsi:type="ecore:EAttribute"
         name="a"
         eType="//EString"/>
+    <eStructuralFeatures
+        xsi:type="ecore:EAttribute"
+        name="b"
+        eType="//EInt"/>
+    <eStructuralFeatures
+        xsi:type="ecore:EAttribute"
+        name="c"
+        eType="//EFloat"/>
   </eClassifiers>
   <eClassifiers
       xsi:type="ecore:EDataType"
       name="EString"
       instanceClassName="java.lang.String"/>
+  <eClassifiers
+      xsi:type="ecore:EDataType"
+      name="EInt"
+      instanceClassName="int"/>
+  <eClassifiers
+      xsi:type="ecore:EDataType"
+      name="EFloat"
+      instanceClassName="float"/>
 </ecore:EPackage>

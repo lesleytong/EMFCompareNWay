@@ -29,7 +29,7 @@ public class TestPurchase {
 		uriList.add(uriBase);
 		uriList.add(uriBranch1);
 		uriList.add(uriBranch2);
-		uriList.add(uriBranch3);
+//		uriList.add(uriBranch3);
 
 		EcoreTypeGraph et = new EcoreTypeGraph();
 		TypeGraph typeGraph = et.getTypeGraph_Ecore();
@@ -39,11 +39,10 @@ public class TestPurchase {
 
 		NWay nWay = new NWay(NsURI, ep, uriList, typeGraph, metaModelPath, mergeModelPath);
 		List<MatchN> matches = nWay.nMatch();		
-		TypedGraph mergeModel = nWay.nMerge(matches);
-
+		TypedGraph mergeModel = nWay.nMerge(matches, "EClass-*->EStructuralFeature");
+				
 		try {
 			nWay.saveModel(URI.createFileURI(mergeModelPath), mergeModel);
-
 			System.out.println("down");
 		} catch (NothingReturnedException e) {
 			e.printStackTrace();
