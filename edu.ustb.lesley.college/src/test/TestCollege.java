@@ -23,16 +23,16 @@ public class TestCollege {
 		String NsURI = "https://edu/ustb/lesley/college";
 		EPackageImpl packageImpl = (EPackageImpl) CollegePackage.eINSTANCE;
 
-		URI uriBase = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add7.xmi");
-		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add8.xmi");
-		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add9.xmi");
+		URI uriBase = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add.xmi");
+		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add1.xmi");
+		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add2.xmi");
 		URI uriBranch3 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add3.xmi");
 
 		ArrayList<URI> uriList = new ArrayList<>();
 		uriList.add(uriBase);
 		uriList.add(uriBranch1);
 		uriList.add(uriBranch2);
-//		uriList.add(uriBranch3);
+		uriList.add(uriBranch3);
 
 		TypeGraph typeGraph = getCollegeTypeGraph();
 

@@ -9,48 +9,17 @@
     nsPrefix="po">
   <eClassifiers
       xsi:type="ecore:EClass"
-      name="PurchaseOrder">
-    <eStructuralFeatures
-        xsi:type="ecore:EAttribute"
-        name="A"
-        eType="//EString"/>
-    <eStructuralFeatures
-        xsi:type="ecore:EReference"
-        name="C"
-        upperBound="-1"
-        eType="//Item"
-        containment="true"/>
-    <eStructuralFeatures
-        xsi:type="ecore:EAttribute"
-        name="B"
-        eType="//EString"/>
-  </eClassifiers>
+      name="PurchaseOrder"/>
   <eClassifiers
       xsi:type="ecore:EClass"
       name="Item">
     <eStructuralFeatures
-        xsi:type="ecore:EAttribute"
-        name="a"
-        eType="//EString"/>
-    <eStructuralFeatures
-        xsi:type="ecore:EAttribute"
-        name="c"
-        eType="//EFloat"/>
-    <eStructuralFeatures
-        xsi:type="ecore:EAttribute"
-        name="b"
-        eType="//EInt"/>
+        xsi:type="ecore:EReference"
+        name="items"
+        upperBound="-1"
+        eType="//Ship"/>
   </eClassifiers>
   <eClassifiers
-      xsi:type="ecore:EDataType"
-      name="EString"
-      instanceClassName="java.lang.String"/>
-  <eClassifiers
-      xsi:type="ecore:EDataType"
-      name="EInt"
-      instanceClassName="int"/>
-  <eClassifiers
-      xsi:type="ecore:EDataType"
-      name="EFloat"
-      instanceClassName="float"/>
+      xsi:type="ecore:EClass"
+      name="Ship"/>
 </ecore:EPackage>

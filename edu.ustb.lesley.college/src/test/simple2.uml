@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_QRPeMF_mEeuXeeIfjMVTCw" name="sim">
+  <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_RfWQEF_mEeuXeeIfjMVTCw" name="String"/>
+  <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_SGuZIF_mEeuXeeIfjMVTCw" name="Integer"/>
+  <packagedElement xmi:type="uml:Class" xmi:id="_V90mgF_mEeuXeeIfjMVTCw" name="AddressBook" visibility="public">
+    <ownedAttribute xmi:id="_XQehMF_mEeuXeeIfjMVTCw" name="name" visibility="public" type="_RfWQEF_mEeuXeeIfjMVTCw">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_XQfIQF_mEeuXeeIfjMVTCw" value="1"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_XQfIQV_mEeuXeeIfjMVTCw" value="1"/>
+    </ownedAttribute>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_coK-oF_mEeuXeeIfjMVTCw" name="Person" visibility="public">
+    <ownedAttribute xmi:id="_d4YCQF_mEeuXeeIfjMVTCw" name="name" visibility="public" type="_RfWQEF_mEeuXeeIfjMVTCw">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_d4YCQV_mEeuXeeIfjMVTCw" value="1"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_d4YCQl_mEeuXeeIfjMVTCw" value="1"/>
+    </ownedAttribute>
+    <ownedAttribute xmi:id="_fnoZYF_mEeuXeeIfjMVTCw" name="age" visibility="public" type="_SGuZIF_mEeuXeeIfjMVTCw">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_fnpAcF_mEeuXeeIfjMVTCw"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_fnpAcV_mEeuXeeIfjMVTCw" value="1"/>
+    </ownedAttribute>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_AkD-MF_nEeuXeeIfjMVTCw" memberEnd="_AkD-MV_nEeuXeeIfjMVTCw _AkElQl_nEeuXeeIfjMVTCw" navigableOwnedEnd="_AkElQl_nEeuXeeIfjMVTCw">
+    <ownedEnd xmi:id="_AkD-MV_nEeuXeeIfjMVTCw" name="addressBooks" type="_V90mgF_mEeuXeeIfjMVTCw" association="_AkD-MF_nEeuXeeIfjMVTCw">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_AkElQF_nEeuXeeIfjMVTCw"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_AkElQV_nEeuXeeIfjMVTCw" value="1"/>
+    </ownedEnd>
+    <ownedEnd xmi:id="_AkElQl_nEeuXeeIfjMVTCw" name="persons" type="_coK-oF_mEeuXeeIfjMVTCw" aggregation="composite" association="_AkD-MF_nEeuXeeIfjMVTCw">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_AkElQ1_nEeuXeeIfjMVTCw"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_AkElRF_nEeuXeeIfjMVTCw" value="*"/>
+    </ownedEnd>
+  </packagedElement>
+</uml:Model>

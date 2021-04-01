@@ -13,29 +13,29 @@ import my.MatchN;
 import nway.EcoreTypeGraph;
 import nway.NWay;
 
-public class TestPurchase {
+public class TestSimple {
 
 	public static void main(String[] args) {
 
 		String NsURI = EcorePackage.eNS_URI;
 		EcorePackage ep = EcorePackage.eINSTANCE;
 
-		URI uriBase = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/purchase.xmi");
-		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/purchase1.xmi");
-		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/purchase2.xmi");
-		URI uriBranch3 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/purchase3.xmi");
+		URI uriBase = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/simple.uml");
+		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/simple1.uml");
+		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/simple2.uml");
+		URI uriBranch3 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/simple3.uml");
 
 		ArrayList<URI> uriList = new ArrayList<>();
 		uriList.add(uriBase);
 		uriList.add(uriBranch1);
 		uriList.add(uriBranch2);
-		uriList.add(uriBranch3);
+//		uriList.add(uriBranch3);
 
 		EcoreTypeGraph et = new EcoreTypeGraph();
 		TypeGraph typeGraph = et.getTypeGraph_Ecore();
 
 		String metaModelPath = "E:\\git\\n-way\\edu.ustb.lesley.compare\\model\\Ecore.ecore";
-		String mergeModelPath = "E:/git/n-way/edu.ustb.lesley.college/src/test/purchase_merge.xmi";
+		String mergeModelPath = "E:/git/n-way/edu.ustb.lesley.college/src/test/simple_merge.uml";
 
 		NWay nWay = new NWay(NsURI, ep, uriList, typeGraph, metaModelPath, mergeModelPath);
 		List<MatchN> matches = nWay.nMatch();		
