@@ -93,7 +93,7 @@ public class NWay extends XmuProgram {
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 		ResourceSet resourceSet = new ResourceSetImpl();
 		resourceSet.getPackageRegistry().put(NsURI, ep);
-		
+
 		Resource baseResource = resourceSet.getResource(uriList.get(0), true);
 		Resource branchResource1 = resourceSet.getResource(uriList.get(1), true);
 
@@ -308,7 +308,7 @@ public class NWay extends XmuProgram {
 				// TypedNode
 				EClass cls = base.eClass();
 				TypeNode typeNode = typeGraph.getTypeNode(cls.getName());
-				TypedNode baseNode = new TypedNode(typeNode);
+				final TypedNode baseNode = new TypedNode(typeNode);
 				TypedGraph baseGraph = typedGraphMap.get(base.eResource());
 				baseGraph.addTypedNode(baseNode);
 				typedNodeMap.put(base, baseNode);
@@ -368,7 +368,7 @@ public class NWay extends XmuProgram {
 
 			}
 
-		}		
+		}
 
 		// TypedEdge
 		for (MatchN m : matches) {
@@ -384,15 +384,15 @@ public class NWay extends XmuProgram {
 				MultiKeyMap multiKeyMap = new MultiKeyMap();
 				MultiKeyMap typedEdgeMap = new MultiKeyMap();
 				addTypedEdgesBase(base, baseNode, baseGraph, typedNodeMap, multiKeyMap, typedEdgeMap);
-				
+
 				for (EObject b : branches) {
 					TypedGraph branchGraph = typedGraphMap.get(b.eResource());
 					// TypedEdge
 					addTypedEdges(b, baseNode, branchGraph, typedNodeMap, multiKeyMap, typedEdgeMap);
 				}
-				
+
 			} else {
-				
+
 				EObject branchFirst = branches.get(0);
 				TypedNode branchFirstNode = typedNodeMap.get(branchFirst);
 				TypedGraph branchFirstGraph = typedGraphMap.get(branchFirst.eResource());
@@ -402,7 +402,7 @@ public class NWay extends XmuProgram {
 				MultiKeyMap typedEdgeMap = new MultiKeyMap();
 				addTypedEdgesBase(branchFirst, branchFirstNode, branchFirstGraph, typedNodeMap, multiKeyMap,
 						typedEdgeMap);
-				
+
 				// 不用parallelStream
 				for (int i = 1; i < branches.size(); i++) {
 					EObject b = branches.get(i);
@@ -418,30 +418,30 @@ public class NWay extends XmuProgram {
 
 			}
 		}
-		
+
 		try {
-			
-			TypedGraph baseGraph = typedGraphMap.get(resources.get(0));		
+
+			TypedGraph baseGraph = typedGraphMap.get(resources.get(0));
 			System.out.println("baseGraph: ");
 			print(baseGraph);
-			
+
 			TypedGraph[] branchGraphs = new TypedGraph[resources.size() - 1];
 			for (int i = 1; i < resources.size(); i++) {
 				branchGraphs[i - 1] = typedGraphMap.get(resources.get(i));
 				System.out.println("branchGraph[" + i + "]: ");
-				print(branchGraphs[i-1]);
+				print(branchGraphs[i - 1]);
 			}
-			
-			TypedGraph resultGraph = BXMerge3.mergeSerial(baseGraph, branchGraphs);			
+
+			TypedGraph resultGraph = BXMerge3.mergeSerial(baseGraph, branchGraphs);
 			System.out.println("resultGraph: ");
 			print(resultGraph);
-			
+
 			HashMap<TypedEdge, TypedEdge> forceOrd = new HashMap<>();
 			long start = System.currentTimeMillis();
 			BXMerge3.topoOrder(baseGraph, resultGraph, forceOrd, typeEdgeName, branchGraphs);
 			long end = System.currentTimeMillis();
 			System.out.println("序耗时：" + (end - start) + " ms.");
-			
+
 			return resultGraph;
 
 		} catch (NothingReturnedException e) {
@@ -450,7 +450,7 @@ public class NWay extends XmuProgram {
 		return null;
 
 	}
-	
+
 	/** 计算团总的编辑代价 */
 	public int sumEditionDistance(List<EObject> List, Table<Resource, Resource, List<Match>> table) {
 
@@ -536,9 +536,8 @@ public class NWay extends XmuProgram {
 	}
 
 	@SuppressWarnings("unchecked")
-	public void addTypedEdges(EObject b, TypedNode baseNode, TypedGraph branchGraph,
-			HashMap<EObject, TypedNode> typedNodeMap, MultiKeyMap multiKeyMap,
-			MultiKeyMap typedEdgeMap) {
+	public void addTypedEdges(EObject b, final TypedNode baseNode, TypedGraph branchGraph,
+			HashMap<EObject, TypedNode> typedNodeMap, MultiKeyMap multiKeyMap, MultiKeyMap typedEdgeMap) {
 		EClass cls = b.eClass();
 		TypeNode typeNode = typeGraph.getTypeNode(cls.getName());
 
@@ -557,41 +556,33 @@ public class NWay extends XmuProgram {
 					if (targetNode != null) {
 						TypedEdge typedEdge = (TypedEdge) multiKeyMap.get(targetNode, typeEdge);
 						if (typedEdge != null) {
-							branchGraph.simAddTypedEdge(typedEdge);							
+							branchGraph.simAddTypedEdge(typedEdge);
 						} else { // 不视作被修改
 							TypedEdge typedEdgeBranch = new TypedEdge(baseNode, targetNode, typeEdge);
 							branchGraph.simAddTypedEdge(typedEdgeBranch);
 						}
 					}
-
-					if (r.isContainment()) {
-						addTypedEdges(t, baseNode, branchGraph, typedNodeMap, multiKeyMap, typedEdgeMap);
-					}
-
 				});
 			} else { // single-reference
 				EObject t = (EObject) b.eGet(r);
 				if (t != null) {
 					TypedNode targetNode = typedNodeMap.get(t);
 					if (targetNode != null) {
-						TypedNode targetNodeBase = (TypedNode) typedEdgeMap.get(typeEdge, targetNode.getType());											
+						TypedNode targetNodeBase = (TypedNode) typedEdgeMap.get(typeEdge, targetNode.getType());
 						TypedEdge typedEdge = (TypedEdge) multiKeyMap.get(targetNodeBase, typeEdge);
 						if (typedEdge != null) {
-							if (targetNode != targetNodeBase) { // 视为被修改																
+							if (targetNode != targetNodeBase) { // 视为被修改
 								TypedEdge edge = new TypedEdge(baseNode, targetNode, typeEdge);
-								branchGraph.simAddTypedEdge(edge); // 先addTypedEdge，再mergeIndex								
+								branchGraph.simAddTypedEdge(edge); // 先addTypedEdge，再mergeIndex
 								edge.mergeIndex(typedEdge);
 								branchGraph.reindexing(edge);
-							} else {	// 不变
+							} else { // 不变
 								branchGraph.simAddTypedEdge(typedEdge);
 							}
-						} else {	// 新加
+						} else { // 新加
 							TypedEdge typedEdgeBranch = new TypedEdge(baseNode, targetNode, typeEdge);
 							branchGraph.simAddTypedEdge(typedEdgeBranch);
 						}
-					}
-					if (r.isContainment()) {
-						addTypedEdges(t, baseNode, branchGraph, typedNodeMap, multiKeyMap, typedEdgeMap);
 					}
 				}
 			}
@@ -601,8 +592,7 @@ public class NWay extends XmuProgram {
 
 	@SuppressWarnings("unchecked")
 	public void addTypedEdgesBase(EObject base, TypedNode baseNode, TypedGraph baseGraph,
-			HashMap<EObject, TypedNode> typedNodeMap, MultiKeyMap multiKeyMap,
-			MultiKeyMap typedEdgeMap) {
+			HashMap<EObject, TypedNode> typedNodeMap, MultiKeyMap multiKeyMap, MultiKeyMap typedEdgeMap) {
 		EClass cls = base.eClass();
 		TypeNode typeNode = typeGraph.getTypeNode(cls.getName());
 
@@ -613,7 +603,6 @@ public class NWay extends XmuProgram {
 			if (r.isMany()) { // multi-reference
 
 				Collection<EObject> targets = (Collection<EObject>) base.eGet(r);
-
 				for (EObject t : targets) {
 					TypedNode targetNode = typedNodeMap.get(t);
 					if (targetNode == null) {
@@ -625,12 +614,9 @@ public class NWay extends XmuProgram {
 						baseGraph.simAddTypedEdge(typedEdge);
 						// record typedEdge
 						multiKeyMap.put(targetNode, typeEdge, typedEdge);
-
-						if (r.isContainment()) {
-							addTypedEdgesBase(t, baseNode, baseGraph, typedNodeMap, multiKeyMap, typedEdgeMap);
-						}
 					}
 				}
+
 			} else { // single-reference
 				EObject t = (EObject) base.eGet(r);
 				if (t != null) {
@@ -645,10 +631,6 @@ public class NWay extends XmuProgram {
 						multiKeyMap.put(targetNode, typeEdge, typedEdge);
 						// for checking modification conflict
 						typedEdgeMap.put(typeEdge, targetNode.getType(), targetNode);
-						
-						if (r.isContainment()) {
-							addTypedEdgesBase(t, baseNode, baseGraph, typedNodeMap, multiKeyMap, typedEdgeMap);
-						}
 					}
 				}
 			}
@@ -698,12 +680,12 @@ public class NWay extends XmuProgram {
 
 					ValueEdge valueEdge = valueEdgeMap.get(propertyEdge);
 					if (valueEdge != null) {
-						
+
 						// 都加了个toString()
-						if (valueEdge.getTarget().getValue().toString().equals(v.toString())) {							
+						if (valueEdge.getTarget().getValue().toString().equals(v.toString())) {
 							branchGraph.simAddValueEdge(valueEdge);
-						} else { // 单值属性看作被修改							
-																		
+						} else { // 单值属性看作被修改
+
 							ValueNode vn = ValueNode.createConstantNode(v, dataTypeNode);
 							branchGraph.addValueNode(vn);
 							ValueEdge edge = new ValueEdge(baseNode, vn, propertyEdge);
@@ -737,10 +719,9 @@ public class NWay extends XmuProgram {
 				Collection<Object> values = (Collection<Object>) base.eGet(a);
 				for (Object v : values) {
 					if (a.getEAttributeType() instanceof EEnum) {
-						if (v instanceof Enumerator) {										
-							v = ((Enumerator) v).getLiteral();							
-						}
-						else {
+						if (v instanceof Enumerator) {
+							v = ((Enumerator) v).getLiteral();
+						} else {
 							v = v.toString();
 						}
 					}
@@ -759,21 +740,19 @@ public class NWay extends XmuProgram {
 				Object v = base.eGet(a);
 				if (v != null) {
 					if (a.getEAttributeType() instanceof EEnum) {
-						if (v instanceof Enumerator) {												
+						if (v instanceof Enumerator) {
 							v = ((Enumerator) v).getLiteral();
-						}
-						else {
+						} else {
 							v = v.toString();
 						}
 					}
-					ValueNode vn = ValueNode.createConstantNode(v, dataTypeNode);	
-															
+					ValueNode vn = ValueNode.createConstantNode(v, dataTypeNode);
+
 					baseGraph.addValueNode(vn);
 					ValueEdge valueEdge = new ValueEdge(baseNode, vn, propertyEdge);
 					baseGraph.simAddValueEdge(valueEdge);
 					// record valueEdge
 					valueEdgeMap.put(propertyEdge, valueEdge);
-
 				}
 			}
 		}
@@ -790,8 +769,8 @@ public class NWay extends XmuProgram {
 
 	public void print(TypedGraph typedGraph) {
 		System.out.println("TypedNodes: " + typedGraph.getAllTypedNodes().size());
-		System.out.println("TypedEdges: " + typedGraph.getAllTypedEdges().size());
 		System.out.println("ValueNodes: " + typedGraph.getAllValueNodes().size());
+		System.out.println("TypedEdges: " + typedGraph.getAllTypedEdges().size());
 		System.out.println("ValueEdges: " + typedGraph.getAllValueEdges().size());
 		System.out.println("*********************************************************************\n");
 	}
