@@ -5,7 +5,6 @@ import java.util.List;
 
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.impl.EPackageImpl;
-import org.junit.Test;
 
 import college.CollegePackage;
 import edu.ustb.sei.mde.bxcore.exceptions.NothingReturnedException;
@@ -13,20 +12,18 @@ import edu.ustb.sei.mde.graph.type.TypeGraph;
 import edu.ustb.sei.mde.graph.typedGraph.TypedGraph;
 import my.MatchN;
 import nway.NWay;
-import nway.ThreeWayCompare;
 
 public class TestCollege {
+	
+	public static void main(String[] args) {
+		
+		String NsURIName = "https://edu/ustb/lesley/college";
+		EPackageImpl ep = (EPackageImpl) CollegePackage.eINSTANCE;
 
-	@Test
-	public void testMerge() {
-
-		String NsURI = "https://edu/ustb/lesley/college";
-		EPackageImpl packageImpl = (EPackageImpl) CollegePackage.eINSTANCE;
-
-		URI uriBase = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add.xmi");
-		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add1.xmi");
-		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add2.xmi");
-		URI uriBranch3 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/add3.xmi");
+		URI uriBase = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/college.xmi");
+		URI uriBranch1 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/college1.xmi");
+		URI uriBranch2 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/college2.xmi");
+		URI uriBranch3 = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/college3.xmi");
 
 		ArrayList<URI> uriList = new ArrayList<>();
 		uriList.add(uriBase);
@@ -36,37 +33,30 @@ public class TestCollege {
 
 		TypeGraph typeGraph = getCollegeTypeGraph();
 
-		String metaModelPath = "E:/git/n-way/edu.ustb.lesley.college/model/college.ecore";
-		String mergeModelPath = "E:/git/n-way/edu.ustb.lesley.college/src/test/college_merge.xmi";
-
-		NWay nWay = new NWay(NsURI, packageImpl, uriList, typeGraph, metaModelPath, mergeModelPath);
+		URI metaModelURI = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/model/college.ecore");
+		URI m1URI = URI.createFileURI("E:/git/n-way/edu.ustb.lesley.college/src/test/college_merge.xmi");
+		
 		long start = System.currentTimeMillis();
-		List<MatchN> matches = nWay.nMatch();
-		long end = System.currentTimeMillis();
-		System.out.println("match cost time of NWay: " + (end - start) + " ms.");
-
-		start = System.currentTimeMillis();
+		NWay nWay = new NWay(NsURIName, ep, typeGraph);
+		List<MatchN> matches = nWay.nMatch(uriList);
 		TypedGraph mergeModel = nWay.nMerge(matches, "");
-		end = System.currentTimeMillis();
-		System.out.println("merge cost time of NWay: " + (end - start) + " ms.");
-		System.out.println("******************************************************merge model");
-		nWay.print(mergeModel);
+		long end = System.currentTimeMillis();
+		System.out.println("总耗时：" + (end-start) + "ms.");
+		System.out.println("****************************************************");
 		
 		try {
-			nWay.saveModel(URI.createFileURI(mergeModelPath), mergeModel);
+			nWay.saveModel(metaModelURI, m1URI, mergeModel);
 		} catch (NothingReturnedException e) {
 			e.printStackTrace();
 		}
 
-		ThreeWayCompare t = new ThreeWayCompare(NsURI, packageImpl, uriBase, uriBranch1, uriBranch2);
-		start = System.currentTimeMillis();
-		t.threeWay();
-		end = System.currentTimeMillis();
-		System.out.println("the whole cost time of EMF Compare: " + (end - start) + " ms");
-
+//		// 调用EMF Compare的三路比较
+//		TWayCompare tWayCompare = new TWayCompare(NsURIName, ep);
+//		tWayCompare.tWay(uriBase, uriBranch1, uriBranch2);
+//		System.out.println("down");
 	}
 
-	public TypeGraph getCollegeTypeGraph() {
+	public static TypeGraph getCollegeTypeGraph() {
 		TypeGraph typeGraph = new TypeGraph();
 		// TypedNode
 		typeGraph.declare("AddressBook");

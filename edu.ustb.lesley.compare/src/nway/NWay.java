@@ -39,6 +39,7 @@ import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -70,29 +71,28 @@ import my.impl.MatchNImpl;
 @SuppressWarnings("restriction")
 public class NWay extends XmuProgram {
 
-	String NsURI = null;
-	EPackage ep = null;
-	ArrayList<URI> uriList = null;
-	TypeGraph typeGraph = null;
-	String metaModelPath = null;
-	String mergeModelPath = null;
-	ArrayList<Resource> resources = new ArrayList<>();
-
-	public NWay(String NsURI, EPackage ep, ArrayList<URI> uriList, TypeGraph typeGraph, String metaModelPath,
-			String mergeModelPath) {
-		this.NsURI = NsURI;
-		this.ep = ep;
-		this.uriList = uriList;
+	private String NsURIName = EcorePackage.eNS_URI;
+	private EPackage ep = null;
+	private TypeGraph typeGraph = null;
+	private ArrayList<Resource> resources = new ArrayList<>();
+	
+	public NWay(TypeGraph typeGraph) {
 		this.typeGraph = typeGraph;
-		this.metaModelPath = metaModelPath;
-		this.mergeModelPath = mergeModelPath;
 	}
 
-	public List<MatchN> nMatch() {
+	public NWay(String NsURIName, EPackage ep, TypeGraph typeGraph) {
+		this.NsURIName = NsURIName;
+		this.ep = ep;
+		this.typeGraph = typeGraph;
+	}
+
+	public List<MatchN> nMatch(ArrayList<URI> uriList) {
 
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 		ResourceSet resourceSet = new ResourceSetImpl();
-		resourceSet.getPackageRegistry().put(NsURI, ep);
+		if(ep != null) {			
+			resourceSet.getPackageRegistry().put(NsURIName, ep);
+		}
 
 		Resource baseResource = resourceSet.getResource(uriList.get(0), true);
 		Resource branchResource1 = resourceSet.getResource(uriList.get(1), true);
@@ -268,6 +268,7 @@ public class NWay extends XmuProgram {
 					matchN.getBranches().addAll(List);
 					comparisonN.getMatches().add(matchN);
 				});
+				
 			} else if (allADDMatches.size() == 1) {
 				Match match = allADDMatches.get(0);
 				EObject left = match.getLeft();
@@ -289,8 +290,6 @@ public class NWay extends XmuProgram {
 
 	/** MatchN传入我们的合并方法，进行diff和merge */
 	public TypedGraph nMerge(List<MatchN> matches, String typeEdgeName) {
-
-		registerPackage(URI.createFileURI(metaModelPath));
 
 		Map<Resource, TypedGraph> typedGraphMap = new HashMap<>();
 		HashMap<EObject, TypedNode> typedNodeMap = new HashMap<>();
@@ -433,6 +432,7 @@ public class NWay extends XmuProgram {
 			}
 
 			TypedGraph resultGraph = BXMerge3.mergeSerial(baseGraph, branchGraphs);
+//			TypedGraph resultGraph = BXMerge3.mergeParallel(baseGraph, branchGraphs);
 			System.out.println("resultGraph: ");
 			print(resultGraph);
 
@@ -440,7 +440,8 @@ public class NWay extends XmuProgram {
 			long start = System.currentTimeMillis();
 			BXMerge3.topoOrder(baseGraph, resultGraph, forceOrd, typeEdgeName, branchGraphs);
 			long end = System.currentTimeMillis();
-			System.out.println("序耗时：" + (end - start) + " ms.");
+			System.out.println("---------------------------------------");
+			System.out.println("序总耗时：" + (end - start) + " ms.");
 
 			return resultGraph;
 
@@ -759,12 +760,9 @@ public class NWay extends XmuProgram {
 
 	}
 
-	public void saveModel(final URI uri, final TypedGraph graph) throws NothingReturnedException {
-		EcoreModelUtil.save(uri, graph, null, getPackage(NsURI));
-	}
-
-	public void registerPackage(final URI metamodelUri) {
-		registerPackage(NsURI, metamodelUri);
+	public void saveModel(URI metaModelURI, URI m1URI, TypedGraph graph) throws NothingReturnedException {
+		registerPackage(NsURIName, metaModelURI);
+		EcoreModelUtil.save(m1URI, graph, null, getPackage(NsURIName));
 	}
 
 	public void print(TypedGraph typedGraph) {

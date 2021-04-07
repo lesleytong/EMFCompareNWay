@@ -18,35 +18,32 @@ import org.eclipse.emf.compare.merge.IMerger;
 import org.eclipse.emf.compare.scope.DefaultComparisonScope;
 import org.eclipse.emf.compare.scope.IComparisonScope;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.impl.EPackageImpl;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 
-public class ThreeWayCompare {
-
-	String NsURI = null;
-	EPackageImpl packageImpl = null;
-	URI baseURI = null;
-	URI leftURI = null;
-	URI rightURI = null;
-
-	public ThreeWayCompare(String NsURI, EPackageImpl packageImpl, URI baseURI, URI leftURI, URI rightURI) {
-		this.NsURI = NsURI;
-		this.packageImpl = packageImpl;
-		this.baseURI = baseURI;
-		this.leftURI = leftURI;
-		this.rightURI = rightURI;
+public class TWayCompare {
+	
+	String NsURIName = null;
+	EPackage ep = null;
+	
+	public TWayCompare(String NsURIName, EPackage ep) {
+		this.NsURIName = NsURIName;
+		this.ep = ep;
 	}
 
-	public void threeWay() {
+	public void tWay(URI leftURI, URI rightURI, URI baseURI) {
 
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 		ResourceSet resourceSet = new ResourceSetImpl();
-		resourceSet.getPackageRegistry().put(NsURI, packageImpl);
-
-		Resource baseResource = resourceSet.getResource(baseURI, true);
+		resourceSet.getPackageRegistry().put(NsURIName, ep);
+		
+		Resource baseResource = null;
+		if(baseURI != null) {			
+			baseResource = resourceSet.getResource(baseURI, true);
+		}
 		Resource leftResource = resourceSet.getResource(leftURI, true);
 		Resource rightResource = resourceSet.getResource(rightURI, true);
 
