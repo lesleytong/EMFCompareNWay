@@ -19,7 +19,7 @@ import edu.ustb.sei.mde.bxcore.exceptions.NothingReturnedException;
 import edu.ustb.sei.mde.graph.type.TypeGraph;
 import edu.ustb.sei.mde.graph.typedGraph.TypedGraph;
 import my.MatchN;
-import nway.ChangeTool;
+import nway.ChangeToolForEcore;
 import nway.EcoreTypeGraph;
 import nway.NWay;
 
@@ -28,9 +28,9 @@ public class TestPurchase {
 	static URI baseURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase.xmi");
 	static URI m0URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_m0.xmi");
 	
-	static URI branch1URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_out1.xmi");
-	static URI branch2URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_out2.xmi");
-	static URI branch3URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_out3.xmi");
+	static URI branch1URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase1.xmi");
+	static URI branch2URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase2.xmi");
+	static URI branch3URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase3.xmi");
 	
 	static URI metaModelURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.compare\\model\\Ecore.ecore");
 	static URI m1URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_m1.xmi");
@@ -38,9 +38,9 @@ public class TestPurchase {
 
 	public static void main(String[] args) {
 
-//		getM0();
+		getM0();
 //		getBranches();
-		testMerge();
+//		testMerge();
 //		testEquality();
 
 	}
@@ -51,7 +51,7 @@ public class TestPurchase {
 		ResourceSet resourceSet = new ResourceSetImpl();
 		Resource resource = resourceSet.getResource(baseURI, true);
 		
-		ChangeTool changeTool = new ChangeTool();
+		ChangeToolForEcore changeTool = new ChangeToolForEcore();
 		
 		// start, changeCount, deleteCount, addCount, addCountName
 		changeTool.set(1, 1, 0, 2, "NewClass");
@@ -81,7 +81,7 @@ public class TestPurchase {
 		ResourceSet resourceSet3 = new ResourceSetImpl();
 		Resource resource3 = resourceSet3.getResource(baseURI, true);
 
-		ChangeTool changeTool = new ChangeTool();
+		ChangeToolForEcore changeTool = new ChangeToolForEcore();
 		
 		// start, changeCount, deleteCount, addCount, addCountName
 		changeTool.set(1, 1, 0, 2, "NewClass");

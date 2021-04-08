@@ -1,12 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<edu.ustb.lesley.college:AddressBook
-    xmi:version="2.0"
-    xmlns:xmi="http://www.omg.org/XMI"
-    xmlns:edu.ustb.lesley.college="https://edu/ustb/lesley/college"
-    name="ClassOne">
-  <persons name="Lesley"
-      age="23">
-    <college
-        name="USTB"/>
+<edu.ustb.lesley.college:AddressBook xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:edu.ustb.lesley.college="https://edu/ustb/lesley/college" name="ohi">
+  <persons name="okw" age="23">
+    <colleges name="CXL"/>
   </persons>
+  <persons name="taw" age="34"/>
+  <persons name="rkd" age="21">
+    <colleges name="LED"/>
+    <colleges name="CCB"/>
+  </persons>
+  <persons name="bkk" age="25">
+    <colleges name="IUC"/>
+  </persons>
+  <persons name="ffb" age="18"/>
+  <persons name="nhy" age="29"/>
+  <persons name="bqz" age="19"/>
+  <persons name="aob" age="23">
+    <colleges name="NLE"/>
+  </persons>
+  <persons name="xwe" age="26">
+    <colleges name="JHB"/>
+    <colleges name="KEF"/>
+  </persons>
+  <persons name="gpf" age="15">
+    <colleges name="GBN"/>
+    <colleges name="IWT"/>
+  </persons>
+  <persons name="Bob2" age="18"/>
+  <persons name="Bob1" age="18"/>
+  <persons name="Candy1" age="18"/>
 </edu.ustb.lesley.college:AddressBook>

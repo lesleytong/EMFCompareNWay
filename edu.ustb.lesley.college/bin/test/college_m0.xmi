@@ -12,11 +12,9 @@
     <colleges name="IUC"/>
   </persons>
   <persons name="ffb" age="18"/>
-  <persons name="nhy" age="29">
-    <colleges name="JPJ"/>
-  </persons>
+  <persons name="nhy" age="29"/>
   <persons name="bqz" age="19"/>
-  <persons name="aob" age="23">
+  <persons name="aob_change" age="23">
     <colleges name="NLE"/>
   </persons>
   <persons name="xwe" age="26">
@@ -29,4 +27,6 @@
   </persons>
   <persons name="Bob2" age="18"/>
   <persons name="Bob1" age="18"/>
+  <persons name="Candy1" age="18"/>
+  <persons name="Tina1" age="18"/>
 </edu.ustb.lesley.college:AddressBook>

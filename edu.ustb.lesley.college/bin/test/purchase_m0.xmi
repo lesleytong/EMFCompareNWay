@@ -9,7 +9,6 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="a" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="b" eType="//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="c_change" eType="//EFloat"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="d" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="e" eType="//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="f" eType="//EFloat"/>
   </eClassifiers>

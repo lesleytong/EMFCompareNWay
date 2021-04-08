@@ -545,9 +545,11 @@ public class NWay extends XmuProgram {
 		EList<EReference> tmp = cls.getEAllReferences();
 		for (EReference r : tmp) {
 			TypeEdge typeEdge = typeGraph.getTypeEdge(typeNode, r.getName());
-
-			if (typeEdge.getName().equals("eRawType") || typeEdge.getName().equals("eClassifier")) {
-				continue;
+			
+			if(ep == null) {				
+				if (typeEdge.getName().equals("eRawType") || typeEdge.getName().equals("eClassifier")) {
+					continue;
+				}
 			}
 
 			if (r.isMany()) { // multi-reference

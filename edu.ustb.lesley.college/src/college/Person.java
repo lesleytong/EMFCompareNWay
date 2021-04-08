@@ -15,10 +15,9 @@ import org.eclipse.emf.ecore.EObject;
  * The following features are supported:
  * </p>
  * <ul>
- *   <li>{@link college.Person#getCollege <em>College</em>}</li>
+ *   <li>{@link college.Person#getColleges <em>Colleges</em>}</li>
  *   <li>{@link college.Person#getName <em>Name</em>}</li>
  *   <li>{@link college.Person#getAge <em>Age</em>}</li>
- *   <li>{@link college.Person#getFriends <em>Friends</em>}</li>
  * </ul>
  *
  * @see college.CollegePackage#getPerson()
@@ -27,16 +26,16 @@ import org.eclipse.emf.ecore.EObject;
  */
 public interface Person extends EObject {
 	/**
-	 * Returns the value of the '<em><b>College</b></em>' containment reference list.
+	 * Returns the value of the '<em><b>Colleges</b></em>' containment reference list.
 	 * The list contents are of type {@link college.College}.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>College</em>' containment reference list.
-	 * @see college.CollegePackage#getPerson_College()
+	 * @return the value of the '<em>Colleges</em>' containment reference list.
+	 * @see college.CollegePackage#getPerson_Colleges()
 	 * @model containment="true"
 	 * @generated
 	 */
-	EList<College> getCollege();
+	EList<College> getColleges();
 
 	/**
 	 * Returns the value of the '<em><b>Name</b></em>' attribute.
@@ -81,17 +80,5 @@ public interface Person extends EObject {
 	 * @generated
 	 */
 	void setAge(int value);
-
-	/**
-	 * Returns the value of the '<em><b>Friends</b></em>' reference list.
-	 * The list contents are of type {@link college.Person}.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @return the value of the '<em>Friends</em>' reference list.
-	 * @see college.CollegePackage#getPerson_Friends()
-	 * @model
-	 * @generated
-	 */
-	EList<Person> getFriends();
 
 } // Person

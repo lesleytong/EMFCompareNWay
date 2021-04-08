@@ -20,7 +20,6 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
 
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
-import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
 /**
@@ -31,24 +30,23 @@ import org.eclipse.emf.ecore.util.InternalEList;
  * The following features are implemented:
  * </p>
  * <ul>
- *   <li>{@link college.impl.PersonImpl#getCollege <em>College</em>}</li>
+ *   <li>{@link college.impl.PersonImpl#getColleges <em>Colleges</em>}</li>
  *   <li>{@link college.impl.PersonImpl#getName <em>Name</em>}</li>
  *   <li>{@link college.impl.PersonImpl#getAge <em>Age</em>}</li>
- *   <li>{@link college.impl.PersonImpl#getFriends <em>Friends</em>}</li>
  * </ul>
  *
  * @generated
  */
 public class PersonImpl extends MinimalEObjectImpl.Container implements Person {
 	/**
-	 * The cached value of the '{@link #getCollege() <em>College</em>}' containment reference list.
+	 * The cached value of the '{@link #getColleges() <em>Colleges</em>}' containment reference list.
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
-	 * @see #getCollege()
+	 * @see #getColleges()
 	 * @generated
 	 * @ordered
 	 */
-	protected EList<College> college;
+	protected EList<College> colleges;
 
 	/**
 	 * The default value of the '{@link #getName() <em>Name</em>}' attribute.
@@ -91,16 +89,6 @@ public class PersonImpl extends MinimalEObjectImpl.Container implements Person {
 	protected int age = AGE_EDEFAULT;
 
 	/**
-	 * The cached value of the '{@link #getFriends() <em>Friends</em>}' reference list.
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @see #getFriends()
-	 * @generated
-	 * @ordered
-	 */
-	protected EList<Person> friends;
-
-	/**
 	 * <!-- begin-user-doc -->
 	 * <!-- end-user-doc -->
 	 * @generated
@@ -125,11 +113,11 @@ public class PersonImpl extends MinimalEObjectImpl.Container implements Person {
 	 * @generated
 	 */
 	@Override
-	public EList<College> getCollege() {
-		if (college == null) {
-			college = new EObjectContainmentEList<College>(College.class, this, CollegePackage.PERSON__COLLEGE);
+	public EList<College> getColleges() {
+		if (colleges == null) {
+			colleges = new EObjectContainmentEList<College>(College.class, this, CollegePackage.PERSON__COLLEGES);
 		}
-		return college;
+		return colleges;
 	}
 
 	/**
@@ -184,23 +172,10 @@ public class PersonImpl extends MinimalEObjectImpl.Container implements Person {
 	 * @generated
 	 */
 	@Override
-	public EList<Person> getFriends() {
-		if (friends == null) {
-			friends = new EObjectResolvingEList<Person>(Person.class, this, CollegePackage.PERSON__FRIENDS);
-		}
-		return friends;
-	}
-
-	/**
-	 * <!-- begin-user-doc -->
-	 * <!-- end-user-doc -->
-	 * @generated
-	 */
-	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
-			case CollegePackage.PERSON__COLLEGE:
-				return ((InternalEList<?>)getCollege()).basicRemove(otherEnd, msgs);
+			case CollegePackage.PERSON__COLLEGES:
+				return ((InternalEList<?>)getColleges()).basicRemove(otherEnd, msgs);
 		}
 		return super.eInverseRemove(otherEnd, featureID, msgs);
 	}
@@ -213,14 +188,12 @@ public class PersonImpl extends MinimalEObjectImpl.Container implements Person {
 	@Override
 	public Object eGet(int featureID, boolean resolve, boolean coreType) {
 		switch (featureID) {
-			case CollegePackage.PERSON__COLLEGE:
-				return getCollege();
+			case CollegePackage.PERSON__COLLEGES:
+				return getColleges();
 			case CollegePackage.PERSON__NAME:
 				return getName();
 			case CollegePackage.PERSON__AGE:
 				return getAge();
-			case CollegePackage.PERSON__FRIENDS:
-				return getFriends();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -234,19 +207,15 @@ public class PersonImpl extends MinimalEObjectImpl.Container implements Person {
 	@Override
 	public void eSet(int featureID, Object newValue) {
 		switch (featureID) {
-			case CollegePackage.PERSON__COLLEGE:
-				getCollege().clear();
-				getCollege().addAll((Collection<? extends College>)newValue);
+			case CollegePackage.PERSON__COLLEGES:
+				getColleges().clear();
+				getColleges().addAll((Collection<? extends College>)newValue);
 				return;
 			case CollegePackage.PERSON__NAME:
 				setName((String)newValue);
 				return;
 			case CollegePackage.PERSON__AGE:
 				setAge((Integer)newValue);
-				return;
-			case CollegePackage.PERSON__FRIENDS:
-				getFriends().clear();
-				getFriends().addAll((Collection<? extends Person>)newValue);
 				return;
 		}
 		super.eSet(featureID, newValue);
@@ -260,17 +229,14 @@ public class PersonImpl extends MinimalEObjectImpl.Container implements Person {
 	@Override
 	public void eUnset(int featureID) {
 		switch (featureID) {
-			case CollegePackage.PERSON__COLLEGE:
-				getCollege().clear();
+			case CollegePackage.PERSON__COLLEGES:
+				getColleges().clear();
 				return;
 			case CollegePackage.PERSON__NAME:
 				setName(NAME_EDEFAULT);
 				return;
 			case CollegePackage.PERSON__AGE:
 				setAge(AGE_EDEFAULT);
-				return;
-			case CollegePackage.PERSON__FRIENDS:
-				getFriends().clear();
 				return;
 		}
 		super.eUnset(featureID);
@@ -284,14 +250,12 @@ public class PersonImpl extends MinimalEObjectImpl.Container implements Person {
 	@Override
 	public boolean eIsSet(int featureID) {
 		switch (featureID) {
-			case CollegePackage.PERSON__COLLEGE:
-				return college != null && !college.isEmpty();
+			case CollegePackage.PERSON__COLLEGES:
+				return colleges != null && !colleges.isEmpty();
 			case CollegePackage.PERSON__NAME:
 				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 			case CollegePackage.PERSON__AGE:
 				return age != AGE_EDEFAULT;
-			case CollegePackage.PERSON__FRIENDS:
-				return friends != null && !friends.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}

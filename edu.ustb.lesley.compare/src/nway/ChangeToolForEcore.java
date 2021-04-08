@@ -18,7 +18,7 @@ import org.eclipse.emf.ecore.impl.EPackageImpl;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
-public class ChangeTool {
+public class ChangeToolForEcore {
 
 	private Resource resource;
 
@@ -50,7 +50,6 @@ public class ChangeTool {
 				EList<EObject> epContents = ep.eContents();
 
 				for (EObject e : epContents) {
-					System.out.println("element: " + e);
 					if (e instanceof EClass) { // 针对每一个EClass遍历
 						EClass ec = (EClassImpl) e;
 						EList<EStructuralFeature> eAllStructuralFeatures = ec.getEAllStructuralFeatures();
@@ -60,11 +59,13 @@ public class ChangeTool {
 								System.out.println(attr.getName());
 								if (start > 0) {
 									start--;
-								} else if (start == 0) {
-									if (changeCount-- > 0) { // 修改属性名
+								} else {
+									if (changeCount > 0) { // 修改属性名
 										a.setName(attr.getName() + "_change");
-									} else if (deleteCount-- > 0) { // 删除一些属性，先保存到dList中
+										changeCount--;
+									} else if (deleteCount > 0) { // 删除一些属性，先保存到dList中
 										dList.add(a);
+										deleteCount--;
 									}
 								}
 							}
@@ -83,11 +84,12 @@ public class ChangeTool {
 
 		// 添加新的类
 		EClass newClass = null;
-		while (addCount-- > 0) {
+		while (addCount > 0) {
 			newClass = EcoreFactory.eINSTANCE.createEClass();
-			newClass.setName(addCountName + (addCount + 1));
+			newClass.setName(addCountName + (addCount));
 			EPackage ePackage = (EPackageImpl) resource.getContents().get(0);
 			ePackage.getEClassifiers().add(newClass);
+			addCount--;
 		}
 
 		TreeIterator<EObject> allContents = resource.getAllContents();
