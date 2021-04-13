@@ -2,12 +2,16 @@ package test;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.EMFCompare;
+import org.eclipse.emf.compare.merge.BatchMerger;
+import org.eclipse.emf.compare.merge.IBatchMerger;
+import org.eclipse.emf.compare.merge.IMerger;
 import org.eclipse.emf.compare.scope.DefaultComparisonScope;
 import org.eclipse.emf.compare.scope.IComparisonScope;
 import org.eclipse.emf.ecore.resource.Resource;
@@ -19,13 +23,16 @@ import edu.ustb.sei.mde.bxcore.exceptions.NothingReturnedException;
 import edu.ustb.sei.mde.graph.type.TypeGraph;
 import edu.ustb.sei.mde.graph.typedGraph.TypedGraph;
 import my.MatchN;
-import nway.ChangeToolForEcore;
+import nway.ChangeTool;
 import nway.EcoreTypeGraph;
 import nway.NWay;
 
 public class TestPurchase {
 	
+	static ResourceSet resourceSet;
+	
 	static URI baseURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase.xmi");
+	static URI backupURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_backup.xmi");
 	static URI m0URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_m0.xmi");
 	
 	static URI branch1URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase1.xmi");
@@ -37,64 +44,98 @@ public class TestPurchase {
 	
 
 	public static void main(String[] args) {
+		
+		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
+		resourceSet = new ResourceSetImpl();
 
-		getM0();
+//		getM0();
 //		getBranches();
 //		testMerge();
-//		testEquality();
+		testEquality();
 
 	}
 	
 	public static void getM0() {
 				
-		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
-		ResourceSet resourceSet = new ResourceSetImpl();
-		Resource resource = resourceSet.getResource(baseURI, true);
-		
-		ChangeToolForEcore changeTool = new ChangeToolForEcore();
-		
-		// start, changeCount, deleteCount, addCount, addCountName
-		changeTool.set(1, 1, 0, 2, "NewClass");
-		changeTool.change(resource);
-		
-		changeTool.set(5, 1, 0, 2, "Hello");
-		changeTool.change(resource);
-		
-		changeTool.set(6, 0, 1, 1, "Moon");
-		changeTool.change(resource);
-		changeTool.save(m0URI);
-
+		Resource baseResource = resourceSet.getResource(baseURI, true);
+		// 调用自动修改方法
+		ChangeTool.changeForEcore(baseResource);
+		ChangeTool.save(baseResource, m0URI);
 		System.out.println("down");
 		
 	}
 	
 	public static void getBranches() {
-		
-		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
-		
-		ResourceSet resourceSet1 = new ResourceSetImpl();
-		Resource resource1 = resourceSet1.getResource(baseURI, true);
 
-		ResourceSet resourceSet2 = new ResourceSetImpl();
-		Resource resource2 = resourceSet2.getResource(baseURI, true);
+		Random random = new Random();
+		IBatchMerger merger = new BatchMerger(IMerger.RegistryImpl.createStandaloneInstance());
 
-		ResourceSet resourceSet3 = new ResourceSetImpl();
-		Resource resource3 = resourceSet3.getResource(baseURI, true);
+		// 方便恢复baseResource
+		IComparisonScope backupScope;
+		Comparison backupComparison;
+		EList<Diff> backupDiffs;
+		Resource backupResource = resourceSet.getResource(backupURI, true);
 
-		ChangeToolForEcore changeTool = new ChangeToolForEcore();
-		
-		// start, changeCount, deleteCount, addCount, addCountName
-		changeTool.set(1, 1, 0, 2, "NewClass");
-		changeTool.change(resource1);
-		changeTool.save(branch1URI);
+		// 利用EMF Compare比较得到m0与base之间的diffs
+		Resource baseResource = resourceSet.getResource(baseURI, true);
+		Resource m0Resource = resourceSet.getResource(m0URI, true);
 
-		changeTool.set(5, 1, 0, 2, "Hello");
-		changeTool.change(resource2);
-		changeTool.save(branch2URI);
+		IComparisonScope scope = new DefaultComparisonScope(m0Resource, baseResource, null);
+		Comparison comparison = EMFCompare.builder().build().compare(scope);
+		EList<Diff> diffs = comparison.getDifferences();
+		// 将diffs随机分配给三个分支版本
+		ArrayList<Diff> diff1 = new ArrayList();
+		ArrayList<Diff> diff2 = new ArrayList();
+		ArrayList<Diff> diff3 = new ArrayList();
+		diffs.forEach(d -> {
+			System.out.println(d);
+			double flag = random.nextDouble();
+			if (flag >= 0.7) {
+				diff1.add(d);
+			} else if (flag <= 0.3) {
+				diff2.add(d);
+			} else {
+				diff3.add(d);
+			}
+		});
 
-		changeTool.set(6, 0, 1, 1, "Moon");
-		changeTool.change(resource3);
-		changeTool.save(branch3URI);
+		// 在base上应用diff1，得到branch1
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diff1");
+		diff1.forEach(d -> {
+			System.out.println(d);
+		});
+		merger.copyAllLeftToRight(diff1, null);
+		ChangeTool.save(baseResource, branch1URI);
+
+		// 恢复原来的base
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>backup");
+		backupScope = new DefaultComparisonScope(backupResource, baseResource, null);
+		backupComparison = EMFCompare.builder().build().compare(backupScope);
+		backupDiffs = backupComparison.getDifferences();
+		merger.copyAllLeftToRight(backupDiffs, null);
+
+		// 在base上应用diff2，得到branch2
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diff2");
+		diff2.forEach(d -> {
+			System.out.println(d);
+		});
+		merger.copyAllLeftToRight(diff2, null);
+		ChangeTool.save(baseResource, branch2URI);
+
+		// 恢复原来的base
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>backup");
+		backupScope = new DefaultComparisonScope(backupResource, baseResource, null);
+		backupComparison = EMFCompare.builder().build().compare(backupScope);
+		backupDiffs = backupComparison.getDifferences();
+		merger.copyAllLeftToRight(backupDiffs, null);
+
+		// 在base上应用diff3，得到branch3
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diff3");
+		diff3.forEach(d -> {
+			System.out.println(d);
+		});
+		merger.copyAllLeftToRight(diff3, null);
+		ChangeTool.save(baseResource, branch3URI);
 
 		System.out.println("down");
 	}
@@ -113,6 +154,7 @@ public class TestPurchase {
 		long start = System.currentTimeMillis();
 		NWay nWay = new NWay(typeGraph);
 		List<MatchN> matches = nWay.nMatch(uriList);		
+//		typeGraph.getTypeEdge(typeNode, string)
 		TypedGraph mergeModel = nWay.nMerge(matches, "EClass-*->EStructuralFeature");
 		long end = System.currentTimeMillis();
 		System.out.println("总耗时： " + (end - start) + " ms.");		
@@ -125,18 +167,20 @@ public class TestPurchase {
 		}
 	}
 	
-	// 比较M0和M1
+	// 比较M1和M0
 	public static void testEquality() {		
-		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
-		ResourceSet resourceSet = new ResourceSetImpl();
+
 		Resource leftResource = resourceSet.getResource(m1URI, true);
 		Resource rightResource = resourceSet.getResource(m0URI, true);
-		
+
 		IComparisonScope scope = new DefaultComparisonScope(leftResource, rightResource, null);
 		Comparison comparison = EMFCompare.builder().build().compare(scope);
-		
+
 		EList<Diff> diffs = comparison.getDifferences();
-		System.out.println("diffs: " + diffs.size());
+		System.out.println("diffs.size(): " + diffs.size());
+		diffs.forEach(d -> {
+			System.out.println(d);
+		});
 		
 	}
 

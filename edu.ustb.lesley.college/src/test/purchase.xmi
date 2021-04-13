@@ -10,6 +10,10 @@
   <eClassifiers
       xsi:type="ecore:EClass"
       name="PurchaseOrder">
+    <eOperations
+        name="submit"/>
+    <eOperations
+        name="delete"/>
     <eStructuralFeatures
         xsi:type="ecore:EAttribute"
         name="shipTo"
@@ -28,35 +32,41 @@
   <eClassifiers
       xsi:type="ecore:EClass"
       name="Item">
+    <eOperations
+        name="buy"/>
     <eStructuralFeatures
         xsi:type="ecore:EAttribute"
-        name="a"
+        name="name"
         eType="//EString"/>
     <eStructuralFeatures
         xsi:type="ecore:EAttribute"
-        name="b"
-        eType="//EInt"/>
-    <eStructuralFeatures
-        xsi:type="ecore:EAttribute"
-        name="c"
+        name="price"
         eType="//EFloat"/>
+  </eClassifiers>
+  <eClassifiers
+      xsi:type="ecore:EClass"
+      name="Customer">
+    <eOperations
+        name="register"/>
+    <eOperations
+        name="login"/>
     <eStructuralFeatures
         xsi:type="ecore:EAttribute"
-        name="d"
+        name="firstName"
         eType="//EString"/>
     <eStructuralFeatures
         xsi:type="ecore:EAttribute"
-        name="e"
-        eType="//EInt"/>
+        name="secondName"
+        eType="//EString"/>
     <eStructuralFeatures
         xsi:type="ecore:EAttribute"
-        name="f"
-        eType="//EFloat"/>
+        name="age"
+        eType="//EInt"/>
   </eClassifiers>
   <eClassifiers
       xsi:type="ecore:EDataType"
       name="EString"
-      instanceClassName="java.lang.String"/>
+      instanceTypeName="String"/>
   <eClassifiers
       xsi:type="ecore:EDataType"
       name="EInt"

@@ -5,7 +5,6 @@ package college.impl;
 import college.AddressBook;
 import college.CollegePackage;
 import college.Person;
-
 import java.util.Collection;
 
 import org.eclipse.emf.common.notify.Notification;

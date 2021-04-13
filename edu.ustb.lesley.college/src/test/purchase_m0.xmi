@@ -1,23 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="po" nsURI="http://www.example.com/SimplePO" nsPrefix="po">
-  <eClassifiers xsi:type="ecore:EClass" name="PurchaseOrder">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="shipTo_change" eType="//EString"/>
+  <eClassifiers xsi:type="ecore:EClass" name="PurchaseOrder_change">
+    <eOperations name="delete"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="billTo" eType="//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="items" upperBound="-1" eType="//Item" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="items" upperBound="-1" eType="//Item_change" containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Item">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="a" eType="//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="b" eType="//EInt"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="c_change" eType="//EFloat"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="e" eType="//EInt"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="f" eType="//EFloat"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Item_change">
+    <eOperations name="buy"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="//EString"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EDataType" name="EString" instanceClassName="java.lang.String"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Customer">
+    <eOperations name="register"/>
+    <eOperations name="login"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstName" eType="//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName" eType="//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="EString" instanceTypeName="String"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EInt" instanceClassName="int"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EFloat" instanceClassName="float"/>
-  <eClassifiers xsi:type="ecore:EClass" name="NewClass2"/>
-  <eClassifiers xsi:type="ecore:EClass" name="NewClass1"/>
-  <eClassifiers xsi:type="ecore:EClass" name="Hello2"/>
-  <eClassifiers xsi:type="ecore:EClass" name="Hello1"/>
-  <eClassifiers xsi:type="ecore:EClass" name="Moon1"/>
 </ecore:EPackage>
