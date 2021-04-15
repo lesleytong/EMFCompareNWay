@@ -154,6 +154,7 @@ public class TestPurchase {
 		long start = System.currentTimeMillis();
 		NWay nWay = new NWay(typeGraph);
 		List<MatchN> matches = nWay.nMatch(uriList);		
+		// PENDING
 //		typeGraph.getTypeEdge(typeNode, string)
 		TypedGraph mergeModel = nWay.nMerge(matches, "EClass-*->EStructuralFeature");
 		long end = System.currentTimeMillis();

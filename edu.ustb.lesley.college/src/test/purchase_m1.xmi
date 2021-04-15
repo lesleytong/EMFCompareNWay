@@ -1,21 +1,26 @@
 <?xml version="1.0" encoding="ASCII"?>
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xsi:schemaLocation="http://www.eclipse.org/emf/2002/Ecore ../../../edu.ustb.lesley.compare/model/Ecore.ecore" name="po" nsURI="http://www.example.com/SimplePO" nsPrefix="po">
-  <eClassifiers xsi:type="ecore:EClass" name="PurchaseOrder_change" eSuperTypes="" eGenericSuperTypes="">
-    <eOperations name="delete" eExceptions="" eGenericExceptions=""/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="billTo" eType="//@eClassifiers.3"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="items" upperBound="-1" eType="//@eClassifiers.1" containment="true"/>
+  <eClassifiers xsi:type="ecore:EClass" name="PurchaseOrder" eSuperTypes="" eGenericSuperTypes="">
+    <eOperations name="submit" eExceptions="" eGenericExceptions=""/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="shipTo_nxs" eType="//@eClassifiers.3"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="billTo_zNm" eType="//@eClassifiers.3"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="items_qm4" upperBound="-1" eType="//@eClassifiers.1" containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Item_change" eSuperTypes="" eGenericSuperTypes="">
+  <eClassifiers xsi:type="ecore:EClass" name="Item" eSuperTypes="" eGenericSuperTypes="">
     <eOperations name="buy" eExceptions="" eGenericExceptions=""/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="//@eClassifiers.3"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="price_9DY" eType="//@eClassifiers.5"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Customer" eSuperTypes="" eGenericSuperTypes="">
     <eOperations name="register" eExceptions="" eGenericExceptions=""/>
     <eOperations name="login" eExceptions="" eGenericExceptions=""/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstName" eType="//@eClassifiers.3"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName" eType="//@eClassifiers.3"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName_GrN" eType="//@eClassifiers.3"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="age" eType="//@eClassifiers.4"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EDataType" name="EString" instanceClassName="java.lang.Object" instanceTypeName="String"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EInt" instanceClassName="int" instanceTypeName="int"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EFloat" instanceClassName="float" instanceTypeName="float"/>
+  <eClassifiers xsi:type="ecore:EClass" name="GnG" eSuperTypes="" eGenericSuperTypes=""/>
+  <eClassifiers xsi:type="ecore:EClass" name="KCd" eSuperTypes="" eGenericSuperTypes=""/>
+  <eClassifiers xsi:type="ecore:EClass" name="YuO" eSuperTypes="" eGenericSuperTypes=""/>
 </ecore:EPackage>

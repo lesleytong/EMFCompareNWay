@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="ASCII"?>
+<edu.ustb.lesley.college:AddressBook xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:edu.ustb.lesley.college="https://edu/ustb/lesley/college" xsi:schemaLocation="https://edu/ustb/lesley/college ../../model/college.ecore" name="ppz">
+  <persons name="dar_UZI" age="32">
+    <colleges name="EQT_Qzj"/>
+  </persons>
+  <persons name="tms" age="30"/>
+  <persons name="ujc" age="19">
+    <colleges name="TKG"/>
+  </persons>
+  <persons name="cie" age="27">
+    <colleges name="WBA"/>
+    <colleges name="DNS"/>
+    <colleges name="OAP_yH2"/>
+  </persons>
+  <persons name="axv" age="30">
+    <colleges name="KFX"/>
+    <colleges name="SJP"/>
+  </persons>
+  <persons name="idg" age="23"/>
+  <persons name="yoo" age="21">
+    <colleges name="WBV"/>
+    <colleges name="DoA"/>
+  </persons>
+  <persons name="cue" age="25">
+    <colleges name="KSZ"/>
+  </persons>
+  <persons name="ibf" age="18"/>
+  <persons name="yzf" age="29">
+    <colleges name="QWA"/>
+  </persons>
+  <persons name="98T" age="21"/>
+</edu.ustb.lesley.college:AddressBook>

@@ -14,6 +14,7 @@ Export-Package: college,
  test
 Bundle-ActivationPolicy: lazy
 Import-Package: edu.ustb.sei.mde.bxcore.exceptions,
+ edu.ustb.sei.mde.bxcore.util,
  edu.ustb.sei.mde.graph.type,
  edu.ustb.sei.mde.graph.typedGraph,
  org.eclipse.emf.common.util,

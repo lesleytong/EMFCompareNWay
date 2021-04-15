@@ -75,7 +75,7 @@ public class NWay extends XmuProgram {
 	private EPackage ep = null;
 	private TypeGraph typeGraph = null;
 	private ArrayList<Resource> resources = new ArrayList<>();
-	
+
 	public NWay(TypeGraph typeGraph) {
 		this.typeGraph = typeGraph;
 	}
@@ -90,7 +90,7 @@ public class NWay extends XmuProgram {
 
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 		ResourceSet resourceSet = new ResourceSetImpl();
-		if(ep != null) {			
+		if (ep != null) {
 			resourceSet.getPackageRegistry().put(NsURIName, ep);
 		}
 
@@ -268,7 +268,7 @@ public class NWay extends XmuProgram {
 					matchN.getBranches().addAll(List);
 					comparisonN.getMatches().add(matchN);
 				});
-				
+
 			} else if (allADDMatches.size() == 1) {
 				Match match = allADDMatches.get(0);
 				EObject left = match.getLeft();
@@ -545,8 +545,8 @@ public class NWay extends XmuProgram {
 		EList<EReference> tmp = cls.getEAllReferences();
 		for (EReference r : tmp) {
 			TypeEdge typeEdge = typeGraph.getTypeEdge(typeNode, r.getName());
-			
-			if(ep == null) {				
+
+			if (ep == null) {
 				if (typeEdge.getName().equals("eRawType") || typeEdge.getName().equals("eClassifier")) {
 					continue;
 				}
@@ -601,6 +601,7 @@ public class NWay extends XmuProgram {
 
 		EList<EReference> tmp = cls.getEAllReferences();
 		for (EReference r : tmp) {
+
 			TypeEdge typeEdge = typeGraph.getTypeEdge(typeNode, r.getName());
 
 			if (r.isMany()) { // multi-reference

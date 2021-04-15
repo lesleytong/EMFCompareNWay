@@ -14,7 +14,7 @@ import org.eclipse.emf.compare.merge.IBatchMerger;
 import org.eclipse.emf.compare.merge.IMerger;
 import org.eclipse.emf.compare.scope.DefaultComparisonScope;
 import org.eclipse.emf.compare.scope.IComparisonScope;
-import org.eclipse.emf.ecore.impl.EPackageImpl;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -22,6 +22,7 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 
 import college.CollegePackage;
 import edu.ustb.sei.mde.bxcore.exceptions.NothingReturnedException;
+import edu.ustb.sei.mde.bxcore.util.EcoreModelUtil;
 import edu.ustb.sei.mde.graph.type.TypeGraph;
 import edu.ustb.sei.mde.graph.typedGraph.TypedGraph;
 import my.MatchN;
@@ -31,7 +32,7 @@ import nway.NWay;
 public class TestCollege {
 
 	static String NsURIName = "https://edu/ustb/lesley/college";
-	static EPackageImpl ep = (EPackageImpl) CollegePackage.eINSTANCE;
+	static EPackage ep = CollegePackage.eINSTANCE;
 	static ResourceSet resourceSet;
 
 	static URI baseURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\college.xmi");
@@ -85,6 +86,11 @@ public class TestCollege {
 		IComparisonScope scope = new DefaultComparisonScope(m0Resource, baseResource, null);
 		Comparison comparison = EMFCompare.builder().build().compare(scope);
 		EList<Diff> diffs = comparison.getDifferences();
+
+		diffs.forEach(d -> {
+			System.out.println("d: " + d);
+		});
+
 		// 将diffs随机分配给三个分支版本
 		ArrayList<Diff> diff1 = new ArrayList();
 		ArrayList<Diff> diff2 = new ArrayList();
@@ -150,11 +156,12 @@ public class TestCollege {
 		uriList.add(branch2URI);
 		uriList.add(branch3URI);
 
-		TypeGraph typeGraph = getCollegeTypeGraph();
+		TypeGraph typeGraph = EcoreModelUtil.load(ep);
 
 		long start = System.currentTimeMillis();
 		NWay nWay = new NWay(NsURIName, ep, typeGraph);
 		List<MatchN> matches = nWay.nMatch(uriList);
+		// 没有指定typeEdgeName的话，对TypedEdge都进行拓扑排序
 		TypedGraph mergeModel = nWay.nMerge(matches, "");
 		long end = System.currentTimeMillis();
 		System.out.println("总耗时：" + (end - start) + "ms.");
@@ -162,10 +169,12 @@ public class TestCollege {
 
 		try {
 			nWay.saveModel(metaModelURI, m1URI, mergeModel);
-			System.out.println("down");
 		} catch (NothingReturnedException e) {
+			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+
+		System.out.println("down");
 
 	}
 
@@ -184,27 +193,6 @@ public class TestCollege {
 			System.out.println(d);
 		});
 
-	}
-
-	public static TypeGraph getCollegeTypeGraph() {
-		TypeGraph typeGraph = new TypeGraph();
-		// TypedNode
-		typeGraph.declare("AddressBook");
-		typeGraph.declare("Person");
-		typeGraph.declare("College");
-		// ValueNode
-		typeGraph.declare("EString:java.lang.String");
-		typeGraph.declare("EInt:java.lang.Integer");
-		// ValueEdge
-		typeGraph.declare("name:AddressBook->EString");
-		typeGraph.declare("name:Person->EString");
-		typeGraph.declare("age:Person->EInt");
-		typeGraph.declare("name:College->EString");
-		// TypedEdge
-		typeGraph.declare("@persons:AddressBook->Person*");
-		typeGraph.declare("@college:Person->College*");
-		typeGraph.declare("@friends:Person->Person*");
-		return typeGraph;
 	}
 
 }
