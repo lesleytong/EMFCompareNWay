@@ -23,6 +23,7 @@ import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 import college.CollegePackage;
 import edu.ustb.sei.mde.bxcore.exceptions.NothingReturnedException;
 import edu.ustb.sei.mde.bxcore.util.EcoreModelUtil;
+import edu.ustb.sei.mde.graph.type.TypeEdge;
 import edu.ustb.sei.mde.graph.type.TypeGraph;
 import edu.ustb.sei.mde.graph.typedGraph.TypedGraph;
 import my.MatchN;
@@ -161,8 +162,9 @@ public class TestCollege {
 		long start = System.currentTimeMillis();
 		NWay nWay = new NWay(NsURIName, ep, typeGraph);
 		List<MatchN> matches = nWay.nMatch(uriList);
-		// 没有指定typeEdgeName的话，对TypedEdge都进行拓扑排序
-		TypedGraph mergeModel = nWay.nMerge(matches, "");
+		// 制定了需要排序的边类型为allTypeEdges
+		List<TypeEdge> allTypeEdges = typeGraph.getAllTypeEdges();		
+		TypedGraph mergeModel = nWay.nMerge(matches, allTypeEdges);
 		long end = System.currentTimeMillis();
 		System.out.println("总耗时：" + (end - start) + "ms.");
 		System.out.println("****************************************************");

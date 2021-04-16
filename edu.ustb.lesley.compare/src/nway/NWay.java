@@ -289,7 +289,7 @@ public class NWay extends XmuProgram {
 	}
 
 	/** MatchN传入我们的合并方法，进行diff和merge */
-	public TypedGraph nMerge(List<MatchN> matches, String typeEdgeName) {
+	public TypedGraph nMerge(List<MatchN> matches, List<TypeEdge> typeEdgeList) {
 
 		Map<Resource, TypedGraph> typedGraphMap = new HashMap<>();
 		HashMap<EObject, TypedNode> typedNodeMap = new HashMap<>();
@@ -438,7 +438,7 @@ public class NWay extends XmuProgram {
 
 			HashMap<TypedEdge, TypedEdge> forceOrd = new HashMap<>();
 			long start = System.currentTimeMillis();
-			BXMerge3.topoOrder(baseGraph, resultGraph, forceOrd, typeEdgeName, branchGraphs);
+			BXMerge3.topoOrder(baseGraph, resultGraph, forceOrd, typeEdgeList, branchGraphs);
 			long end = System.currentTimeMillis();
 			System.out.println("---------------------------------------");
 			System.out.println("序总耗时：" + (end - start) + " ms.");

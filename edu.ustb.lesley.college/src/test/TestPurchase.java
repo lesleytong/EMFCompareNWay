@@ -20,6 +20,7 @@ import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
 import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 
 import edu.ustb.sei.mde.bxcore.exceptions.NothingReturnedException;
+import edu.ustb.sei.mde.graph.type.TypeEdge;
 import edu.ustb.sei.mde.graph.type.TypeGraph;
 import edu.ustb.sei.mde.graph.typedGraph.TypedGraph;
 import my.MatchN;
@@ -61,7 +62,7 @@ public class TestPurchase {
 		// 调用自动修改方法
 		ChangeTool.changeForEcore(baseResource);
 		ChangeTool.save(baseResource, m0URI);
-		System.out.println("down");
+		System.out.println("done");
 		
 	}
 	
@@ -137,7 +138,7 @@ public class TestPurchase {
 		merger.copyAllLeftToRight(diff3, null);
 		ChangeTool.save(baseResource, branch3URI);
 
-		System.out.println("down");
+		System.out.println("done");
 	}
 	
 	public static void testMerge() {
@@ -154,15 +155,17 @@ public class TestPurchase {
 		long start = System.currentTimeMillis();
 		NWay nWay = new NWay(typeGraph);
 		List<MatchN> matches = nWay.nMatch(uriList);		
-		// PENDING
-//		typeGraph.getTypeEdge(typeNode, string)
-		TypedGraph mergeModel = nWay.nMerge(matches, "EClass-*->EStructuralFeature");
+		// typeEdgeList指定需要进行排序的边类型
+		TypeEdge typeEdge = typeGraph.getTypeEdge(typeGraph.getTypeNode("EClass"), "eAllEStructuralFeature");
+		List<TypeEdge> typeEdgeList = new ArrayList<>();
+		typeEdgeList.add(typeEdge);
+		TypedGraph mergeModel = nWay.nMerge(matches, typeEdgeList);
 		long end = System.currentTimeMillis();
 		System.out.println("总耗时： " + (end - start) + " ms.");		
 		
 		try {
 			nWay.saveModel(metaModelURI, m1URI, mergeModel);
-			System.out.println("down");
+			System.out.println("done");
 		} catch (NothingReturnedException e) {
 			e.printStackTrace();
 		}

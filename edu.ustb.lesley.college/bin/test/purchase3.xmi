@@ -3,24 +3,24 @@
   <eClassifiers xsi:type="ecore:EClass" name="PurchaseOrder">
     <eOperations name="submit"/>
     <eOperations name="delete"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="shipTo_nxs" eType="//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="shipTo" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="billTo" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="items" upperBound="-1" eType="//Item" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Item">
     <eOperations name="buy"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="price_9DY" eType="//EFloat"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name_Af2" eType="//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="price" eType="//EFloat"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Customer">
     <eOperations name="register"/>
     <eOperations name="login"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstName" eType="//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName_GrN" eType="//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="age" eType="//EInt"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EDataType" name="EString" instanceTypeName="String"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EInt" instanceClassName="int"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EFloat" instanceClassName="float"/>
-  <eClassifiers xsi:type="ecore:EClass" name="YuO"/>
+  <eClassifiers xsi:type="ecore:EClass" name="1OV"/>
 </ecore:EPackage>
