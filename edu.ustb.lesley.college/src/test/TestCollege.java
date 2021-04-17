@@ -1,6 +1,8 @@
 package test;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -66,7 +68,7 @@ public class TestCollege {
 		// 调用自动修改方法
 		ChangeTool.changeForXMI(baseResource);
 		ChangeTool.save(baseResource, m0URI);
-		System.out.println("down");
+		System.out.println("done");
 	}
 
 	public static void getBranches() {
@@ -88,23 +90,38 @@ public class TestCollege {
 		Comparison comparison = EMFCompare.builder().build().compare(scope);
 		EList<Diff> diffs = comparison.getDifferences();
 
+		Collection<Collection<Diff>> collections = new HashSet<>();
+		Collection<Diff> other = new HashSet<>();
+
 		diffs.forEach(d -> {
 			System.out.println("d: " + d);
+			EList<Diff> requires = d.getRequires();
+			EList<Diff> requiredBy = d.getRequiredBy();
+			if (requires.size() != 0) {
+				Collection<Diff> group = new HashSet<>();
+				group.add(d);
+				group.addAll(requires);
+				collections.add(group);
+			} else if (requiredBy.size() == 0) { // 必须用else if
+				other.add(d);
+			}
 		});
+		collections.add(other);
 
-		// 将diffs随机分配给三个分支版本
+		// 将collections随机分配给三个分支版本
 		ArrayList<Diff> diff1 = new ArrayList();
 		ArrayList<Diff> diff2 = new ArrayList();
 		ArrayList<Diff> diff3 = new ArrayList();
-		diffs.forEach(d -> {
-			System.out.println(d);
+
+		// 随机分配
+		collections.forEach(c -> {
 			double flag = random.nextDouble();
 			if (flag >= 0.7) {
-				diff1.add(d);
+				diff1.addAll(c);
 			} else if (flag <= 0.3) {
-				diff2.add(d);
+				diff2.addAll(c);
 			} else {
-				diff3.add(d);
+				diff3.addAll(c);
 			}
 		});
 
@@ -146,7 +163,7 @@ public class TestCollege {
 		merger.copyAllLeftToRight(diff3, null);
 		ChangeTool.save(baseResource, branch3URI);
 
-		System.out.println("down");
+		System.out.println("done");
 	}
 
 	public static void testMerge() {
@@ -163,7 +180,7 @@ public class TestCollege {
 		NWay nWay = new NWay(NsURIName, ep, typeGraph);
 		List<MatchN> matches = nWay.nMatch(uriList);
 		// 制定了需要排序的边类型为allTypeEdges
-		List<TypeEdge> allTypeEdges = typeGraph.getAllTypeEdges();		
+		List<TypeEdge> allTypeEdges = typeGraph.getAllTypeEdges();
 		TypedGraph mergeModel = nWay.nMerge(matches, allTypeEdges);
 		long end = System.currentTimeMillis();
 		System.out.println("总耗时：" + (end - start) + "ms.");
@@ -176,7 +193,7 @@ public class TestCollege {
 			e.printStackTrace();
 		}
 
-		System.out.println("down");
+		System.out.println("done");
 
 	}
 
