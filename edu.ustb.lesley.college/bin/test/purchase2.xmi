@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="po" nsURI="http://www.example.com/SimplePO" nsPrefix="po">
-  <eClassifiers xsi:type="ecore:EClass" name="PurchaseOrder">
-    <eOperations name="submit"/>
+  <eClassifiers xsi:type="ecore:EClass" name="PurchaseOrder_hx1">
     <eOperations name="delete"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="shipTo" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="billTo" eType="//EString"/>
@@ -10,18 +9,17 @@
   <eClassifiers xsi:type="ecore:EClass" name="Item">
     <eOperations name="buy"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="price_mXI" eType="//EFloat"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="price_gdO" eType="//EFloat"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Customer_GzY">
+  <eClassifiers xsi:type="ecore:EClass" name="Customer">
     <eOperations name="register"/>
     <eOperations name="login"/>
-    <eOperations name="dSV"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstName" eType="//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName_sBy" eType="//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="age" eType="//EInt"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EDataType" name="EString" instanceTypeName="String"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EInt" instanceClassName="int"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EFloat" instanceClassName="float"/>
-  <eClassifiers xsi:type="ecore:EClass" name="nfm"/>
+  <eClassifiers xsi:type="ecore:EClass" name="bqc"/>
 </ecore:EPackage>

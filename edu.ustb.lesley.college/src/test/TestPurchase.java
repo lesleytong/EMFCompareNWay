@@ -1,6 +1,8 @@
 package test;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -29,23 +31,22 @@ import nway.EcoreTypeGraph;
 import nway.NWay;
 
 public class TestPurchase {
-	
+
 	static ResourceSet resourceSet;
-	
+
 	static URI baseURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase.xmi");
 	static URI backupURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_backup.xmi");
 	static URI m0URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_m0.xmi");
-	
+
 	static URI branch1URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase1.xmi");
 	static URI branch2URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase2.xmi");
 	static URI branch3URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase3.xmi");
-	
+
 	static URI metaModelURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.compare\\model\\Ecore.ecore");
 	static URI m1URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_m1.xmi");
-	
 
 	public static void main(String[] args) {
-		
+
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 		resourceSet = new ResourceSetImpl();
 
@@ -55,17 +56,17 @@ public class TestPurchase {
 		testEquality();
 
 	}
-	
+
 	public static void getM0() {
-				
+
 		Resource baseResource = resourceSet.getResource(baseURI, true);
 		// 调用自动修改方法
 		ChangeTool.changeForEcore(baseResource);
 		ChangeTool.save(baseResource, m0URI);
 		System.out.println("done");
-		
+
 	}
-	
+
 	public static void getBranches() {
 
 		Random random = new Random();
@@ -84,12 +85,42 @@ public class TestPurchase {
 		IComparisonScope scope = new DefaultComparisonScope(m0Resource, baseResource, null);
 		Comparison comparison = EMFCompare.builder().build().compare(scope);
 		EList<Diff> diffs = comparison.getDifferences();
-		// 将diffs随机分配给三个分支版本
+
+		Collection<Collection<Diff>> collections = new HashSet<>();
+		Collection<Diff> other = new HashSet<>();
+
+		diffs.forEach(d -> {
+			System.out.println("d: " + d);
+			EList<Diff> requires = d.getRequires();
+			EList<Diff> requiredBy = d.getRequiredBy();
+			if (requires.size() != 0) {
+				Collection<Diff> group = new HashSet<>();
+				group.add(d);
+				group.addAll(requires);
+				collections.add(group);
+			} else if (requiredBy.size() == 0) { // 必须用else if
+				other.add(d);
+			}
+		});
+
 		ArrayList<Diff> diff1 = new ArrayList();
 		ArrayList<Diff> diff2 = new ArrayList();
 		ArrayList<Diff> diff3 = new ArrayList();
-		diffs.forEach(d -> {
-			System.out.println(d);
+
+		// 将collections随机分配给三个分支版本
+		collections.forEach(group -> {
+			double flag = random.nextDouble();
+			if (flag >= 0.7) {
+				diff1.addAll(group);
+			} else if (flag <= 0.3) {
+				diff2.addAll(group);
+			} else {
+				diff3.addAll(group);
+			}
+		});
+
+		// 将other中的diff随机分配给三个分支版本
+		other.forEach(d -> {
 			double flag = random.nextDouble();
 			if (flag >= 0.7) {
 				diff1.add(d);
@@ -140,7 +171,7 @@ public class TestPurchase {
 
 		System.out.println("done");
 	}
-	
+
 	public static void testMerge() {
 
 		ArrayList<URI> uriList = new ArrayList<>();
@@ -154,15 +185,15 @@ public class TestPurchase {
 
 		long start = System.currentTimeMillis();
 		NWay nWay = new NWay(typeGraph);
-		List<MatchN> matches = nWay.nMatch(uriList);		
+		List<MatchN> matches = nWay.nMatch(uriList);
 		// typeEdgeList指定需要进行排序的边类型
 		TypeEdge typeEdge = typeGraph.getTypeEdge(typeGraph.getTypeNode("EClass"), "eAllEStructuralFeature");
 		List<TypeEdge> typeEdgeList = new ArrayList<>();
 		typeEdgeList.add(typeEdge);
 		TypedGraph mergeModel = nWay.nMerge(matches, typeEdgeList);
 		long end = System.currentTimeMillis();
-		System.out.println("总耗时： " + (end - start) + " ms.");		
-		
+		System.out.println("总耗时： " + (end - start) + " ms.");
+
 		try {
 			nWay.saveModel(metaModelURI, m1URI, mergeModel);
 			System.out.println("done");
@@ -170,9 +201,9 @@ public class TestPurchase {
 			e.printStackTrace();
 		}
 	}
-	
+
 	// 比较M1和M0
-	public static void testEquality() {		
+	public static void testEquality() {
 
 		Resource leftResource = resourceSet.getResource(m1URI, true);
 		Resource rightResource = resourceSet.getResource(m0URI, true);
@@ -185,7 +216,7 @@ public class TestPurchase {
 		diffs.forEach(d -> {
 			System.out.println(d);
 		});
-		
+
 	}
 
 }

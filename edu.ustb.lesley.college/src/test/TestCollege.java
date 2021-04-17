@@ -108,20 +108,31 @@ public class TestCollege {
 		});
 		collections.add(other);
 
-		// 将collections随机分配给三个分支版本
 		ArrayList<Diff> diff1 = new ArrayList();
 		ArrayList<Diff> diff2 = new ArrayList();
 		ArrayList<Diff> diff3 = new ArrayList();
 
-		// 随机分配
-		collections.forEach(c -> {
+		// 将collections中的group随机分配给三个分支版本
+		collections.forEach(group -> {
 			double flag = random.nextDouble();
 			if (flag >= 0.7) {
-				diff1.addAll(c);
+				diff1.addAll(group);
 			} else if (flag <= 0.3) {
-				diff2.addAll(c);
+				diff2.addAll(group);
 			} else {
-				diff3.addAll(c);
+				diff3.addAll(group);
+			}
+		});
+
+		// 将other中的diff随机分配给三个分支版本
+		other.forEach(d -> {
+			double flag = random.nextDouble();
+			if (flag >= 0.7) {
+				diff1.add(d);
+			} else if (flag <= 0.3) {
+				diff2.add(d);
+			} else {
+				diff3.add(d);
 			}
 		});
 
