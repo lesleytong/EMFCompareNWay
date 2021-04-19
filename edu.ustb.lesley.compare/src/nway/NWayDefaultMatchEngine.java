@@ -5,6 +5,7 @@ import static java.util.Collections.emptyIterator;
 import java.util.Collection;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.log4j.Logger;
 import org.eclipse.emf.common.notify.Notifier;
@@ -14,6 +15,7 @@ import org.eclipse.emf.common.util.Monitor;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.CompareFactory;
 import org.eclipse.emf.compare.Comparison;
+import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.EMFCompareMessages;
 import org.eclipse.emf.compare.Match;
 import org.eclipse.emf.compare.MatchResource;
@@ -34,7 +36,6 @@ import org.eclipse.emf.compare.scope.IComparisonScope;
 import org.eclipse.emf.compare.utils.UseIdentifiers;
 import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.resource.Resource;
-import org.eclipse.emf.ecore.resource.ResourceSet;
 
 public class NWayDefaultMatchEngine extends DefaultMatchEngine {
 
@@ -56,7 +57,8 @@ public class NWayDefaultMatchEngine extends DefaultMatchEngine {
 	}
 
 	// lyt: 新加的方法
-	public Comparison matchN(IComparisonScope scope, List<Match> preMatches, Monitor monitor) {
+	public Comparison matchN(IComparisonScope scope, List<Match> preMatches, Map<EObject, Diff> addDiffsMap,
+			Monitor monitor) {
 		long start = System.currentTimeMillis();
 		if (LOGGER.isDebugEnabled()) {
 			LOGGER.debug(String.format("detect matches - START")); //$NON-NLS-1$
@@ -72,7 +74,9 @@ public class NWayDefaultMatchEngine extends DefaultMatchEngine {
 
 		comparison.setThreeWay(origin != null);
 
-		match(comparison, scope, left, right, origin, monitor);
+		if (left instanceof Resource || right instanceof Resource) {
+			matchADD(comparison, scope, (Resource) left, (Resource) right, (Resource) origin, monitor, addDiffsMap);
+		}
 
 		if (LOGGER.isInfoEnabled()) {
 			LOGGER.info(String.format("detect matches - END - Took %d ms", Long.valueOf(System //$NON-NLS-1$
@@ -81,26 +85,8 @@ public class NWayDefaultMatchEngine extends DefaultMatchEngine {
 		return comparison;
 	}
 
-	@Override
-	// 没改动，这个不是必须的，防止又跳转到DefaultMatchEngine
-	protected void match(Comparison comparison, IComparisonScope scope, final Notifier left, final Notifier right,
-			final Notifier origin, Monitor monitor) {
-		// FIXME side-effect coding
-		if (left instanceof ResourceSet || right instanceof ResourceSet) {
-			match(comparison, scope, (ResourceSet) left, (ResourceSet) right, (ResourceSet) origin, monitor);
-		} else if (left instanceof Resource || right instanceof Resource) {
-			match(comparison, scope, (Resource) left, (Resource) right, (Resource) origin, monitor);
-		} else if (left instanceof EObject || right instanceof EObject) {
-			match(comparison, scope, (EObject) left, (EObject) right, (EObject) origin, monitor);
-		} else {
-			// TODO Cannot happen ... for now. Should we log an exception?
-		}
-	}
-
-	@Override
-	// 加了过滤
-	protected void match(Comparison comparison, IComparisonScope scope, Resource left, Resource right, Resource origin,
-			Monitor monitor) {
+	protected void matchADD(Comparison comparison, IComparisonScope scope, Resource left, Resource right,
+			Resource origin, Monitor monitor, Map<EObject, Diff> addDiffsMap) {
 		monitor.subTask(EMFCompareMessages.getString("DefaultMatchEngine.monitor.match.resource")); //$NON-NLS-1$
 		// Our "roots" are Resources. Consider them matched
 		final MatchResource match = CompareFactory.eINSTANCE.createMatchResource();
@@ -147,7 +133,7 @@ public class NWayDefaultMatchEngine extends DefaultMatchEngine {
 			leftEObjectsUnModifiable = scope.getCoveredEObjects(left);
 			while (leftEObjectsUnModifiable.hasNext()) {
 				EObject next = leftEObjectsUnModifiable.next();
-				if (comparison.getMatch(next) == null) {
+				if (comparison.getMatch(next) == null && addDiffsMap.get(next) != null) { // 说明是新加元素需要进行匹配
 					leftEList.add(next);
 				}
 			}
@@ -162,7 +148,7 @@ public class NWayDefaultMatchEngine extends DefaultMatchEngine {
 			rightEObjectsUnModifiable = scope.getCoveredEObjects(right);
 			while (rightEObjectsUnModifiable.hasNext()) {
 				EObject next = rightEObjectsUnModifiable.next();
-				if (comparison.getMatch(next) == null) {
+				if (comparison.getMatch(next) == null && addDiffsMap.get(next) != null) { // 说明是新加元素需要进行匹配
 					rightEList.add(next);
 				}
 			}
@@ -171,10 +157,10 @@ public class NWayDefaultMatchEngine extends DefaultMatchEngine {
 			rightEObjectsUnModifiable = emptyIterator();
 		}
 
+		// 官方原来的代码
 		final Iterator<? extends EObject> originEObjectsUnModifiable;
 		if (origin != null) {
 			originEObjectsUnModifiable = scope.getCoveredEObjects(origin);
-
 		} else {
 			originEObjectsUnModifiable = emptyIterator();
 		}

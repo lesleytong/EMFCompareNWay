@@ -119,16 +119,14 @@ public class NWay extends XmuProgram {
 			if (diff.getKind() == DifferenceKind.ADD) {
 				ReferenceChangeSpec diffADD = (ReferenceChangeSpec) diff;
 				EObject left = diffADD.getValue();
-				EObject right = diffADD.getMatch().getComparison().getMatch(left).getRight();
-				if (right == null) { // 只有涉及到新加EObject的才能加入到addDiffsMap
-					addDiffsMap.put(left, diff); // 保存一下此EObject对应的ADD diff
-				}
+				// 已经是ADD的diff了，EObject right一定为null，不用多此一举去判断它
+				addDiffsMap.put(left, diff); // 保存一下此EObject对应的ADD diff
 			}
 		}
 
 		Comparison branchComparison = null;
-		for (int i = 2; i < uriList.size(); i++) {
-			Resource branchResource = resourceSet.getResource(uriList.get(i), true);
+		for (int j = 2; j < uriList.size(); j++) {
+			Resource branchResource = resourceSet.getResource(uriList.get(j), true);
 
 			resources.add(branchResource);
 
@@ -137,17 +135,14 @@ public class NWay extends XmuProgram {
 
 			// base与其它分支的matches
 			List<Match> branchMatches = new ArrayList<Match>(branchComparison.getMatches());
-			matchesMap.put(i, branchMatches);
+			matchesMap.put(j, branchMatches);
 
 			// 为了处理ADD元素（base与其它分支的）
 			for (Diff diff : branchComparison.getDifferences()) { // 这里是branchComparison
 				if (diff.getKind() == DifferenceKind.ADD) {
 					ReferenceChangeSpec diffADD = (ReferenceChangeSpec) diff;
 					EObject left = diffADD.getValue();
-					EObject right = diffADD.getMatch().getComparison().getMatch(left).getRight();
-					if (right == null) { // 只有涉及到新加EObject的才能加入到addDiffsMap
-						addDiffsMap.put(left, diff); // 保存一下此EObject对应的ADD diff
-					}
+					addDiffsMap.put(left, diff); // 保存一下此EObject对应的ADD diff
 				}
 			}
 
@@ -176,15 +171,14 @@ public class NWay extends XmuProgram {
 		Table<Resource, Resource, List<Match>> table = HashBasedTable.create();
 
 		/** ADD元素的匹配 */
-		if (addDiffsMap.size() == 1) {
+		if (addDiffsMap.size() == 1) {	// 只有一个新加，不需要计算极大团
 			MatchN matchN = new MatchNImpl();
-			matchN.getBranches().add(addDiffsMap.entrySet().stream().findFirst().get().getKey());
+			matchN.getBranches().addAll(addDiffsMap.keySet());
 			comparisonN.getMatches().add(matchN);
 		} else if (addDiffsMap.size() > 1) {
 			List<Match> allADDMatches = new ArrayList<>();
 			for (int i = 1; i < uriList.size() - 1; i++) {
 				Resource resourceI = resourceSet.getResource(uriList.get(i), true);
-
 				// 可以拿到base与分支i的匹配信息
 				List<Match> matchListI = matchesMap.get(i);
 
@@ -192,13 +186,15 @@ public class NWay extends XmuProgram {
 					Resource resourceJ = resourceSet.getResource(uriList.get(j), true);
 					// 可以拿到base与分支j的匹配信息
 					List<Match> matchListJ = matchesMap.get(j);
-					// 匹配上base中同一元素的分组到一起
+					
+					// 匹配上base中同一元素的分为一组
 					List<Match> matchList = new ArrayList<Match>();
 					matchList.addAll(matchListI);
 					matchList.addAll(matchListJ);
-					Map<EObject, List<EObject>> preMap = new HashMap<>();
+					Map<EObject, List<EObject>> preMap = new HashMap<>();					
 					groupMatches(matchList, preMap);
-					// 拿到预匹配，有助于ADD元素之后的匹配
+					
+					// 根据preMap得出预匹配，有助于ADD元素的匹配
 					List<Match> preMatches = getPreMatches(preMap);
 
 					// 为了之后计算编辑代价，resourceI和resourceJ作为键
@@ -208,13 +204,22 @@ public class NWay extends XmuProgram {
 					IComparisonScope scope = new DefaultComparisonScope(resourceI, resourceJ, null);
 					NWayDefaultMatchEngine engine = (NWayDefaultMatchEngine) NWayDefaultMatchEngine
 							.create(UseIdentifiers.NEVER);
-					Comparison comparisonADD = engine.matchN(scope, preMatches, new BasicMonitor());
-
+					Comparison comparisonADD = engine.matchN(scope, preMatches, addDiffsMap, new BasicMonitor());
+					
+					// tmp
+					System.out.println("i, j: " + i + "," + j);
+					
 					// 将新得到的关于ADD元素的匹配，放到allADDMatches中
 					filerADDMatches(allADDMatches, comparisonADD.getMatches(), preMatches);
-
+					
+					// tmp
+					System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+					
 				}
 			}
+			
+			// tmp
+			System.out.println("NWay line 211");
 
 			/** 成团 */
 			if (allADDMatches.size() > 1) {
@@ -226,7 +231,7 @@ public class NWay extends XmuProgram {
 						edges.add(match);
 					}
 				}
-
+			
 				// BKWithPivot
 				MaximalCliquesWithPivot ff = new MaximalCliquesWithPivot();
 				ff.initGraph(addDiffsMap.keySet(), edges);
@@ -423,6 +428,10 @@ public class NWay extends XmuProgram {
 			TypedGraph baseGraph = typedGraphMap.get(resources.get(0));
 			System.out.println("baseGraph: ");
 			print(baseGraph);
+			
+			// tmp
+			
+			
 
 			TypedGraph[] branchGraphs = new TypedGraph[resources.size() - 1];
 			for (int i = 1; i < resources.size(); i++) {
@@ -475,9 +484,14 @@ public class NWay extends XmuProgram {
 
 	/** 获得新得到的ADD元素的匹配 */
 	public void filerADDMatches(List<Match> allADDMatches, List<Match> matches, List<Match> preMatches) {
+		
 		matches.forEach(match -> {
-			if (preMatches.contains(match) == false) {
+			if (preMatches.contains(match) == false) {				
 				allADDMatches.add(match);
+				
+				// tmp
+				System.out.println(match);
+				
 			}
 			List<Match> submatches = match.getSubmatches();
 			if (submatches != null) {
@@ -507,19 +521,19 @@ public class NWay extends XmuProgram {
 	/** preMap */
 	public void groupMatches(List<Match> matches, Map<EObject, List<EObject>> preMap) {
 		for (Match match : matches) {
-			EObject right = match.getRight();
-			EObject left = match.getLeft(); // 考虑有删除的情况. 会不会用diff.kind去判断会好些？
-			if (right != null && left != null) {
+			EObject right = match.getRight();	// right是base中的元素
+			EObject left = match.getLeft(); 	
+			if (right != null && left != null) {	// 没考虑left被删除的情况
 				List<Match> submatches = match.getSubmatches();
 				if (submatches != null) {
 					groupMatches(submatches, preMap); // 递归
 				}
 				if (preMap.get(right) == null) {
-					List<EObject> List = new ArrayList<>();
-					List.add(left);
-					preMap.put(right, List);
+					List<EObject> list = new ArrayList<>();
+					list.add(left);
+					preMap.put(right, list);
 				} else {
-					preMap.get(right).add(left); // right是base中的元素
+					preMap.get(right).add(left); 
 				}
 			}
 		}
@@ -546,6 +560,10 @@ public class NWay extends XmuProgram {
 		for (EReference r : tmp) {
 			TypeEdge typeEdge = typeGraph.getTypeEdge(typeNode, r.getName());
 
+//			if(typeEdge == null) {
+//				continue;
+//			}
+			
 			if (ep == null) {
 				if (typeEdge.getName().equals("eRawType") || typeEdge.getName().equals("eClassifier")) {
 					continue;
@@ -603,7 +621,17 @@ public class NWay extends XmuProgram {
 		for (EReference r : tmp) {
 
 			TypeEdge typeEdge = typeGraph.getTypeEdge(typeNode, r.getName());
-
+			
+//			if(typeEdge == null) {
+//				continue;
+//			}
+			
+			if (ep == null) {
+				if (typeEdge.getName().equals("eRawType") || typeEdge.getName().equals("eClassifier")) {
+					continue;
+				}
+			}
+			
 			if (r.isMany()) { // multi-reference
 
 				Collection<EObject> targets = (Collection<EObject>) base.eGet(r);

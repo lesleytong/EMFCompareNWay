@@ -50,10 +50,10 @@ public class TestPurchase {
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 		resourceSet = new ResourceSetImpl();
 
-//		getM0();
+		getM0();
 //		getBranches();
 //		testMerge();
-		testEquality();
+//		testEquality();
 
 	}
 
@@ -61,7 +61,8 @@ public class TestPurchase {
 
 		Resource baseResource = resourceSet.getResource(baseURI, true);
 		// 调用自动修改方法
-		ChangeTool.changeForEcore(baseResource);
+//		ChangeTool.changeForEcore(baseResource);
+		ChangeTool.changeForXMI(baseResource);
 		ChangeTool.save(baseResource, m0URI);
 		System.out.println("done");
 
@@ -107,7 +108,7 @@ public class TestPurchase {
 		ArrayList<Diff> diff2 = new ArrayList();
 		ArrayList<Diff> diff3 = new ArrayList();
 
-		// 将collections随机分配给三个分支版本
+		// 将collections中的group随机分配给三个分支版本
 		collections.forEach(group -> {
 			double flag = random.nextDouble();
 			if (flag >= 0.7) {

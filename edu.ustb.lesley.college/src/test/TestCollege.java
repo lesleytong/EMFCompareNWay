@@ -57,8 +57,8 @@ public class TestCollege {
 
 //		getM0();
 //		getBranches();
-//		testMerge();
-		testEquality();
+		testMerge();
+//		testEquality();
 
 	}
 

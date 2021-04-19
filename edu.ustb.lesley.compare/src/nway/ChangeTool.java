@@ -93,9 +93,7 @@ public class ChangeTool {
 
 		// 调用EcoreUtil的方法进行删除
 		EcoreUtil.removeAll(dList);
-
-		
-		
+			
 	}
 
 	public static void changeForXMI(Resource resource) {
