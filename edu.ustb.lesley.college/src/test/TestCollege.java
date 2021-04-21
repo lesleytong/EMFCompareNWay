@@ -57,8 +57,8 @@ public class TestCollege {
 
 //		getM0();
 //		getBranches();
-		testMerge();
-//		testEquality();
+//		testMerge();
+		testEquality();
 
 	}
 
@@ -86,7 +86,7 @@ public class TestCollege {
 		Resource baseResource = resourceSet.getResource(baseURI, true);
 		Resource m0Resource = resourceSet.getResource(m0URI, true);
 
-		IComparisonScope scope = new DefaultComparisonScope(m0Resource, baseResource, null);
+		IComparisonScope scope = new DefaultComparisonScope(baseResource, m0Resource, null);
 		Comparison comparison = EMFCompare.builder().build().compare(scope);
 		EList<Diff> diffs = comparison.getDifferences();
 
@@ -97,16 +97,16 @@ public class TestCollege {
 			System.out.println("d: " + d);
 			EList<Diff> requires = d.getRequires();
 			EList<Diff> requiredBy = d.getRequiredBy();
+			
 			if (requires.size() != 0) {
-				Collection<Diff> group = new HashSet<>();
-				group.add(d);
+				Collection<Diff> group = new HashSet<>();				
+				group.add(d);						
 				group.addAll(requires);
 				collections.add(group);
-			} else if (requiredBy.size() == 0) { // 必须用else if
+			} else if (requiredBy.size() == 0) { // 必须用else if				
 				other.add(d);
 			}
 		});
-		collections.add(other);
 
 		ArrayList<Diff> diff1 = new ArrayList();
 		ArrayList<Diff> diff2 = new ArrayList();
@@ -141,37 +141,37 @@ public class TestCollege {
 		diff1.forEach(d -> {
 			System.out.println(d);
 		});
-		merger.copyAllLeftToRight(diff1, null);
+		merger.copyAllRightToLeft(diff1, null);
 		ChangeTool.save(baseResource, branch1URI);
 
 		// 恢复原来的base
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>backup");
-		backupScope = new DefaultComparisonScope(backupResource, baseResource, null);
+		backupScope = new DefaultComparisonScope(baseResource, backupResource, null);
 		backupComparison = EMFCompare.builder().build().compare(backupScope);
 		backupDiffs = backupComparison.getDifferences();
-		merger.copyAllLeftToRight(backupDiffs, null);
+		merger.copyAllRightToLeft(backupDiffs, null);
 
 		// 在base上应用diff2，得到branch2
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diff2");
 		diff2.forEach(d -> {
 			System.out.println(d);
 		});
-		merger.copyAllLeftToRight(diff2, null);
+		merger.copyAllRightToLeft(diff2, null);
 		ChangeTool.save(baseResource, branch2URI);
 
 		// 恢复原来的base
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>backup");
-		backupScope = new DefaultComparisonScope(backupResource, baseResource, null);
+		backupScope = new DefaultComparisonScope(baseResource, backupResource, null);
 		backupComparison = EMFCompare.builder().build().compare(backupScope);
 		backupDiffs = backupComparison.getDifferences();
-		merger.copyAllLeftToRight(backupDiffs, null);
+		merger.copyAllRightToLeft(backupDiffs, null);
 
 		// 在base上应用diff3，得到branch3
 		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diff3");
 		diff3.forEach(d -> {
 			System.out.println(d);
 		});
-		merger.copyAllLeftToRight(diff3, null);
+		merger.copyAllRightToLeft(diff3, null);
 		ChangeTool.save(baseResource, branch3URI);
 
 		System.out.println("done");
@@ -211,8 +211,8 @@ public class TestCollege {
 	// 比较M1和M0
 	public static void testEquality() {
 
-		Resource leftResource = resourceSet.getResource(m1URI, true);
-		Resource rightResource = resourceSet.getResource(m0URI, true);
+		Resource leftResource = resourceSet.getResource(m0URI, true);
+		Resource rightResource = resourceSet.getResource(m1URI, true);
 
 		IComparisonScope scope = new DefaultComparisonScope(leftResource, rightResource, null);
 		Comparison comparison = EMFCompare.builder().build().compare(scope);

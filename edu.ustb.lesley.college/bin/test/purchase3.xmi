@@ -9,6 +9,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Item">
     <eOperations name="buy"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="price" eType="//EFloat"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Customer">
@@ -21,5 +22,5 @@
   <eClassifiers xsi:type="ecore:EDataType" name="EString" instanceTypeName="String"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EInt" instanceClassName="int"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EFloat" instanceClassName="float"/>
-  <eClassifiers xsi:type="ecore:EClass" name="1Ry"/>
+  <eClassifiers xsi:type="ecore:EClass" name="v5b"/>
 </ecore:EPackage>

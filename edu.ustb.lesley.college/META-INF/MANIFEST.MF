@@ -29,4 +29,5 @@ Import-Package: edu.ustb.sei.mde.bxcore.exceptions,
 Require-Bundle: org.eclipse.core.runtime;bundle-version="3.16.0",
  org.eclipse.emf.ecore;visibility:=reexport,
  edu.ustb.lesley.compare,
- org.eclipse.uml2.uml;bundle-version="5.5.0"
+ org.eclipse.uml2.uml;bundle-version="5.5.0",
+ org.eclipse.emf.compare

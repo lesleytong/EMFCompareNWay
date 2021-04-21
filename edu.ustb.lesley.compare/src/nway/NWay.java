@@ -9,9 +9,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -171,12 +173,12 @@ public class NWay extends XmuProgram {
 		Table<Resource, Resource, List<Match>> table = HashBasedTable.create();
 
 		/** ADD元素的匹配 */
-		if (addDiffsMap.size() == 1) {	// 只有一个新加，不需要计算极大团
+		if (addDiffsMap.size() == 1) { // 只有一个新加，不需要计算极大团
 			MatchN matchN = new MatchNImpl();
 			matchN.getBranches().addAll(addDiffsMap.keySet());
 			comparisonN.getMatches().add(matchN);
 		} else if (addDiffsMap.size() > 1) {
-			List<Match> allADDMatches = new ArrayList<>();
+			Set<Match> allADDMatches = new HashSet<>();
 			for (int i = 1; i < uriList.size() - 1; i++) {
 				Resource resourceI = resourceSet.getResource(uriList.get(i), true);
 				// 可以拿到base与分支i的匹配信息
@@ -186,14 +188,14 @@ public class NWay extends XmuProgram {
 					Resource resourceJ = resourceSet.getResource(uriList.get(j), true);
 					// 可以拿到base与分支j的匹配信息
 					List<Match> matchListJ = matchesMap.get(j);
-					
+
 					// 匹配上base中同一元素的分为一组
 					List<Match> matchList = new ArrayList<Match>();
 					matchList.addAll(matchListI);
 					matchList.addAll(matchListJ);
-					Map<EObject, List<EObject>> preMap = new HashMap<>();					
+					Map<EObject, List<EObject>> preMap = new HashMap<>();
 					groupMatches(matchList, preMap);
-					
+
 					// 根据preMap得出预匹配，有助于ADD元素的匹配
 					List<Match> preMatches = getPreMatches(preMap);
 
@@ -205,89 +207,62 @@ public class NWay extends XmuProgram {
 					NWayDefaultMatchEngine engine = (NWayDefaultMatchEngine) NWayDefaultMatchEngine
 							.create(UseIdentifiers.NEVER);
 					Comparison comparisonADD = engine.matchN(scope, preMatches, addDiffsMap, new BasicMonitor());
-					
+
 					// tmp
 					System.out.println("i, j: " + i + "," + j);
-					
+
 					// 将新得到的关于ADD元素的匹配，放到allADDMatches中
 					filerADDMatches(allADDMatches, comparisonADD.getMatches(), preMatches);
-					
+
 					// tmp
 					System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-					
+
 				}
 			}
-			
-			// tmp
-			System.out.println("NWay line 211");
 
 			/** 成团 */
-			if (allADDMatches.size() > 1) {
-				List<Match> edges = new ArrayList<>();
-				for (Match match : allADDMatches) {
-					EObject left = match.getLeft();
-					EObject right = match.getRight();
-					if (left != null && right != null) {
-						edges.add(match);
-					}
-				}
-			
-				// BKWithPivot
-				MaximalCliquesWithPivot ff = new MaximalCliquesWithPivot();
-				ff.initGraph(addDiffsMap.keySet(), edges);
-				List<List<EObject>> maximalCliques = new ArrayList<>();
-				ff.Bron_KerboschPivotExecute(maximalCliques);
+			// BKWithPivot
+			MaximalCliquesWithPivot ff = new MaximalCliquesWithPivot();
+			ff.initGraph(addDiffsMap.keySet(), allADDMatches);
+			List<List<EObject>> maximalCliques = new ArrayList<>();
+			ff.Bron_KerboschPivotExecute(maximalCliques);
 
-				// 用EMF Compare自带的编辑距离计算每个极大团的分数
-				Map<Integer, Info> map = new HashMap<>();
-				for (int i = 0; i < maximalCliques.size(); i++) {
-					List<EObject> List = maximalCliques.get(i);
-					int sumCost = sumEditionDistance(List, table); // 这个团总的编辑代价
-					Info info = new Info(List.size(), sumCost);
-					map.put(i, info);
-				}
-
-				// 先比较size（值大的排前面），当size相同时再比较sumMinCost（值小的排前面）
-				List<Integer> sortedList = map.entrySet().stream()
-						.sorted(Entry.comparingByValue(
-								Comparator.comparing(Info::getSize).reversed().thenComparing(Info::getMinCost)))
-						.map(Map.Entry::getKey).collect(Collectors.toList());
-
-				// 更新sortedList
-				for (int i = 0; i < sortedList.size() - 1; i++) {
-					List<EObject> preClique = maximalCliques.get(sortedList.get(i));
-					for (int j = i + 1; j < sortedList.size(); j++) {
-						List<EObject> sucClique = maximalCliques.get(sortedList.get(j));
-						if (Collections.disjoint(preClique, sucClique) == false) { // 如果交集不为空的话
-							sortedList.remove(j);
-							j--; // 由于remove后整体往前移了一个
-						}
-					}
-				}
-
-				// 用comparisonN保存一下
-				sortedList.forEach(i -> {
-					// 根据更新后的sortedList对应到maximalCliques中
-					List<EObject> List = maximalCliques.get(i);
-					MatchN matchN = new MatchNImpl();
-					matchN.getBranches().addAll(List);
-					comparisonN.getMatches().add(matchN);
-				});
-
-			} else if (allADDMatches.size() == 1) {
-				Match match = allADDMatches.get(0);
-				EObject left = match.getLeft();
-				EObject right = match.getRight();
-
-				MatchN matchN = new MatchNImpl();
-				if (left != null) {
-					matchN.getBranches().add(left);
-				}
-				if (right != null) {
-					matchN.getBranches().add(right);
-				}
-				comparisonN.getMatches().add(matchN);
+			// 用EMF Compare自带的编辑距离计算每个极大团的分数
+			Map<Integer, Info> map = new HashMap<>();
+			for (int i = 0; i < maximalCliques.size(); i++) {
+				List<EObject> List = maximalCliques.get(i);
+				int sumCost = sumEditionDistance(List, table); // 这个团总的编辑代价
+				Info info = new Info(List.size(), sumCost);
+				map.put(i, info);
 			}
+
+			// 先比较size（值大的排前面），当size相同时再比较sumMinCost（值小的排前面）
+			List<Integer> sortedList = map.entrySet().stream()
+					.sorted(Entry.comparingByValue(
+							Comparator.comparing(Info::getSize).reversed().thenComparing(Info::getMinCost)))
+					.map(Map.Entry::getKey).collect(Collectors.toList());
+
+			// 更新sortedList
+			for (int i = 0; i < sortedList.size() - 1; i++) {
+				List<EObject> preClique = maximalCliques.get(sortedList.get(i));
+				for (int j = i + 1; j < sortedList.size(); j++) {
+					List<EObject> sucClique = maximalCliques.get(sortedList.get(j));
+					if (Collections.disjoint(preClique, sucClique) == false) { // 如果交集不为空的话
+						sortedList.remove(j);
+						j--; // 由于remove后整体往前移了一个
+					}
+				}
+			}
+
+			// 用comparisonN保存一下
+			sortedList.forEach(i -> {
+				// 根据更新后的sortedList对应到maximalCliques中
+				List<EObject> List = maximalCliques.get(i);
+				MatchN matchN = new MatchNImpl();
+				matchN.getBranches().addAll(List);
+				comparisonN.getMatches().add(matchN);
+			});
+
 		}
 
 		return comparisonN.getMatches();
@@ -428,10 +403,6 @@ public class NWay extends XmuProgram {
 			TypedGraph baseGraph = typedGraphMap.get(resources.get(0));
 			System.out.println("baseGraph: ");
 			print(baseGraph);
-			
-			// tmp
-			
-			
 
 			TypedGraph[] branchGraphs = new TypedGraph[resources.size() - 1];
 			for (int i = 1; i < resources.size(); i++) {
@@ -483,15 +454,14 @@ public class NWay extends XmuProgram {
 	}
 
 	/** 获得新得到的ADD元素的匹配 */
-	public void filerADDMatches(List<Match> allADDMatches, List<Match> matches, List<Match> preMatches) {
-		
+	public void filerADDMatches(Set<Match> allADDMatches, List<Match> matches, List<Match> preMatches) {
+
 		matches.forEach(match -> {
-			if (preMatches.contains(match) == false) {				
-				allADDMatches.add(match);
-				
-				// tmp
-				System.out.println(match);
-				
+			if (preMatches.contains(match) == false) {
+				// 加了下面这个判断
+				if (match.getLeft() != null && match.getRight() != null) {
+					allADDMatches.add(match);
+				}
 			}
 			List<Match> submatches = match.getSubmatches();
 			if (submatches != null) {
@@ -521,9 +491,9 @@ public class NWay extends XmuProgram {
 	/** preMap */
 	public void groupMatches(List<Match> matches, Map<EObject, List<EObject>> preMap) {
 		for (Match match : matches) {
-			EObject right = match.getRight();	// right是base中的元素
-			EObject left = match.getLeft(); 	
-			if (right != null && left != null) {	// 没考虑left被删除的情况
+			EObject right = match.getRight(); // right是base中的元素
+			EObject left = match.getLeft();
+			if (right != null && left != null) { // 没考虑left被删除的情况
 				List<Match> submatches = match.getSubmatches();
 				if (submatches != null) {
 					groupMatches(submatches, preMap); // 递归
@@ -533,7 +503,7 @@ public class NWay extends XmuProgram {
 					list.add(left);
 					preMap.put(right, list);
 				} else {
-					preMap.get(right).add(left); 
+					preMap.get(right).add(left);
 				}
 			}
 		}
@@ -560,15 +530,15 @@ public class NWay extends XmuProgram {
 		for (EReference r : tmp) {
 			TypeEdge typeEdge = typeGraph.getTypeEdge(typeNode, r.getName());
 
-//			if(typeEdge == null) {
-//				continue;
-//			}
-			
-			if (ep == null) {
-				if (typeEdge.getName().equals("eRawType") || typeEdge.getName().equals("eClassifier")) {
-					continue;
-				}
+			if (typeEdge == null) {
+				continue;
 			}
+
+//			if (ep == null) {
+//				if (typeEdge.getName().equals("eRawType") || typeEdge.getName().equals("eClassifier")) {
+//					continue;
+//				}
+//			}
 
 			if (r.isMany()) { // multi-reference
 				Collection<EObject> targets = (Collection<EObject>) b.eGet(r);
@@ -621,17 +591,17 @@ public class NWay extends XmuProgram {
 		for (EReference r : tmp) {
 
 			TypeEdge typeEdge = typeGraph.getTypeEdge(typeNode, r.getName());
-			
-//			if(typeEdge == null) {
-//				continue;
-//			}
-			
-			if (ep == null) {
-				if (typeEdge.getName().equals("eRawType") || typeEdge.getName().equals("eClassifier")) {
-					continue;
-				}
+
+			if (typeEdge == null) {
+				continue;
 			}
-			
+
+//			if (ep == null) {
+//				if (typeEdge.getName().equals("eRawType") || typeEdge.getName().equals("eClassifier")) {
+//					continue;
+//				}
+//			}
+
 			if (r.isMany()) { // multi-reference
 
 				Collection<EObject> targets = (Collection<EObject>) base.eGet(r);

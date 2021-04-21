@@ -127,7 +127,7 @@ public class ChangeTool {
 
 				// 新加当前对象“一对多关联”的对象，给定一个概率
 				eClass.getEAllReferences().forEach(r -> {
-					if (r.isMany() && random.nextDouble() >= 0.8) {
+					if (r.isMany() && random.nextDouble() >= 0.9) {
 						EClass eReferenceType = r.getEReferenceType(); // 关联的另一方
 						EObject create = EcoreUtil.create(eReferenceType);
 						eReferenceType.getEAllAttributes().forEach(a -> {
@@ -142,7 +142,7 @@ public class ChangeTool {
 
 			// 由于root不能被遍历到，单独写root对象下新加”一对多关联“的对象，给定一个概率
 			rContent.eClass().getEAllReferences().forEach(r -> {
-				if (r.isMany() && random.nextDouble() >= 0.9) {
+				if (r.isMany() && random.nextDouble() >= 0.95) {
 					EClass eReferenceType = r.getEReferenceType();
 					EObject create = EcoreUtil.create(eReferenceType);
 					eReferenceType.getEAllAttributes().forEach(a -> {

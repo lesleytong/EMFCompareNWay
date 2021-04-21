@@ -77,6 +77,32 @@ public class MaximalCliquesWithPivot {
 	}
 
 	// lyt: 需要传入参数
+	void initGraph(Set<EObject> vertices, Set<Match> edges) {
+		graph.clear();
+		vertices.forEach(eObject -> {
+			Vertex V = new Vertex();
+			V.setX(eObject);
+			graph.add(V);
+		});
+
+		edges.forEach(e -> {
+			EObject left = e.getLeft();
+			EObject right = e.getRight();
+			Vertex vertexU = null;
+			Vertex vertexV = null;
+			for (int j = 0; j < graph.size(); j++) {
+				Vertex v = graph.get(j);
+				if (v.x == left) {
+					vertexU = v;
+				} else if (v.x == right) {
+					vertexV = v;
+				}
+			}
+			vertexU.addNbr(vertexV);
+		});
+	}
+	
+	// origin
 	void initGraph(Set<EObject> vertices, List<Match> edges) {
 		graph.clear();
 		vertices.forEach(eObject -> {
@@ -177,6 +203,7 @@ public class MaximalCliquesWithPivot {
 	// Finds nbr of vertex v
 	ArrayList<Vertex> getNbrs(Vertex v) {
 		EObject eObject = v.getX();
+		// PENDING: 用stream
 		Vertex vertex = null;
 		for (int j = 0; j < graph.size(); j++) {
 			vertex = graph.get(j);
