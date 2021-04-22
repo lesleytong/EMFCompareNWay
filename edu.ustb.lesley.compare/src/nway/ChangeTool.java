@@ -3,6 +3,8 @@ package nway;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -55,7 +57,7 @@ public class ChangeTool {
 				if (random.nextDouble() >= 0.8) {
 					dList.add(e);
 					System.out.println("删除的属性为：" + e);
-				} else if(random.nextDouble() >= 0.7){
+				} else if (random.nextDouble() >= 0.7) {
 					// 修改某些属性
 					EAttribute a = (EAttribute) e;
 					a.setName(a.getName() + "_" + RandomStringUtils.randomAlphanumeric(3));
@@ -79,21 +81,21 @@ public class ChangeTool {
 					System.out.println("删除的方法为：" + e);
 				}
 			}
-			
+
 			// 新加类
-			if(random.nextDouble() >= 0.9) {
+			if (random.nextDouble() >= 0.9) {
 				EClass createEClass = EcoreFactory.eINSTANCE.createEClass();
 				createEClass.setName(RandomStringUtils.randomAlphanumeric(3));
 				rContent.getEClassifiers().add(createEClass);
 				System.out.println("新加的类：" + createEClass);
 			}
-			
+
 			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 		});
 
 		// 调用EcoreUtil的方法进行删除
 		EcoreUtil.removeAll(dList);
-			
+
 	}
 
 	public static void changeForXMI(Resource resource) {
@@ -101,6 +103,9 @@ public class ChangeTool {
 		EObject rContent = resource.getContents().get(0);
 		Random random = new Random();
 		ArrayList<EObject> dList = new ArrayList<>();
+		Map<EObject, Collection<EObject>> addMap = new HashMap<>();
+		
+
 
 		rContent.eAllContents().forEachRemaining(e -> {
 
@@ -117,7 +122,6 @@ public class ChangeTool {
 			if (!dList.contains(e)) {
 
 				// 修改属性值，给定一个概率
-				// 如果修改了不作为container的对象，会匹配有问题？
 				eClass.getEAllAttributes().forEach(a -> {
 					if (random.nextDouble() >= 0.8) {
 						setAttribute(e, a);
@@ -125,8 +129,8 @@ public class ChangeTool {
 					}
 				});
 
-				// 新加当前对象“一对多关联”的对象，给定一个概率
-				eClass.getEAllReferences().forEach(r -> {
+				// 新加当前对象“一对多关联”的子对象，给定一个概率
+				eClass.getEAllContainments().forEach(r -> {
 					if (r.isMany() && random.nextDouble() >= 0.9) {
 						EClass eReferenceType = r.getEReferenceType(); // 关联的另一方
 						EObject create = EcoreUtil.create(eReferenceType);
@@ -134,25 +138,31 @@ public class ChangeTool {
 							setAttribute(create, a);
 						});
 						Collection<EObject> targets = (Collection<EObject>) e.eGet(r);
-						targets.add(create);
+						addMap.put(create, targets);
 						System.out.println("新加的对象：" + create);
 					}
 				});
+				
+//				// 新加当前对象“一对多关联”的引用对象，给定一个概率
+//				eClass.eCrossReferences().forEach(r -> {
+//					
+//				});
+				
+				// 由于root不能被遍历到，单独写root对象下新加”一对多关联“的子对象，给定一个概率
+				rContent.eClass().getEAllContainments().forEach(r -> {
+					if (r.isMany() && random.nextDouble() >= 0.95) {
+						EClass eReferenceType = r.getEReferenceType();
+						EObject create = EcoreUtil.create(eReferenceType);
+						eReferenceType.getEAllAttributes().forEach(a -> {
+							setAttribute(create, a);
+						});
+						Collection<EObject> targets = (Collection<EObject>) rContent.eGet(r);
+						addMap.put(create, targets);
+						System.out.println("新加的对象：" + create);
+					}
+				});
+				
 			}
-
-			// 由于root不能被遍历到，单独写root对象下新加”一对多关联“的对象，给定一个概率
-			rContent.eClass().getEAllReferences().forEach(r -> {
-				if (r.isMany() && random.nextDouble() >= 0.95) {
-					EClass eReferenceType = r.getEReferenceType();
-					EObject create = EcoreUtil.create(eReferenceType);
-					eReferenceType.getEAllAttributes().forEach(a -> {
-						setAttribute(create, a);
-					});
-					Collection<EObject> targets = (Collection<EObject>) rContent.eGet(r);
-					targets.add(create);
-					System.out.println("新加的对象：" + create);
-				}
-			});
 
 			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>");
 		});
@@ -160,22 +170,31 @@ public class ChangeTool {
 		// 调用EcoreUtil的方法统一删除
 		EcoreUtil.removeAll(dList);
 
+		// 最后再统一新加
+		addMap.forEach((key, value) -> {
+			value.add(key);
+		});
+		
 	}
 
 	public static void setAttribute(EObject e, EAttribute a) {
-		String instanceTypeName = a.getEAttributeType().getInstanceTypeName();
-		if (instanceTypeName.contains("String")) {
-			Object eGet = e.eGet(a);
-			if(eGet != null) {				
-				e.eSet(a, eGet + "_" + RandomStringUtils.randomAlphanumeric(3));
-			} else {
-				e.eSet(a, RandomStringUtils.randomAlphanumeric(3));
+		
+		if(!a.isMany()) {	// 如果a是单值属性
+			String instanceTypeName = a.getEAttributeType().getInstanceTypeName();
+			if (instanceTypeName.contains("String")) {
+				Object eGet = e.eGet(a);
+				if (eGet != null) {
+					e.eSet(a, eGet + "_" + RandomStringUtils.randomAlphanumeric(3));
+				} else {
+					e.eSet(a, RandomStringUtils.randomAlphanumeric(3));
+				}
+			} else if (instanceTypeName.contains("int") || instanceTypeName.contains("Int")) {
+				Random random = new Random();
+				int nextInt = 18 + random.nextInt(20);
+				e.eSet(a, nextInt);
 			}
-		} else if (instanceTypeName.contains("int") || instanceTypeName.contains("Int")) {
-			Random random = new Random();
-			int nextInt = 18 + random.nextInt(20);
-			e.eSet(a, nextInt);
 		}
+		
 	}
 
 	// 保存为xmi

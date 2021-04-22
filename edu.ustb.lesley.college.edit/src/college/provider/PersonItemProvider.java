@@ -65,6 +65,7 @@ public class PersonItemProvider
 
 			addNamePropertyDescriptor(object);
 			addAgePropertyDescriptor(object);
+			addFriendsPropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -109,6 +110,28 @@ public class PersonItemProvider
 				 false,
 				 false,
 				 ItemPropertyDescriptor.INTEGRAL_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Friends feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addFriendsPropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_Person_friends_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_Person_friends_feature", "_UI_Person_type"),
+				 CollegePackage.Literals.PERSON__FRIENDS,
+				 true,
+				 false,
+				 true,
+				 null,
 				 null,
 				 null));
 	}

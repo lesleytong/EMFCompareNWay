@@ -269,7 +269,7 @@ public class NWay extends XmuProgram {
 	}
 
 	/** MatchN传入我们的合并方法，进行diff和merge */
-	public TypedGraph nMerge(List<MatchN> matches, List<TypeEdge> typeEdgeList) {
+	public TypedGraph nMerge(List<MatchN> matches, List<TypeEdge> typeEdgeList, List<PropertyEdge> propertyEdgeList) {
 
 		Map<Resource, TypedGraph> typedGraphMap = new HashMap<>();
 		HashMap<EObject, TypedNode> typedNodeMap = new HashMap<>();
@@ -416,12 +416,22 @@ public class NWay extends XmuProgram {
 			System.out.println("resultGraph: ");
 			print(resultGraph);
 
-			HashMap<TypedEdge, TypedEdge> forceOrd = new HashMap<>();
 			long start = System.currentTimeMillis();
+			HashMap<TypedEdge, TypedEdge> forceOrd = new HashMap<>();
 			BXMerge3.topoOrder(baseGraph, resultGraph, forceOrd, typeEdgeList, branchGraphs);
 			long end = System.currentTimeMillis();
+			long time1 = end - start;
+			System.out.println("TypedEdge序耗时：" + time1 + " ms.");
+			
+			start = System.currentTimeMillis();
+			HashMap<ValueEdge, ValueEdge> forceOrd2 = new HashMap<>();
+			BXMerge3.topoOrder2(baseGraph, resultGraph, forceOrd2, propertyEdgeList, branchGraphs);
+			end = System.currentTimeMillis();
+			long time2 = end - start;
+			System.out.println("ValueEdge序耗时：" + time2 + " ms.");
+			
 			System.out.println("---------------------------------------");
-			System.out.println("序总耗时：" + (end - start) + " ms.");
+			System.out.println("序总耗时：" + (time1 + time2) + " ms.");
 
 			return resultGraph;
 

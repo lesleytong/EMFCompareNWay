@@ -2,6 +2,7 @@
  */
 package college;
 
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.ecore.EObject;
 
 /**
@@ -14,6 +15,7 @@ import org.eclipse.emf.ecore.EObject;
  * </p>
  * <ul>
  *   <li>{@link college.College#getName <em>Name</em>}</li>
+ *   <li>{@link college.College#getTitle <em>Title</em>}</li>
  * </ul>
  *
  * @see college.CollegePackage#getCollege()
@@ -42,5 +44,17 @@ public interface College extends EObject {
 	 * @generated
 	 */
 	void setName(String value);
+
+	/**
+	 * Returns the value of the '<em><b>Title</b></em>' attribute list.
+	 * The list contents are of type {@link java.lang.String}.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @return the value of the '<em>Title</em>' attribute list.
+	 * @see college.CollegePackage#getCollege_Title()
+	 * @model
+	 * @generated
+	 */
+	EList<String> getTitle();
 
 } // College

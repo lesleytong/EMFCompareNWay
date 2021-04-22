@@ -11,13 +11,12 @@
     <eOperations name="buy"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="price" eType="//EFloat"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="ML7"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Customer">
     <eOperations name="register"/>
     <eOperations name="login"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstName" eType="//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName" eType="//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName_BAs" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="age" eType="//EInt"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EDataType" name="EString" instanceTypeName="String"/>

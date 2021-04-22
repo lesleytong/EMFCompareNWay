@@ -1,9 +1,17 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <edu.ustb.lesley.college:AddressBook xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:edu.ustb.lesley.college="https://edu/ustb/lesley/college" name="ppz">
-  <persons name="dar" age="28">
-    <colleges name="EQT"/>
+  <persons name="dar" age="32">
+    <colleges name="EQT">
+      <title>创新</title>
+      <title>985</title>
+      <title>211</title>
+    </colleges>
   </persons>
-  <persons name="tms" age="18"/>
+  <persons name="tms" age="18" friends="//@persons.0 //@persons.2 //@persons.3">
+    <colleges name="C"/>
+    <colleges name="A"/>
+    <colleges name="B"/>
+  </persons>
   <persons name="ujc" age="19">
     <colleges name="TKG"/>
   </persons>
@@ -12,10 +20,10 @@
     <colleges name="DNS"/>
     <colleges name="OAP"/>
   </persons>
-  <persons name="axv" age="30">
+  <persons name="axv_GRS" age="30">
     <colleges name="KFX"/>
+    <colleges name="SNT"/>
   </persons>
-  <persons name="idg" age="23"/>
   <persons name="yoo" age="21">
     <colleges name="WBV"/>
   </persons>
@@ -26,5 +34,5 @@
   <persons name="yzf" age="29">
     <colleges name="QWA"/>
   </persons>
-  <persons name="wTB" age="31"/>
+  <persons name="idg" age="23"/>
 </edu.ustb.lesley.college:AddressBook>

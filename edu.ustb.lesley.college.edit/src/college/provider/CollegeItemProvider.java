@@ -61,6 +61,7 @@ public class CollegeItemProvider
 			super.getPropertyDescriptors(object);
 
 			addNamePropertyDescriptor(object);
+			addTitlePropertyDescriptor(object);
 		}
 		return itemPropertyDescriptors;
 	}
@@ -79,6 +80,28 @@ public class CollegeItemProvider
 				 getString("_UI_College_name_feature"),
 				 getString("_UI_PropertyDescriptor_description", "_UI_College_name_feature", "_UI_College_type"),
 				 CollegePackage.Literals.COLLEGE__NAME,
+				 true,
+				 false,
+				 false,
+				 ItemPropertyDescriptor.GENERIC_VALUE_IMAGE,
+				 null,
+				 null));
+	}
+
+	/**
+	 * This adds a property descriptor for the Title feature.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	protected void addTitlePropertyDescriptor(Object object) {
+		itemPropertyDescriptors.add
+			(createItemPropertyDescriptor
+				(((ComposeableAdapterFactory)adapterFactory).getRootAdapterFactory(),
+				 getResourceLocator(),
+				 getString("_UI_College_title_feature"),
+				 getString("_UI_PropertyDescriptor_description", "_UI_College_title_feature", "_UI_College_type"),
+				 CollegePackage.Literals.COLLEGE__TITLE,
 				 true,
 				 false,
 				 false,
@@ -126,6 +149,7 @@ public class CollegeItemProvider
 
 		switch (notification.getFeatureID(College.class)) {
 			case CollegePackage.COLLEGE__NAME:
+			case CollegePackage.COLLEGE__TITLE:
 				fireNotifyChanged(new ViewerNotification(notification, notification.getNotifier(), false, true));
 				return;
 		}

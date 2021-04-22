@@ -256,7 +256,7 @@ public class TestPurchase {
 		TypeEdge typeEdge = typeGraph.getTypeEdge(typeGraph.getTypeNode("EClass"), "eAllEStructuralFeature");
 		List<TypeEdge> typeEdgeList = new ArrayList<>();
 		typeEdgeList.add(typeEdge);
-		TypedGraph mergeModel = nWay.nMerge(matches, typeEdgeList);
+		TypedGraph mergeModel = nWay.nMerge(matches, typeEdgeList, null);
 		long end = System.currentTimeMillis();
 		System.out.println("×ÜºÄÊ±£º " + (end - start) + " ms.");
 

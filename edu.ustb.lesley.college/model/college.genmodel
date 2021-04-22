@@ -14,9 +14,11 @@
       <genFeatures property="None" children="true" createChild="true" ecoreFeature="ecore:EReference college.ecore#//Person/colleges"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute college.ecore#//Person/name"/>
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute college.ecore#//Person/age"/>
+      <genFeatures notify="false" createChild="false" propertySortChoices="true" ecoreFeature="ecore:EReference college.ecore#//Person/friends"/>
     </genClasses>
     <genClasses ecoreClass="college.ecore#//College">
       <genFeatures createChild="false" ecoreFeature="ecore:EAttribute college.ecore#//College/name"/>
+      <genFeatures createChild="false" ecoreFeature="ecore:EAttribute college.ecore#//College/title"/>
     </genClasses>
   </genPackages>
 </genmodel:GenModel>

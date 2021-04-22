@@ -180,6 +180,16 @@ public class CollegePackageImpl extends EPackageImpl implements CollegePackage {
 	 * @generated
 	 */
 	@Override
+	public EReference getPerson_Friends() {
+		return (EReference)personEClass.getEStructuralFeatures().get(3);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
 	public EClass getCollege() {
 		return collegeEClass;
 	}
@@ -192,6 +202,16 @@ public class CollegePackageImpl extends EPackageImpl implements CollegePackage {
 	@Override
 	public EAttribute getCollege_Name() {
 		return (EAttribute)collegeEClass.getEStructuralFeatures().get(0);
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
+	public EAttribute getCollege_Title() {
+		return (EAttribute)collegeEClass.getEStructuralFeatures().get(1);
 	}
 
 	/**
@@ -231,9 +251,11 @@ public class CollegePackageImpl extends EPackageImpl implements CollegePackage {
 		createEReference(personEClass, PERSON__COLLEGES);
 		createEAttribute(personEClass, PERSON__NAME);
 		createEAttribute(personEClass, PERSON__AGE);
+		createEReference(personEClass, PERSON__FRIENDS);
 
 		collegeEClass = createEClass(COLLEGE);
 		createEAttribute(collegeEClass, COLLEGE__NAME);
+		createEAttribute(collegeEClass, COLLEGE__TITLE);
 	}
 
 	/**
@@ -274,9 +296,11 @@ public class CollegePackageImpl extends EPackageImpl implements CollegePackage {
 		initEReference(getPerson_Colleges(), this.getCollege(), null, "colleges", null, 0, -1, Person.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, IS_COMPOSITE, !IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getPerson_Name(), ecorePackage.getEString(), "name", null, 0, 1, Person.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 		initEAttribute(getPerson_Age(), ecorePackage.getEInt(), "age", null, 0, 1, Person.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEReference(getPerson_Friends(), this.getPerson(), null, "friends", null, 0, -1, Person.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_COMPOSITE, IS_RESOLVE_PROXIES, !IS_UNSETTABLE, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		initEClass(collegeEClass, College.class, "College", !IS_ABSTRACT, !IS_INTERFACE, IS_GENERATED_INSTANCE_CLASS);
 		initEAttribute(getCollege_Name(), ecorePackage.getEString(), "name", null, 0, 1, College.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
+		initEAttribute(getCollege_Title(), ecorePackage.getEString(), "title", null, 0, -1, College.class, !IS_TRANSIENT, !IS_VOLATILE, IS_CHANGEABLE, !IS_UNSETTABLE, !IS_ID, IS_UNIQUE, !IS_DERIVED, IS_ORDERED);
 
 		// Create resource
 		createResource(eNS_URI);

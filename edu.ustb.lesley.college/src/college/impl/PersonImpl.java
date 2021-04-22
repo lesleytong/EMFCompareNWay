@@ -19,6 +19,7 @@ import org.eclipse.emf.ecore.impl.ENotificationImpl;
 import org.eclipse.emf.ecore.impl.MinimalEObjectImpl;
 
 import org.eclipse.emf.ecore.util.EObjectContainmentEList;
+import org.eclipse.emf.ecore.util.EObjectResolvingEList;
 import org.eclipse.emf.ecore.util.InternalEList;
 
 /**
@@ -32,6 +33,7 @@ import org.eclipse.emf.ecore.util.InternalEList;
  *   <li>{@link college.impl.PersonImpl#getColleges <em>Colleges</em>}</li>
  *   <li>{@link college.impl.PersonImpl#getName <em>Name</em>}</li>
  *   <li>{@link college.impl.PersonImpl#getAge <em>Age</em>}</li>
+ *   <li>{@link college.impl.PersonImpl#getFriends <em>Friends</em>}</li>
  * </ul>
  *
  * @generated
@@ -86,6 +88,16 @@ public class PersonImpl extends MinimalEObjectImpl.Container implements Person {
 	 * @ordered
 	 */
 	protected int age = AGE_EDEFAULT;
+
+	/**
+	 * The cached value of the '{@link #getFriends() <em>Friends</em>}' reference list.
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @see #getFriends()
+	 * @generated
+	 * @ordered
+	 */
+	protected EList<Person> friends;
 
 	/**
 	 * <!-- begin-user-doc -->
@@ -171,6 +183,19 @@ public class PersonImpl extends MinimalEObjectImpl.Container implements Person {
 	 * @generated
 	 */
 	@Override
+	public EList<Person> getFriends() {
+		if (friends == null) {
+			friends = new EObjectResolvingEList<Person>(Person.class, this, CollegePackage.PERSON__FRIENDS);
+		}
+		return friends;
+	}
+
+	/**
+	 * <!-- begin-user-doc -->
+	 * <!-- end-user-doc -->
+	 * @generated
+	 */
+	@Override
 	public NotificationChain eInverseRemove(InternalEObject otherEnd, int featureID, NotificationChain msgs) {
 		switch (featureID) {
 			case CollegePackage.PERSON__COLLEGES:
@@ -193,6 +218,8 @@ public class PersonImpl extends MinimalEObjectImpl.Container implements Person {
 				return getName();
 			case CollegePackage.PERSON__AGE:
 				return getAge();
+			case CollegePackage.PERSON__FRIENDS:
+				return getFriends();
 		}
 		return super.eGet(featureID, resolve, coreType);
 	}
@@ -216,6 +243,10 @@ public class PersonImpl extends MinimalEObjectImpl.Container implements Person {
 			case CollegePackage.PERSON__AGE:
 				setAge((Integer)newValue);
 				return;
+			case CollegePackage.PERSON__FRIENDS:
+				getFriends().clear();
+				getFriends().addAll((Collection<? extends Person>)newValue);
+				return;
 		}
 		super.eSet(featureID, newValue);
 	}
@@ -237,6 +268,9 @@ public class PersonImpl extends MinimalEObjectImpl.Container implements Person {
 			case CollegePackage.PERSON__AGE:
 				setAge(AGE_EDEFAULT);
 				return;
+			case CollegePackage.PERSON__FRIENDS:
+				getFriends().clear();
+				return;
 		}
 		super.eUnset(featureID);
 	}
@@ -255,6 +289,8 @@ public class PersonImpl extends MinimalEObjectImpl.Container implements Person {
 				return NAME_EDEFAULT == null ? name != null : !NAME_EDEFAULT.equals(name);
 			case CollegePackage.PERSON__AGE:
 				return age != AGE_EDEFAULT;
+			case CollegePackage.PERSON__FRIENDS:
+				return friends != null && !friends.isEmpty();
 		}
 		return super.eIsSet(featureID);
 	}
