@@ -3,25 +3,24 @@
   <eClassifiers xsi:type="ecore:EClass" name="PurchaseOrder" eSuperTypes="" eGenericSuperTypes="">
     <eOperations name="submit" eExceptions="" eGenericExceptions=""/>
     <eOperations name="delete" eExceptions="" eGenericExceptions=""/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="shipTo" eType="//@eClassifiers.3"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="billTo" eType="//@eClassifiers.3"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="items_3Ih" upperBound="-1" eType="//@eClassifiers.1" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="8qg"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="billTo_Slm" eType="//@eClassifiers.3"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="items_SWw" upperBound="-1" eType="//@eClassifiers.1" containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Item_ugf" eSuperTypes="" eGenericSuperTypes="">
+  <eClassifiers xsi:type="ecore:EClass" name="Item_ELM" eSuperTypes="" eGenericSuperTypes="">
     <eOperations name="buy" eExceptions="" eGenericExceptions=""/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="price_hTF" eType="//@eClassifiers.5"/>
+    <eOperations name="ovz" eExceptions="" eGenericExceptions=""/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="price" eType="//@eClassifiers.5"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Customer_7iE" eSuperTypes="" eGenericSuperTypes="">
-    <eOperations name="register" eExceptions="" eGenericExceptions=""/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName_BAs" eType="//@eClassifiers.3"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Customer" eSuperTypes="" eGenericSuperTypes="">
+    <eOperations name="login" eExceptions="" eGenericExceptions=""/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName" eType="//@eClassifiers.3"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="age" eType="//@eClassifiers.4"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EDataType" name="EString" instanceClassName="java.lang.Object" instanceTypeName="String"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EInt" instanceClassName="int" instanceTypeName="int"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EFloat" instanceClassName="float" instanceTypeName="float"/>
-  <eClassifiers xsi:type="ecore:EClass" name="2OH" eSuperTypes="" eGenericSuperTypes=""/>
-  <eClassifiers xsi:type="ecore:EClass" name="ByB" eSuperTypes="" eGenericSuperTypes=""/>
-  <eClassifiers xsi:type="ecore:EClass" name="Zad" eSuperTypes="" eGenericSuperTypes=""/>
-  <eClassifiers xsi:type="ecore:EClass" name="aiG" eSuperTypes="" eGenericSuperTypes=""/>
+  <eClassifiers xsi:type="ecore:EClass" name="MuU" eSuperTypes="" eGenericSuperTypes=""/>
+  <eClassifiers xsi:type="ecore:EClass" name="C7L" eSuperTypes="" eGenericSuperTypes=""/>
+  <eClassifiers xsi:type="ecore:EClass" name="3j9" eSuperTypes="" eGenericSuperTypes=""/>
+  <eClassifiers xsi:type="ecore:EClass" name="2AS" eSuperTypes="" eGenericSuperTypes=""/>
 </ecore:EPackage>

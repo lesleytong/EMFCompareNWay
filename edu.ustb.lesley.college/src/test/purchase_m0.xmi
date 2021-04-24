@@ -3,25 +3,24 @@
   <eClassifiers xsi:type="ecore:EClass" name="PurchaseOrder">
     <eOperations name="submit"/>
     <eOperations name="delete"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="shipTo" eType="//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="billTo" eType="//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="items_3Ih" upperBound="-1" eType="//Item_ugf" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="8qg"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="billTo_Slm" eType="//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="items_SWw" upperBound="-1" eType="//Item_ELM" containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Item_ugf">
+  <eClassifiers xsi:type="ecore:EClass" name="Item_ELM">
     <eOperations name="buy"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="price_hTF" eType="//EFloat"/>
+    <eOperations name="ovz"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="price" eType="//EFloat"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Customer_7iE">
-    <eOperations name="register"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName_BAs" eType="//EString"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Customer">
+    <eOperations name="login"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="age" eType="//EInt"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EDataType" name="EString" instanceTypeName="String"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EInt" instanceClassName="int"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EFloat" instanceClassName="float"/>
-  <eClassifiers xsi:type="ecore:EClass" name="aiG"/>
-  <eClassifiers xsi:type="ecore:EClass" name="2OH"/>
-  <eClassifiers xsi:type="ecore:EClass" name="ByB"/>
-  <eClassifiers xsi:type="ecore:EClass" name="Zad"/>
+  <eClassifiers xsi:type="ecore:EClass" name="3j9"/>
+  <eClassifiers xsi:type="ecore:EClass" name="2AS"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MuU"/>
+  <eClassifiers xsi:type="ecore:EClass" name="C7L"/>
 </ecore:EPackage>

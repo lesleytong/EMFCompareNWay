@@ -4,10 +4,12 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.lang3.RandomStringUtils;
+import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
@@ -21,7 +23,7 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 
 public class ChangeTool {
 
-	public static void changeForEcore(Resource resource) {
+	public static void changeForEcore(Resource resource, URI m0URI) {
 
 		ArrayList<EObject> dList = new ArrayList<>();
 		EPackage rContent = (EPackage) resource.getContents().get(0);
@@ -96,95 +98,148 @@ public class ChangeTool {
 		// 调用EcoreUtil的方法进行删除
 		EcoreUtil.removeAll(dList);
 
+		ChangeTool.save(resource, m0URI);
+
 	}
 
-	public static void changeForXMI(Resource resource) {
+	public static void changeForXMI(Resource resource, URI m0URI) {
 
 		EObject rContent = resource.getContents().get(0);
 		Random random = new Random();
-		ArrayList<EObject> dList = new ArrayList<>();
 		Map<EObject, Collection<EObject>> addMap = new HashMap<>();
-		
+		Collection<EObject> dList = new ArrayList<>();
 
+		// 先删除不作为父节点的对象，遍历一次
+		rContent.eAllContents().forEachRemaining(e -> {
+			if (random.nextDouble() >= 0.85) {
+				EList<EReference> eAllContainments = e.eClass().getEAllContainments();
+				if (eAllContainments.size() == 0) {
+					dList.add(e);
+					System.out.println("删除的对象：" + e);
+				} else {
+					eAllContainments.forEach(r -> {
+						Collection<EObject> targets = (Collection<EObject>) e.eGet(r);
+						if (targets.size() == 0) {
+							dList.add(e);
+							System.out.println("删除的对象：" + e);
+						}
+					});
+				}
 
+			}
+
+		});
+		// 统一删除
+		EcoreUtil.removeAll(dList);
+
+		// 再遍历一次
 		rContent.eAllContents().forEachRemaining(e -> {
 
 			EClass eClass = e.eClass();
 
-			// 删除不作为container的对象
 			int size = eClass.getEAllContainments().size();
-			if (size == 0 && random.nextDouble() >= 0.8) {
-				System.out.println("删除的对象" + e);
-				dList.add(e);
-
-			}
-
-			if (!dList.contains(e)) {
-
+			eClass.getEAllAttributes().forEach(a -> {
 				// 修改属性值，给定一个概率
-				eClass.getEAllAttributes().forEach(a -> {
-					if (random.nextDouble() >= 0.8) {
-						setAttribute(e, a);
-						System.out.println("修改属性值后：" + e.eGet(a));
+				// 只修改不作为container的，不然匹配有问题
+				// 只修改不移动的，不然匹配有问题
+				if (size == 0 && random.nextDouble() >= 0.9) {
+					setAttribute(e, a);
+				} else if (a.isMany()) { // && random.nextDouble() >= 0.6
+					// 移动多值属性
+					// A B C -> C B A
+					List<Object> targets = (List<Object>) e.eGet(a); // 注意要用Object
+					if (targets.size() >= 3) {
+						Object removeA = targets.remove(0);
+						targets.add(2, removeA);
+						Object removeB = targets.remove(1);
+						targets.add(0, removeB);
+						System.out.println("移动后的多值属性：" + targets);
 					}
-				});
 
+				}
+
+			});
+
+			eClass.getEAllReferences().forEach(r -> {
 				// 新加当前对象“一对多关联”的子对象，给定一个概率
-				eClass.getEAllContainments().forEach(r -> {
+				if (r.isContainment()) {
 					if (r.isMany() && random.nextDouble() >= 0.9) {
 						EClass eReferenceType = r.getEReferenceType(); // 关联的另一方
 						EObject create = EcoreUtil.create(eReferenceType);
 						eReferenceType.getEAllAttributes().forEach(a -> {
-							setAttribute(create, a);
+							setAttribute(create, a); // 设置单值属性
 						});
 						Collection<EObject> targets = (Collection<EObject>) e.eGet(r);
 						addMap.put(create, targets);
 						System.out.println("新加的对象：" + create);
 					}
-				});
-				
-//				// 新加当前对象“一对多关联”的引用对象，给定一个概率
-//				eClass.eCrossReferences().forEach(r -> {
-//					
-//				});
-				
-				// 由于root不能被遍历到，单独写root对象下新加”一对多关联“的子对象，给定一个概率
-				rContent.eClass().getEAllContainments().forEach(r -> {
-					if (r.isMany() && random.nextDouble() >= 0.95) {
-						EClass eReferenceType = r.getEReferenceType();
-						EObject create = EcoreUtil.create(eReferenceType);
-						eReferenceType.getEAllAttributes().forEach(a -> {
-							setAttribute(create, a);
-						});
-						Collection<EObject> targets = (Collection<EObject>) rContent.eGet(r);
-						addMap.put(create, targets);
-						System.out.println("新加的对象：" + create);
-					}
-				});
-				
-			}
 
-			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>");
+					// 移动Containment为true的多值引用，给定一个概率： && random.nextDouble() >= 0.7
+					if (r.isMany()) {
+						// A B C -> C B A
+						List<EObject> targets = (List<EObject>) e.eGet(r);
+						if (targets.size() >= 5) {
+							EObject removeA = targets.remove(0);
+							targets.add(2, removeA);
+							EObject removeB = targets.remove(1);
+							targets.add(0, removeB);
+							System.out.println("移动Containment为true的多值引用：" + targets);
+						}
+					}
+
+				} else {
+					// 移动Containment为false的多值引用，给定一个概率： && random.nextDouble() >= 0.7
+					if (r.isMany()) {
+						// A B C -> C B A
+						List<EObject> targets = (List<EObject>) e.eGet(r);
+						if (targets.size() >= 3) {
+							EObject removeA = targets.remove(0);
+							targets.add(2, removeA);
+							EObject removeB = targets.remove(1);
+							targets.add(0, removeB);
+							System.out.println("移动Containment为false的多值引用：" + targets);
+						}
+					}
+
+				}
+			});
+
+			// 由于root不能被遍历到，单独写root对象下新加”一对多关联“的子对象，给定一个概率
+			rContent.eClass().getEAllContainments().forEach(r -> {
+				if (r.isMany() && random.nextDouble() >= 0.95) {
+					EClass eReferenceType = r.getEReferenceType();
+					EObject create = EcoreUtil.create(eReferenceType);
+					eReferenceType.getEAllAttributes().forEach(a -> {
+						setAttribute(create, a);
+					});
+					Collection<EObject> targets = (Collection<EObject>) rContent.eGet(r);
+					addMap.put(create, targets);
+					System.out.println("新加的对象：" + create);
+				}
+			});
+
+			System.out.println("--------------------------------------------------");
+
 		});
 
-		// 调用EcoreUtil的方法统一删除
-		EcoreUtil.removeAll(dList);
-
-		// 最后再统一新加
+		// 统一新加
 		addMap.forEach((key, value) -> {
 			value.add(key);
 		});
-		
+
+		ChangeTool.save(resource, m0URI);
+
 	}
 
+	/** 修改或设置新加的属性 */
 	public static void setAttribute(EObject e, EAttribute a) {
-		
-		if(!a.isMany()) {	// 如果a是单值属性
+
+		if (a.isMany() == false) { // 如果a是单值属性
 			String instanceTypeName = a.getEAttributeType().getInstanceTypeName();
 			if (instanceTypeName.contains("String")) {
 				Object eGet = e.eGet(a);
 				if (eGet != null) {
-					e.eSet(a, eGet + "_" + RandomStringUtils.randomAlphanumeric(3));
+					e.eSet(a, eGet + "_");
 				} else {
 					e.eSet(a, RandomStringUtils.randomAlphanumeric(3));
 				}
@@ -193,8 +248,10 @@ public class ChangeTool {
 				int nextInt = 18 + random.nextInt(20);
 				e.eSet(a, nextInt);
 			}
+			System.out.println("修改/设置后的属性：" + e.eGet(a));
 		}
-		
+		// PENDING：多值属性
+
 	}
 
 	// 保存为xmi

@@ -720,7 +720,6 @@ public class NWay extends XmuProgram {
 		EClass cls = base.eClass();
 		TypeNode typeNode = typeGraph.getTypeNode(cls.getName());
 
-		System.out.println("base: " + base);
 		EList<EAttribute> tmp = cls.getEAllAttributes();
 		for (EAttribute a : tmp) {
 			DataTypeNode dataTypeNode = typeGraph.getDataTypeNode(a.getEAttributeType().getName());

@@ -19,11 +19,27 @@
       age="18"
       friends="//@persons.0 //@persons.2 //@persons.3">
     <colleges
-        name="A"/>
+        name="AAA"/>
     <colleges
-        name="B"/>
+        name="BBB"/>
     <colleges
-        name="C"/>
+        name="CCC"/>
+    <colleges
+        name="DDD"/>
+    <colleges
+        name="EEE"/>
+    <colleges
+        name="FFF"/>
+    <colleges
+        name="GGG"/>
+    <colleges
+        name="HHH"/>
+    <colleges
+        name="III"/>
+    <colleges
+        name="JJJ"/>
+    <colleges
+        name="KKK"/>
   </persons>
   <persons name="ujc"
       age="19">

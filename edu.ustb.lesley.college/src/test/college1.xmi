@@ -2,22 +2,29 @@
 <edu.ustb.lesley.college:AddressBook xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:edu.ustb.lesley.college="https://edu/ustb/lesley/college" name="ppz">
   <persons name="dar" age="32">
     <colleges name="EQT">
-      <title>211</title>
       <title>985</title>
+      <title>211</title>
       <title>创新</title>
     </colleges>
   </persons>
   <persons name="tms" age="18" friends="//@persons.0 //@persons.2 //@persons.3">
-    <colleges name="A"/>
-    <colleges name="B"/>
-    <colleges name="C"/>
+    <colleges name="AAA"/>
+    <colleges name="BBB"/>
+    <colleges name="CCC"/>
+    <colleges name="DDD"/>
+    <colleges name="EEE"/>
+    <colleges name="FFF"/>
+    <colleges name="GGG"/>
+    <colleges name="HHH"/>
+    <colleges name="III"/>
+    <colleges name="JJJ"/>
+    <colleges name="KKK"/>
   </persons>
   <persons name="ujc" age="19">
     <colleges name="TKG"/>
-    <colleges name="yq9"/>
   </persons>
-  <persons name="cie" age="23">
-    <colleges name="WBA_itq"/>
+  <persons name="cie" age="30">
+    <colleges name="WBA"/>
     <colleges name="DNS"/>
     <colleges name="OAP"/>
   </persons>
@@ -29,11 +36,11 @@
   <persons name="yoo" age="21">
     <colleges name="WBV"/>
   </persons>
-  <persons name="cue" age="21">
-    <colleges name="KSZ_GaO"/>
+  <persons name="cue" age="25">
+    <colleges name="KSZ"/>
   </persons>
   <persons name="ibf" age="18"/>
   <persons name="yzf" age="29">
-    <colleges name="QWA_EqL"/>
+    <colleges name="QWA"/>
   </persons>
 </edu.ustb.lesley.college:AddressBook>

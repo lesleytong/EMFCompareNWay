@@ -6,7 +6,6 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="shipTo" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="billTo" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="items" upperBound="-1" eType="//Item" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="8qg"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Item">
     <eOperations name="buy"/>
@@ -15,6 +14,7 @@
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Customer">
     <eOperations name="register"/>
+    <eOperations name="login"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstName" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="age" eType="//EInt"/>
@@ -22,4 +22,5 @@
   <eClassifiers xsi:type="ecore:EDataType" name="EString" instanceTypeName="String"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EInt" instanceClassName="int"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EFloat" instanceClassName="float"/>
+  <eClassifiers xsi:type="ecore:EClass" name="MuU"/>
 </ecore:EPackage>

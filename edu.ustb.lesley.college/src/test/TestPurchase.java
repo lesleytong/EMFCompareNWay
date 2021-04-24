@@ -10,6 +10,7 @@ import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.Diff;
+import org.eclipse.emf.compare.DifferenceSource;
 import org.eclipse.emf.compare.EMFCompare;
 import org.eclipse.emf.compare.merge.BatchMerger;
 import org.eclipse.emf.compare.merge.IBatchMerger;
@@ -33,6 +34,10 @@ import nway.NWay;
 public class TestPurchase {
 
 	static ResourceSet resourceSet;
+	static Resource baseResource;
+	static Resource backupResource;
+	
+	static IBatchMerger merger = new BatchMerger(IMerger.RegistryImpl.createStandaloneInstance());
 
 	static URI baseURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase.xmi");
 	static URI backupURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_backup.xmi");
@@ -44,28 +49,43 @@ public class TestPurchase {
 	static URI branch4URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase4.xmi");
 	static URI branch5URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase5.xmi");
 	static URI branch6URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase6.xmi");
+	static ArrayList<URI> uriList = new ArrayList<>();
 
 	static URI metaModelURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.compare\\model\\Ecore.ecore");
 	static URI m1URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_m1.xmi");
+	static URI m2URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_m2.xmi");
 
 	public static void main(String[] args) {
 
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 		resourceSet = new ResourceSetImpl();
+		baseResource = resourceSet.getResource(baseURI, true);
+		backupResource = resourceSet.getResource(backupURI, true);
+
+		merger = new BatchMerger(IMerger.RegistryImpl.createStandaloneInstance());
+
+		uriList.add(baseURI);
+		uriList.add(branch1URI);
+		uriList.add(branch2URI);
+		uriList.add(branch3URI);
+		uriList.add(branch4URI);
+		uriList.add(branch5URI);
+		uriList.add(branch6URI);
 
 //		getM0();
 //		getBranches();
 //		testMerge();
-		testEquality();
+		testEquality(m0URI, m1URI);
+		
+//		testEMFCompare();
+//		testEquality(m0URI, m2URI);
 
 	}
 
 	public static void getM0() {
 
-		Resource baseResource = resourceSet.getResource(baseURI, true);
 		// 调用自动修改方法
-		ChangeTool.changeForEcore(baseResource);
-		ChangeTool.save(baseResource, m0URI);
+		ChangeTool.changeForEcore(baseResource, m0URI);
 		System.out.println("done");
 
 	}
@@ -73,27 +93,17 @@ public class TestPurchase {
 	public static void getBranches() {
 
 		Random random = new Random();
-		IBatchMerger merger = new BatchMerger(IMerger.RegistryImpl.createStandaloneInstance());
 
-		// 方便恢复baseResource
-		IComparisonScope backupScope;
-		Comparison backupComparison;
-		EList<Diff> backupDiffs;
-		Resource backupResource = resourceSet.getResource(backupURI, true);
-
-		// 利用EMF Compare比较得到m0与base之间的diffs
-		Resource baseResource = resourceSet.getResource(baseURI, true);
+		// 利用EMF Compare得到m0与base之间的diffs
 		Resource m0Resource = resourceSet.getResource(m0URI, true);
-
 		IComparisonScope scope = new DefaultComparisonScope(baseResource, m0Resource, null);
 		Comparison comparison = EMFCompare.builder().build().compare(scope);
 		EList<Diff> diffs = comparison.getDifferences();
 
+		// 将需要绑定的diff分到一组，独立的存到other
 		Collection<Collection<Diff>> collections = new HashSet<>();
 		Collection<Diff> other = new HashSet<>();
-
 		diffs.forEach(d -> {
-			System.out.println("d: " + d);
 			EList<Diff> requires = d.getRequires();
 			EList<Diff> requiredBy = d.getRequiredBy();
 			if (requires.size() != 0) {
@@ -113,7 +123,7 @@ public class TestPurchase {
 		ArrayList<Diff> diff5 = new ArrayList();
 		ArrayList<Diff> diff6 = new ArrayList();
 
-		// 将collections中的group随机分配给三个分支版本
+		// 将collections中的group随机分配给分支版本
 		collections.forEach(group -> {
 			double flag = random.nextDouble();
 			if (flag >= 0.9) {
@@ -131,7 +141,7 @@ public class TestPurchase {
 			}
 		});
 
-		// 将other中的diff随机分配给三个分支版本
+		// 将other中的diff随机分配给分支版本
 		other.forEach(d -> {
 			double flag = random.nextDouble();
 			if (flag >= 0.9) {
@@ -150,101 +160,37 @@ public class TestPurchase {
 		});
 
 		// 在base上应用diff1，得到branch1
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diff1");
-		diff1.forEach(d -> {
-			System.out.println(d);
-		});
-		merger.copyAllRightToLeft(diff1, null);
-		ChangeTool.save(baseResource, branch1URI);
-
+		applyDiff(diff1, branch1URI);
 		// 恢复原来的base
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>backup");
-		backupScope = new DefaultComparisonScope(baseResource, backupResource, null);
-		backupComparison = EMFCompare.builder().build().compare(backupScope);
-		backupDiffs = backupComparison.getDifferences();
-		merger.copyAllRightToLeft(backupDiffs, null);
+		backup();
 
 		// 在base上应用diff2，得到branch2
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diff2");
-		diff2.forEach(d -> {
-			System.out.println(d);
-		});
-		merger.copyAllRightToLeft(diff2, null);
-		ChangeTool.save(baseResource, branch2URI);
-
+		applyDiff(diff2, branch2URI);
 		// 恢复原来的base
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>backup");
-		backupScope = new DefaultComparisonScope(baseResource, backupResource, null);
-		backupComparison = EMFCompare.builder().build().compare(backupScope);
-		backupDiffs = backupComparison.getDifferences();
-		merger.copyAllRightToLeft(backupDiffs, null);
+		backup();
 
 		// 在base上应用diff3，得到branch3
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diff3");
-		diff3.forEach(d -> {
-			System.out.println(d);
-		});
-		merger.copyAllRightToLeft(diff3, null);
-		ChangeTool.save(baseResource, branch3URI);
-
+		applyDiff(diff3, branch3URI);
 		// 恢复原来的base
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>backup");
-		backupScope = new DefaultComparisonScope(baseResource, backupResource, null);
-		backupComparison = EMFCompare.builder().build().compare(backupScope);
-		backupDiffs = backupComparison.getDifferences();
-		merger.copyAllRightToLeft(backupDiffs, null);
+		backup();
 
 		// 在base上应用diff4，得到branch4
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diff4");
-		diff4.forEach(d -> {
-			System.out.println(d);
-		});
-		merger.copyAllRightToLeft(diff4, null);
-		ChangeTool.save(baseResource, branch4URI);
-
+		applyDiff(diff4, branch4URI);
 		// 恢复原来的base
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>backup");
-		backupScope = new DefaultComparisonScope(baseResource, backupResource, null);
-		backupComparison = EMFCompare.builder().build().compare(backupScope);
-		backupDiffs = backupComparison.getDifferences();
-		merger.copyAllRightToLeft(backupDiffs, null);
+		backup();
 
 		// 在base上应用diff5，得到branch5
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diff5");
-		diff5.forEach(d -> {
-			System.out.println(d);
-		});
-		merger.copyAllRightToLeft(diff5, null);
-		ChangeTool.save(baseResource, branch5URI);
-
+		applyDiff(diff5, branch5URI);
 		// 恢复原来的base
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>backup");
-		backupScope = new DefaultComparisonScope(baseResource, backupResource, null);
-		backupComparison = EMFCompare.builder().build().compare(backupScope);
-		backupDiffs = backupComparison.getDifferences();
-		merger.copyAllRightToLeft(backupDiffs, null);
+		backup();
 
 		// 在base上应用diff6，得到branch6
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diff6");
-		diff6.forEach(d -> {
-			System.out.println(d);
-		});
-		merger.copyAllRightToLeft(diff6, null);
-		ChangeTool.save(baseResource, branch6URI);
+		applyDiff(diff6, branch6URI);
 
 		System.out.println("done");
 	}
 
 	public static void testMerge() {
-
-		ArrayList<URI> uriList = new ArrayList<>();
-		uriList.add(baseURI);
-		uriList.add(branch1URI);
-		uriList.add(branch2URI);
-		uriList.add(branch3URI);
-		uriList.add(branch4URI);
-		uriList.add(branch5URI);
-		uriList.add(branch6URI);
 
 		EcoreTypeGraph et = new EcoreTypeGraph();
 		TypeGraph typeGraph = et.getTypeGraph_Ecore();
@@ -268,11 +214,11 @@ public class TestPurchase {
 		}
 	}
 
-	// 比较M1和M0
-	public static void testEquality() {
+	/** 比较M1和M0 */
+	public static void testEquality(URI leftURI, URI rightURI) {
 
-		Resource leftResource = resourceSet.getResource(m0URI, true);
-		Resource rightResource = resourceSet.getResource(m1URI, true);
+		Resource leftResource = resourceSet.getResource(leftURI, true);
+		Resource rightResource = resourceSet.getResource(rightURI, true);
 
 		IComparisonScope scope = new DefaultComparisonScope(leftResource, rightResource, null);
 		Comparison comparison = EMFCompare.builder().build().compare(scope);
@@ -283,6 +229,60 @@ public class TestPurchase {
 			System.out.println(d);
 		});
 
+	}
+	
+	public static void testEMFCompare() {
+		
+		// 第一次leftResource为branch1
+		Resource leftResource = resourceSet.getResource(branch1URI, true);
+		Resource rightResource = null;
+		
+		for(int i = 2; i<uriList.size(); i++) {
+			rightResource = resourceSet.getResource(uriList.get(i), true);
+			threeWay(leftResource, rightResource, baseResource);
+			ChangeTool.save(leftResource, m2URI);
+			leftResource = resourceSet.getResource(m2URI, true);
+		}
+				
+		System.out.println("done");
+		
+	}
+
+	public static void threeWay(Resource leftResource, Resource rightResource, Resource baseResource) {
+		IComparisonScope scope = new DefaultComparisonScope(leftResource, rightResource, baseResource);
+		Comparison comparison = EMFCompare.builder().build().compare(scope);
+		Collection<Diff> rightDiffs = new HashSet<>();
+		
+		comparison.getDifferences().forEach(d -> {
+			if(d.getSource()==DifferenceSource.RIGHT) {
+				rightDiffs.add(d);
+			}
+		});
+		merger.copyAllRightToLeft(rightDiffs, null);
+		
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>leftResource: " );
+		leftResource.getAllContents().forEachRemaining(e -> {
+			System.out.println(e);
+		});
+	}
+
+	/** 将分配给分支的diff应用到base上，得到branch */
+	public static void applyDiff(ArrayList<Diff> diff, URI branchURI) {
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diff");
+		diff.forEach(d -> {
+			System.out.println(d);
+		});
+		merger.copyAllRightToLeft(diff, null);
+		ChangeTool.save(baseResource, branchURI);
+	}
+
+	/** 恢复base */
+	public static void backup() {
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>backup");
+		IComparisonScope backupScope = new DefaultComparisonScope(baseResource, backupResource, null);
+		Comparison backupComparison = EMFCompare.builder().build().compare(backupScope);
+		EList<Diff> backupDiffs = backupComparison.getDifferences();
+		merger.copyAllRightToLeft(backupDiffs, null);
 	}
 
 }

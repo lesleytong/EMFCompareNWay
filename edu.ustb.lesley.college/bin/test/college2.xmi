@@ -3,27 +3,35 @@
   <persons name="dar" age="32">
     <colleges name="EQT">
       <title>创新</title>
-      <title>985</title>
       <title>211</title>
+      <title>985</title>
     </colleges>
   </persons>
   <persons name="tms" age="18" friends="//@persons.0 //@persons.2 //@persons.3">
-    <colleges name="C"/>
-    <colleges name="A"/>
-    <colleges name="B"/>
+    <colleges name="BBB"/>
+    <colleges name="AAA"/>
+    <colleges name="CCC"/>
+    <colleges name="DDD"/>
+    <colleges name="EEE"/>
+    <colleges name="FFF"/>
+    <colleges name="GGG"/>
+    <colleges name="HHH"/>
+    <colleges name="III"/>
+    <colleges name="JJJ"/>
+    <colleges name="KKK_"/>
   </persons>
   <persons name="ujc" age="19">
     <colleges name="TKG"/>
   </persons>
   <persons name="cie" age="30">
     <colleges name="WBA"/>
-    <colleges name="DNS"/>
     <colleges name="OAP"/>
   </persons>
-  <persons name="axv_GRS" age="30">
+  <persons name="axv" age="30">
     <colleges name="KFX"/>
     <colleges name="SNT"/>
   </persons>
+  <persons name="idg" age="23"/>
   <persons name="yoo" age="21">
     <colleges name="WBV"/>
   </persons>
@@ -32,7 +40,6 @@
   </persons>
   <persons name="ibf" age="18"/>
   <persons name="yzf" age="29">
-    <colleges name="QWA"/>
+    <colleges name="QWA_"/>
   </persons>
-  <persons name="idg" age="23"/>
 </edu.ustb.lesley.college:AddressBook>

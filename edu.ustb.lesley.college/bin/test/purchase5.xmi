@@ -4,20 +4,24 @@
     <eOperations name="submit"/>
     <eOperations name="delete"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="shipTo" eType="//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="billTo" eType="//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="items" upperBound="-1" eType="//Item" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="billTo_Slm" eType="//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="items" upperBound="-1" eType="//Item_ELM" containment="true"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Item">
+  <eClassifiers xsi:type="ecore:EClass" name="Item_ELM">
     <eOperations name="buy"/>
+    <eOperations name="ovz"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="price" eType="//EFloat"/>
   </eClassifiers>
-  <eClassifiers xsi:type="ecore:EClass" name="Customer_7iE">
+  <eClassifiers xsi:type="ecore:EClass" name="Customer">
     <eOperations name="register"/>
     <eOperations name="login"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstName" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName" eType="//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="age" eType="//EInt"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EDataType" name="EString" instanceTypeName="String"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EInt" instanceClassName="int"/>
   <eClassifiers xsi:type="ecore:EDataType" name="EFloat" instanceClassName="float"/>
+  <eClassifiers xsi:type="ecore:EClass" name="3j9"/>
 </ecore:EPackage>
