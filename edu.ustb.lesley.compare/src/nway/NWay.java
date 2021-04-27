@@ -122,7 +122,11 @@ public class NWay extends XmuProgram {
 				ReferenceChangeSpec diffADD = (ReferenceChangeSpec) diff;
 				EObject left = diffADD.getValue();
 				// 已经是ADD的diff了，EObject right一定为null，不用多此一举去判断它
-				addDiffsMap.put(left, diff); // 保存一下此EObject对应的ADD diff
+				// 不一定，例如添加了新的继承关系，但没有新加类
+				EObject right = diffADD.getMatch().getComparison().getMatch(left).getRight();
+				if (right == null) { // 只有涉及到新加EObject的才能加入到addDiffsMap
+					addDiffsMap.put(left, diff); // 保存一下此EObject对应的ADD diff
+				}
 			}
 		}
 
@@ -144,7 +148,12 @@ public class NWay extends XmuProgram {
 				if (diff.getKind() == DifferenceKind.ADD) {
 					ReferenceChangeSpec diffADD = (ReferenceChangeSpec) diff;
 					EObject left = diffADD.getValue();
-					addDiffsMap.put(left, diff); // 保存一下此EObject对应的ADD diff
+					// 已经是ADD的diff了，EObject right一定为null，不用多此一举去判断它
+					// 不一定，例如添加了新的继承关系，但没有新加类
+					EObject right = diffADD.getMatch().getComparison().getMatch(left).getRight();
+					if (right == null) { // 只有涉及到新加EObject的才能加入到addDiffsMap
+						addDiffsMap.put(left, diff); // 保存一下此EObject对应的ADD diff
+					}
 				}
 			}
 
@@ -299,12 +308,29 @@ public class NWay extends XmuProgram {
 
 				for (EObject b : branches) {
 					// TypedNode
-					TypedGraph branchGraph = typedGraphMap.get(b.eResource());
-					branchGraph.addTypedNode(baseNode);
-					typedNodeMap.put(b, baseNode);
+//					TypedGraph branchGraph = typedGraphMap.get(b.eResource());
+//					branchGraph.addTypedNode(baseNode);
+//					typedNodeMap.put(b, baseNode);
 
-					// ValueEdge and ValueNode
-					addValueEdges(b, baseNode, branchGraph, multiKeyMap, valueEdgeMap);
+					// lyt: 如果用xmi:id，分支的节点可能修改为和base不同类型
+					TypedGraph branchGraph = typedGraphMap.get(b.eResource());
+					EClass eClass = b.eClass();
+					if (eClass == cls) {
+						branchGraph.addTypedNode(baseNode);
+						typedNodeMap.put(b, baseNode);
+
+						// ValueEdge and ValueNode
+						addValueEdges(b, baseNode, branchGraph, multiKeyMap, valueEdgeMap);
+					} else {
+						typeNode = typeGraph.getTypeNode(eClass.getName());
+						TypedNode branchNode = new TypedNode(typeNode);
+						branchNode.mergeIndex(baseNode);
+						branchGraph.addTypedNode(branchNode);
+						typedNodeMap.put(b, branchNode);
+
+						// ValueEdge and ValueNode
+						addValueEdges(b, branchNode, branchGraph, multiKeyMap, valueEdgeMap);
+					}
 
 				}
 
@@ -422,14 +448,14 @@ public class NWay extends XmuProgram {
 			long end = System.currentTimeMillis();
 			long time1 = end - start;
 			System.out.println("TypedEdge序耗时：" + time1 + " ms.");
-			
+
 			start = System.currentTimeMillis();
 			HashMap<ValueEdge, ValueEdge> forceOrd2 = new HashMap<>();
 			BXMerge3.topoOrder2(baseGraph, resultGraph, forceOrd2, propertyEdgeList, branchGraphs);
 			end = System.currentTimeMillis();
 			long time2 = end - start;
 			System.out.println("ValueEdge序耗时：" + time2 + " ms.");
-			
+
 			System.out.println("---------------------------------------");
 			System.out.println("序总耗时：" + (time1 + time2) + " ms.");
 
@@ -692,8 +718,7 @@ public class NWay extends XmuProgram {
 
 					ValueEdge valueEdge = valueEdgeMap.get(propertyEdge);
 					if (valueEdge != null) {
-
-						// 都加了个toString()
+						// 都加了个toString()再比较equals
 						if (valueEdge.getTarget().getValue().toString().equals(v.toString())) {
 							branchGraph.simAddValueEdge(valueEdge);
 						} else { // 单值属性看作被修改
@@ -706,7 +731,12 @@ public class NWay extends XmuProgram {
 							branchGraph.reindexing(edge);
 						}
 					} else {
-						// do nothing
+						// 如果有ValueEdge==null，说明改了类型，就看作分支新加的valueEdge
+						ValueNode vn = ValueNode.createConstantNode(v, dataTypeNode);
+						branchGraph.addValueNode(vn); // 这一行需要考虑下
+						valueEdge = new ValueEdge(baseNode, vn, propertyEdge);
+						branchGraph.simAddValueEdge(valueEdge);
+
 					}
 				}
 			}

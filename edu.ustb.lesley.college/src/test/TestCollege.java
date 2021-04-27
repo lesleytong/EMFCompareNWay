@@ -9,6 +9,8 @@ import java.util.Random;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.Comparison;
+import org.eclipse.emf.compare.Conflict;
+import org.eclipse.emf.compare.ConflictKind;
 import org.eclipse.emf.compare.Diff;
 import org.eclipse.emf.compare.DifferenceSource;
 import org.eclipse.emf.compare.EMFCompare;
@@ -237,9 +239,31 @@ public class TestCollege {
 		Comparison comparison = EMFCompare.builder().build().compare(scope);
 		Collection<Diff> rightDiffs = new HashSet<>();
 		
+		// tmp
+		comparison.getDifferences().forEach(d -> {
+			Conflict conflict = d.getConflict();
+			if(conflict != null && conflict.getKind()==ConflictKind.REAL) {
+				System.out.println("ÓÐREAL³åÍ»: " + conflict);
+			} else {
+				System.out.println("ÎÞREAL³åÍ»");
+			}
+		});
+		
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 		comparison.getDifferences().forEach(d -> {
 			if(d.getSource()==DifferenceSource.RIGHT) {
+				System.out.println("rightDiffs: " + d);
 				rightDiffs.add(d);
+				
+				Conflict conflict = d.getConflict();
+				System.out.println("d.getConflict(): " + conflict);
+				
+				d.getMatch().getAllSubmatches().forEach(m -> {
+					System.out.println(m);
+				});
+				
+				
+				System.out.println("------------------------------------------------");
 			}
 		});
 		merger.copyAllRightToLeft(rightDiffs, null);

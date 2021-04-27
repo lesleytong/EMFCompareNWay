@@ -8,9 +8,9 @@
     </colleges>
   </persons>
   <persons name="tms" age="18" friends="//@persons.0 //@persons.2 //@persons.3">
+    <colleges name="CCC"/>
     <colleges name="AAA"/>
     <colleges name="BBB"/>
-    <colleges name="CCC"/>
     <colleges name="DDD"/>
     <colleges name="EEE"/>
     <colleges name="FFF"/>
@@ -26,7 +26,6 @@
   <persons name="cie" age="30">
     <colleges name="WBA"/>
     <colleges name="DNS"/>
-    <colleges name="OAP"/>
   </persons>
   <persons name="axv" age="30">
     <colleges name="KFX"/>
