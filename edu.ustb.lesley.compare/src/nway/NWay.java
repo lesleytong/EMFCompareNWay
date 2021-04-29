@@ -804,7 +804,7 @@ public class NWay extends XmuProgram {
 		registerPackage(NsURIName, metaModelURI);
 		EcoreModelUtil.save(m1URI, graph, null, getPackage(NsURIName));
 	}
-
+	
 	public void print(TypedGraph typedGraph) {
 		System.out.println("TypedNodes: " + typedGraph.getAllTypedNodes().size());
 		System.out.println("ValueNodes: " + typedGraph.getAllValueNodes().size());

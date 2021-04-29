@@ -40,11 +40,11 @@ public class TestCollege {
 
 	static String NsURIName = "https://edu/ustb/lesley/college";
 	static EPackage ep = CollegePackage.eINSTANCE;
-	
+
 	static ResourceSet resourceSet;
 	static Resource baseResource;
 	static Resource backupResource;
-	
+
 	static IBatchMerger merger = new BatchMerger(IMerger.RegistryImpl.createStandaloneInstance());
 
 	static URI baseURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\college.xmi");
@@ -65,10 +65,9 @@ public class TestCollege {
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 		resourceSet = new ResourceSetImpl();
 		resourceSet.getPackageRegistry().put(NsURIName, ep);
-		
+
 		baseResource = resourceSet.getResource(baseURI, true);
-		backupResource = resourceSet.getResource(backupURI, true);
-		
+
 		uriList.add(baseURI);
 		uriList.add(branch1URI);
 		uriList.add(branch2URI);
@@ -76,11 +75,11 @@ public class TestCollege {
 
 //		getM0();
 //		getBranches();
-//		testMerge();
+		testMerge();
 //		testEquality(m0URI, m1URI);
 		
 //		testEMFCompare();
-		testEquality(m0URI, m2URI);
+//		testEquality(m0URI, m2URI);
 
 	}
 
@@ -93,6 +92,8 @@ public class TestCollege {
 
 	public static void getBranches() {
 
+		backupResource = resourceSet.getResource(backupURI, true);
+
 		Random random = new Random();
 
 		// 利用EMF Compare比较得到m0与base之间的diffs
@@ -100,7 +101,7 @@ public class TestCollege {
 		IComparisonScope scope = new DefaultComparisonScope(baseResource, m0Resource, null);
 		Comparison comparison = EMFCompare.builder().build().compare(scope);
 		EList<Diff> diffs = comparison.getDifferences();
-		
+
 		// tmp
 		diffs.forEach(d -> {
 			System.out.println(d);
@@ -112,13 +113,13 @@ public class TestCollege {
 		diffs.forEach(d -> {
 			EList<Diff> requires = d.getRequires();
 			EList<Diff> requiredBy = d.getRequiredBy();
-			
+
 			if (requires.size() != 0) {
-				Collection<Diff> group = new HashSet<>();				
-				group.add(d);						
+				Collection<Diff> group = new HashSet<>();
+				group.add(d);
 				group.addAll(requires);
 				collections.add(group);
-			} else if (requiredBy.size() == 0) { // 必须用else if				
+			} else if (requiredBy.size() == 0) { // 必须用else if
 				other.add(d);
 			}
 		});
@@ -172,7 +173,6 @@ public class TestCollege {
 
 	public static void testMerge() {
 
-
 		TypeGraph typeGraph = EcoreModelUtil.load(ep);
 
 		long start = System.currentTimeMillis();
@@ -216,8 +216,10 @@ public class TestCollege {
 		});
 
 	}
-	
+
 	public static void testEMFCompare() {
+		
+		long start = System.currentTimeMillis();
 		
 		// 第一次leftResource为第一个分支
 		Resource leftResource = resourceSet.getResource(branch1URI, true);
@@ -225,55 +227,59 @@ public class TestCollege {
 		
 		for(int i = 2; i<uriList.size(); i++) {
 			rightResource = resourceSet.getResource(uriList.get(i), true);
-			threeWay(leftResource, rightResource, baseResource);
-			ChangeTool.save(leftResource, m2URI);
-			leftResource = resourceSet.getResource(m2URI, true);
+			leftResource = threeWay(leftResource, rightResource, baseResource);
 		}
+		
+		long end = System.currentTimeMillis();
+		System.out.println("迭代式三向合并总耗时：" + (end - start) + " ms.");
+		
+		ChangeTool.save(leftResource, m2URI);
 				
 		System.out.println("done");
 		
 	}
 
-	public static void threeWay(Resource leftResource, Resource rightResource, Resource baseResource) {
+	public static Resource threeWay(Resource leftResource, Resource rightResource, Resource baseResource) {
 		IComparisonScope scope = new DefaultComparisonScope(leftResource, rightResource, baseResource);
 		Comparison comparison = EMFCompare.builder().build().compare(scope);
 		Collection<Diff> rightDiffs = new HashSet<>();
-		
+
 		// tmp
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>matches: ");
+		comparison.getMatches().forEach(m -> {
+			System.out.println(m);
+			m.getAllSubmatches().forEach(sm -> {
+				System.out.println(sm);
+			});
+		});
+
+		// tmp
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>conflict: ");
 		comparison.getDifferences().forEach(d -> {
 			Conflict conflict = d.getConflict();
-			if(conflict != null && conflict.getKind()==ConflictKind.REAL) {
+			if (conflict != null && conflict.getKind() == ConflictKind.REAL) {
 				System.out.println("有REAL冲突: " + conflict);
-			} else {
-				System.out.println("无REAL冲突");
 			}
 		});
-		
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>rightDiffs: ");
 		comparison.getDifferences().forEach(d -> {
-			if(d.getSource()==DifferenceSource.RIGHT) {
+			if (d.getSource() == DifferenceSource.RIGHT) {
 				System.out.println("rightDiffs: " + d);
 				rightDiffs.add(d);
-				
-				Conflict conflict = d.getConflict();
-				System.out.println("d.getConflict(): " + conflict);
-				
-				d.getMatch().getAllSubmatches().forEach(m -> {
-					System.out.println(m);
-				});
-				
-				
-				System.out.println("------------------------------------------------");
 			}
 		});
 		merger.copyAllRightToLeft(rightDiffs, null);
-		
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>leftResource: " );
+
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>intermediate: ");
 		leftResource.getAllContents().forEachRemaining(e -> {
 			System.out.println(e);
 		});
+		System.out.println("\n");
+
+		return leftResource;
 	}
-	
+
 	/** 将分配给分支的diff应用到base上，得到branch */
 	public static void applyDiff(ArrayList<Diff> diff, URI branchURI) {
 		diff.forEach(d -> {

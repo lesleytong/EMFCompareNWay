@@ -3,9 +3,7 @@ package nway;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Random;
 
 import org.apache.commons.lang3.RandomStringUtils;
@@ -22,6 +20,10 @@ import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
 
 public class ChangeTool {
+
+	static int changeSize = 0;
+	static int moveSize = 0;
+	static int addSize = 0;
 
 	public static void changeForEcore(Resource resource, URI m0URI) {
 
@@ -106,12 +108,11 @@ public class ChangeTool {
 
 		EObject rContent = resource.getContents().get(0);
 		Random random = new Random();
-		Map<EObject, Collection<EObject>> addMap = new HashMap<>();
 		Collection<EObject> dList = new ArrayList<>();
 
-		// 先删除不作为父节点的对象，遍历一次
+		// 删除不作为父节点的对象，遍历一次
 		rContent.eAllContents().forEachRemaining(e -> {
-			if (random.nextDouble() >= 0.85) {
+			if (random.nextDouble() >= 0.9) {
 				EList<EReference> eAllContainments = e.eClass().getEAllContainments();
 				if (eAllContainments.size() == 0) {
 					dList.add(e);
@@ -144,7 +145,8 @@ public class ChangeTool {
 				// 只修改不移动的，不然匹配有问题
 				if (size == 0 && random.nextDouble() >= 0.9) {
 					setAttribute(e, a);
-				} else if (a.isMany()) { // && random.nextDouble() >= 0.6
+					changeSize++;
+				} else if (a.isMany() && random.nextDouble() >= 0.9) {
 					// 移动多值属性
 					// A B C -> C B A
 					List<Object> targets = (List<Object>) e.eGet(a); // 注意要用Object
@@ -154,6 +156,7 @@ public class ChangeTool {
 						Object removeB = targets.remove(1);
 						targets.add(0, removeB);
 						System.out.println("移动后的多值属性：" + targets);
+						moveSize += 3;
 					}
 
 				}
@@ -161,21 +164,11 @@ public class ChangeTool {
 			});
 
 			eClass.getEAllReferences().forEach(r -> {
-				// 新加当前对象“一对多关联”的子对象，给定一个概率
 				if (r.isContainment()) {
-					if (r.isMany() && random.nextDouble() >= 0.9) {
-						EClass eReferenceType = r.getEReferenceType(); // 关联的另一方
-						EObject create = EcoreUtil.create(eReferenceType);
-						eReferenceType.getEAllAttributes().forEach(a -> {
-							setAttribute(create, a); // 设置单值属性
-						});
-						Collection<EObject> targets = (Collection<EObject>) e.eGet(r);
-						addMap.put(create, targets);
-						System.out.println("新加的对象：" + create);
-					}
 
-					// 移动Containment为true的多值引用，给定一个概率： && random.nextDouble() >= 0.7
-					if (r.isMany()) {
+					// 移动Containment为true的多值引用(例如colleges)，给定一个概率
+					// 移动的不新加
+					if (r.isMany() && random.nextDouble() >= 0.9) {
 						// A B C -> C B A
 						List<EObject> targets = (List<EObject>) e.eGet(r);
 						if (targets.size() >= 5) {
@@ -184,12 +177,25 @@ public class ChangeTool {
 							EObject removeB = targets.remove(1);
 							targets.add(0, removeB);
 							System.out.println("移动Containment为true的多值引用：" + targets);
+							moveSize += 3;
 						}
+						
+					} else if (r.isMany() && random.nextDouble() >= 0.9) { 
+						// 新加Contaiment为true的当前对象的“一对多关联”的子对象，给定一个概率
+						EClass eReferenceType = r.getEReferenceType(); // 关联的另一方
+						EObject create = EcoreUtil.create(eReferenceType);
+						eReferenceType.getEAllAttributes().forEach(a -> {
+							setAttribute(create, a); // 设置单值属性
+						});
+						Collection<EObject> targets = (Collection<EObject>) e.eGet(r);
+						targets.add(create);
+						System.out.println("新加的对象：" + create);
+						addSize++;
 					}
 
 				} else {
-					// 移动Containment为false的多值引用，给定一个概率： && random.nextDouble() >= 0.7
-					if (r.isMany()) {
+					// 移动Containment为false的多值引用(例如friends)，给定一个概率
+					if (r.isMany() && random.nextDouble() >= 0.9) {
 						// A B C -> C B A
 						List<EObject> targets = (List<EObject>) e.eGet(r);
 						if (targets.size() >= 3) {
@@ -198,23 +204,10 @@ public class ChangeTool {
 							EObject removeB = targets.remove(1);
 							targets.add(0, removeB);
 							System.out.println("移动Containment为false的多值引用：" + targets);
+							moveSize += 3;
 						}
 					}
 
-				}
-			});
-
-			// 由于root不能被遍历到，单独写root对象下新加”一对多关联“的子对象，给定一个概率
-			rContent.eClass().getEAllContainments().forEach(r -> {
-				if (r.isMany() && random.nextDouble() >= 0.95) {
-					EClass eReferenceType = r.getEReferenceType();
-					EObject create = EcoreUtil.create(eReferenceType);
-					eReferenceType.getEAllAttributes().forEach(a -> {
-						setAttribute(create, a);
-					});
-					Collection<EObject> targets = (Collection<EObject>) rContent.eGet(r);
-					addMap.put(create, targets);
-					System.out.println("新加的对象：" + create);
 				}
 			});
 
@@ -222,10 +215,10 @@ public class ChangeTool {
 
 		});
 
-		// 统一新加
-		addMap.forEach((key, value) -> {
-			value.add(key);
-		});
+		System.out.println("总共删除的个数：" + dList.size());
+		System.out.println("总共新加的个数：" + addSize);
+		System.out.println("总共修改属性值的个数：" + changeSize);
+		System.out.println("总共移动序的个数：" + moveSize);
 
 		ChangeTool.save(resource, m0URI);
 
@@ -241,7 +234,7 @@ public class ChangeTool {
 				if (eGet != null) {
 					e.eSet(a, eGet + "_");
 				} else {
-					e.eSet(a, RandomStringUtils.randomAlphanumeric(3));
+					e.eSet(a, RandomStringUtils.randomAlphanumeric(5));
 				}
 			} else if (instanceTypeName.contains("int") || instanceTypeName.contains("Int")) {
 				Random random = new Random();

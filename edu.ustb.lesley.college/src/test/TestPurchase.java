@@ -36,7 +36,7 @@ public class TestPurchase {
 	static ResourceSet resourceSet;
 	static Resource baseResource;
 	static Resource backupResource;
-	
+
 	static IBatchMerger merger = new BatchMerger(IMerger.RegistryImpl.createStandaloneInstance());
 
 	static URI baseURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase.xmi");
@@ -60,7 +60,6 @@ public class TestPurchase {
 		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
 		resourceSet = new ResourceSetImpl();
 		baseResource = resourceSet.getResource(baseURI, true);
-		backupResource = resourceSet.getResource(backupURI, true);
 
 		merger = new BatchMerger(IMerger.RegistryImpl.createStandaloneInstance());
 
@@ -74,9 +73,9 @@ public class TestPurchase {
 
 //		getM0();
 //		getBranches();
-//		testMerge();
-		testEquality(m0URI, m1URI);
-		
+		testMerge();
+//		testEquality(m0URI, m1URI);
+
 //		testEMFCompare();
 //		testEquality(m0URI, m2URI);
 
@@ -91,6 +90,8 @@ public class TestPurchase {
 	}
 
 	public static void getBranches() {
+
+		backupResource = resourceSet.getResource(backupURI, true);
 
 		Random random = new Random();
 
@@ -230,37 +231,37 @@ public class TestPurchase {
 		});
 
 	}
-	
+
 	public static void testEMFCompare() {
-		
+
 		// 第一次leftResource为branch1
 		Resource leftResource = resourceSet.getResource(branch1URI, true);
 		Resource rightResource = null;
-		
-		for(int i = 2; i<uriList.size(); i++) {
+
+		for (int i = 2; i < uriList.size(); i++) {
 			rightResource = resourceSet.getResource(uriList.get(i), true);
 			threeWay(leftResource, rightResource, baseResource);
 			ChangeTool.save(leftResource, m2URI);
 			leftResource = resourceSet.getResource(m2URI, true);
 		}
-				
+
 		System.out.println("done");
-		
+
 	}
 
 	public static void threeWay(Resource leftResource, Resource rightResource, Resource baseResource) {
 		IComparisonScope scope = new DefaultComparisonScope(leftResource, rightResource, baseResource);
 		Comparison comparison = EMFCompare.builder().build().compare(scope);
 		Collection<Diff> rightDiffs = new HashSet<>();
-		
+
 		comparison.getDifferences().forEach(d -> {
-			if(d.getSource()==DifferenceSource.RIGHT) {
+			if (d.getSource() == DifferenceSource.RIGHT) {
 				rightDiffs.add(d);
 			}
 		});
 		merger.copyAllRightToLeft(rightDiffs, null);
-		
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>leftResource: " );
+
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>leftResource: ");
 		leftResource.getAllContents().forEachRemaining(e -> {
 			System.out.println(e);
 		});
