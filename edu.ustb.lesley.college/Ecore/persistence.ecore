@@ -1,0 +1,379 @@
+<?xml version="1.0" encoding="ASCII"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xsi:schemaLocation="http://www.eclipse.org/emf/2002/Ecore ../../../../git/n-way/edu.ustb.lesley.compare/model/Ecore.ecore" name="andromdapersistence" nsURI="http:///andromdapersistence.ecore" nsPrefix="andromdapersistence">
+  <eClassifiers xsi:type="ecore:EEnum" name="HibernateOuterJoin">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="auto" value="1" literal="auto"/>
+    <eLiterals name="true" value="2" literal="true"/>
+    <eLiterals name="false" value="3" literal="false"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="HibernateCollection">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="list" value="1" literal="list"/>
+    <eLiterals name="map" value="2" literal="map"/>
+    <eLiterals name="set" value="3" literal="set"/>
+    <eLiterals name="bag" value="4" literal="bag"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="EjbViewType">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="remote" value="1" literal="remote"/>
+    <eLiterals name="local" value="2" literal="local"/>
+    <eLiterals name="both" value="3" literal="both"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="HibernateCache">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="readwrite" value="1" literal="readwrite"/>
+    <eLiterals name="nonstrictreadwrite" value="2" literal="nonstrictreadwrite"/>
+    <eLiterals name="readonly" value="3" literal="readonly"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="HibernateCriteriaComparator">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="like" value="1" literal="like"/>
+    <eLiterals name="equal" value="2" literal="equal"/>
+    <eLiterals name="greater" value="3" literal="greater"/>
+    <eLiterals name="greaterEqual" value="4" literal="greaterEqual"/>
+    <eLiterals name="less" value="5" literal="less"/>
+    <eLiterals name="lessEqual" value="6" literal="lessEqual"/>
+    <eLiterals name="insensitiveLike" value="7" literal="insensitiveLike"/>
+    <eLiterals name="in" value="8" literal="in"/>
+    <eLiterals name="notEqual" value="9" literal="notEqual"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="HibernateGeneratorClass">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="increment" value="1" literal="increment"/>
+    <eLiterals name="identity" value="2" literal="identity"/>
+    <eLiterals name="sequence" value="3" literal="sequence"/>
+    <eLiterals name="hilo" value="4" literal="hilo"/>
+    <eLiterals name="seqhilo" value="5" literal="seqhilo"/>
+    <eLiterals name="uuidhex" value="6" literal="uuidhex"/>
+    <eLiterals name="native" value="8" literal="native"/>
+    <eLiterals name="uuid" value="10" literal="uuid"/>
+    <eLiterals name="guid" value="11" literal="guid"/>
+    <eLiterals name="select" value="12" literal="select"/>
+    <eLiterals name="assigned" value="13" literal="assigned"/>
+    <eLiterals name="foreign" value="9" literal="foreign"/>
+    <eLiterals name="uuidstring" value="7" literal="uuidstring"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="HibernateOrderDirection">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="ascending" value="1" literal="ascending"/>
+    <eLiterals name="descending" value="2" literal="descending"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="HibernateCriteriaOrder">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="ascending" value="1" literal="ascending"/>
+    <eLiterals name="descending" value="2" literal="descending"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="HibernateSortType">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="comparatorClass" value="3" literal="comparatorClass"/>
+    <eLiterals name="unsorted" value="1" literal="unsorted"/>
+    <eLiterals name="natural" value="2" literal="natural"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="HibernateMatchMode">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="anywhere" value="1" literal="anywhere"/>
+    <eLiterals name="start" value="2" literal="start"/>
+    <eLiterals name="end" value="3" literal="end"/>
+    <eLiterals name="exact" value="4" literal="exact"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="HibernateInheritanceStrategy">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="class" value="1" literal="class"/>
+    <eLiterals name="subclass" value="2" literal="subclass"/>
+    <eLiterals name="concrete" value="3" literal="concrete"/>
+    <eLiterals name="interface" value="4" literal="interface"/>
+    <eLiterals name="unionsubclass" value="5" literal="unionsubclass"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="HibernateCascade">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="create" value="1" literal="create"/>
+    <eLiterals name="merge" value="2" literal="merge"/>
+    <eLiterals name="saveupdate" value="3" literal="saveupdate"/>
+    <eLiterals name="delete" value="4" literal="delete"/>
+    <eLiterals name="lock" value="5" literal="lock"/>
+    <eLiterals name="refresh" value="6" literal="refresh"/>
+    <eLiterals name="evict" value="7" literal="evict"/>
+    <eLiterals name="replicate" value="8" literal="replicate"/>
+    <eLiterals name="all" value="9" literal="all"/>
+    <eLiterals name="none" value="10" literal="none"/>
+    <eLiterals name="deleteorphan" value="11" literal="deleteorphan"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="EjbGeneratorType">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="table" value="1" literal="table"/>
+    <eLiterals name="sequence" value="2" literal="sequence"/>
+    <eLiterals name="identity" value="3" literal="identity"/>
+    <eLiterals name="auto" value="4" literal="auto"/>
+    <eLiterals name="none" value="5" literal="none"/>
+    <eLiterals name="generic" value="6" literal="generic"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="EjbFinderParameterResultType">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="max" value="2" literal="max"/>
+    <eLiterals name="first" value="1" literal="first"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="EjbFetchType">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="eager" value="1" literal="eager"/>
+    <eLiterals name="lazy" value="2" literal="lazy"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="EjbEnumerationType">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="ordinal" value="1" literal="ordinal"/>
+    <eLiterals name="string" value="2" literal="string"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="EjbDiscriminatorType">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="string" value="1" literal="string"/>
+    <eLiterals name="char" value="2" literal="char"/>
+    <eLiterals name="integer" value="3" literal="integer"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="EjbCascadeType">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="all" value="1" literal="all"/>
+    <eLiterals name="persist" value="2" literal="persist"/>
+    <eLiterals name="merge" value="3" literal="merge"/>
+    <eLiterals name="remove" value="4" literal="remove"/>
+    <eLiterals name="refresh" value="5" literal="refresh"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="EjbCollectionType">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="list" value="1" literal="list"/>
+    <eLiterals name="map" value="2" literal="map"/>
+    <eLiterals name="set" value="3" literal="set"/>
+    <eLiterals name="bag" value="4" literal="bag"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="EjbTemporalType">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="date" value="1" literal="date"/>
+    <eLiterals name="time" value="2" literal="time"/>
+    <eLiterals name="timestamp" value="3" literal="timestamp"/>
+    <eLiterals name="none" value="4" literal="none"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="EjbInheritancesStrategy">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="singleTable" value="1" literal="singleTable"/>
+    <eLiterals name="tablePerClass" value="2" literal="tablePerClass"/>
+    <eLiterals name="joined" value="3" literal="joined"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="EjbCacheStrategy">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="none" value="1" literal="none"/>
+    <eLiterals name="nonstrictReadWrite" value="2" literal="nonstrictReadWrite"/>
+    <eLiterals name="readOnly" value="3" literal="readOnly"/>
+    <eLiterals name="readWrite" value="4" literal="readWrite"/>
+    <eLiterals name="transactional" value="5" literal="transactional"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EEnum" name="TernaryBoolean">
+    <eLiterals name="default" literal="default"/>
+    <eLiterals name="true" value="1" literal="true"/>
+    <eLiterals name="false" value="2" literal="false"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Criteria" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseClass" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Entity" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateEntityDynamicInsert" ordered="false" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateEntityDynamicUpdate" ordered="false" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceDiscriminatorType" ordered="false" lowerBound="1" eType="//@eClassifiers.16" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaEjbResourcerefJndiname" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaEjbResourcerefResauth" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateGeneratorClass" ordered="false" lowerBound="1" eType="//@eClassifiers.5" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaEjbNoSyntheticCreateMethod" ordered="false" defaultValueLiteral="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaEjbAutomaticKey" ordered="false" upperBound="-1" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateEntityCache" ordered="false" lowerBound="1" eType="//@eClassifiers.3" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateEntityProxy" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateEhcacheMaxElementsInMemory" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateEhcacheEternal" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateEhcacheTimeToIdleSeconds" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateEhcacheTimeToLiveSeconds" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateEhcacheOverflowToDisk" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateInheritance" ordered="false" lowerBound="1" eType="//@eClassifiers.10" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceDiscriminatorColumnLength" ordered="false" lowerBound="1" defaultValueLiteral="10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateVersion" ordered="false" lowerBound="1" defaultValueLiteral="3"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceDiscriminatorColumnDefinition" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceDiscriminatorColumnName" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceDiscriminatorValue" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceInheritance" ordered="false" lowerBound="1" eType="//@eClassifiers.20" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceEntityCache" ordered="false" lowerBound="1" eType="//@eClassifiers.21" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceSchema" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateEntityCacheDistributed" ordered="false" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaSerialVersionUid" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseClass" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EntityRef" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseDependency" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Unique" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseProperty" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FinderMethod" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaEjbQueryDialect" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateQueryUseCache" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaEjbQueryUseCache" ordered="false" lowerBound="1" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaEjbQueryWeblogic" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateQuery" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseOperation" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateQueryUseNamedParameters" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaEjbQuery" ordered="false"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EmbeddedValue" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaSerialVersionUid" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseClass" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ValueRef" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseRelationship" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="SelectMethod" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseOperation" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CreateMethod" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseOperation" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Identifier" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceAssignedIdentifier" ordered="false" lowerBound="1" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceGeneratorAllocationSize" ordered="false" lowerBound="1" defaultValueLiteral="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceGeneratorInitialValue" ordered="false" lowerBound="1" defaultValueLiteral="0"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceGeneratorName" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceGeneratorPkcolumnValue" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceGeneratorSourceName" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceGeneratorType" ordered="false" lowerBound="1" eType="//@eClassifiers.12" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceGeneratorGenericStrategy" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseProperty" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Version" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseProperty" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Transient" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateFormula" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseProperty" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PreUpdate" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseOperation" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PreRemove" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseOperation" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PrePersist" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseOperation" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PostUpdate" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseOperation" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PostRemove" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseOperation" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PostPersist" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseOperation" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PostLoad" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseOperation" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MaxResult" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseParameter" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MappedSuperclass" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseClass" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="FirstResult" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseParameter" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="CriteriaAttribute" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateCriteriaOrderRelevance" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateCriteriaComparator" ordered="false" eType="//@eClassifiers.4" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateCriteriaOrderDirection" ordered="false" lowerBound="1" eType="//@eClassifiers.6" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateCriteriaNullable" ordered="false" lowerBound="1" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateCriteriaAttribute" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateCriteriaMatchmode" ordered="false" lowerBound="1" eType="//@eClassifiers.9" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseProperty" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PersistentProperty" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceColumnIndex" ordered="false" upperBound="-1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceColumn" ordered="false" upperBound="-1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceColumnEquality" ordered="false" lowerBound="1" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceFetchType" ordered="false" eType="//@eClassifiers.14" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseProperty" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PersistentAssociation" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaEjbGenerateCmr" ordered="false" upperBound="-1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateAssociationCacheDistributed" ordered="false" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateAssociationCache" ordered="false" eType="//@eClassifiers.3" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceTable" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaEjbGenerateVOreference" ordered="false" upperBound="-1"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseAssociation" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PersistentAttribute" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceColumnLength" ordered="false" upperBound="-1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceColumnUniqueGroup" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceColumnScale" ordered="false" defaultValueLiteral="2"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceColumnNullable" ordered="false" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceColumnPrecision" ordered="false" defaultValueLiteral="12"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceColumnDefinition" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernatePropertyUpdate" ordered="false" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceColumnInsert" ordered="false" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceColumnWeblogicDataType" ordered="false" upperBound="-1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceColumnUpdate" ordered="false" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernatePropertyInsert" ordered="false" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceLobType" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseProperty" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PersistentAssociationEnd" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateXmlEmbed" ordered="false" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateOrderByColumns" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceForeignkeyConstraint" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateOuterjoin" ordered="false" upperBound="-1" eType="//@eClassifiers.0" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceOptional" ordered="false" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateWhereClause" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateSortType" ordered="false" eType="//@eClassifiers.8" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceCascadeType" ordered="false" upperBound="-1" eType="//@eClassifiers.17" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="andromdaHibernateCollectionIndexType" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceOrderBy" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceCollectionType" ordered="false" eType="//@eClassifiers.18" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateCascade" ordered="false" lowerBound="1" defaultValueLiteral="none"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateCollectionType" ordered="false" eType="//@eClassifiers.1" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceForeignIdentifier" ordered="false" lowerBound="1" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateCollectionIndex" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceAssociationCache" ordered="false" lowerBound="1" eType="//@eClassifiers.21" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaEjbGenerateVOreference" ordered="false" upperBound="-1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceAssociationEndPrimary" ordered="false" lowerBound="1" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceCollectionIndex" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="andromdaPersistenceCollectionIndexType" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceAssociationEndUniqueGroup" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseProperty" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PersistentElement" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateLazy" ordered="false" upperBound="-1" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaHibernateXmlTagName" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseProperty" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseClassifier" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PersistentClass" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaSerialVersionUid" ordered="false"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseClass" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceDummyloadSize" ordered="false" upperBound="-1" defaultValueLiteral="20"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceImmutable" ordered="false" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceTable" ordered="false"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="EnumerationLiteral" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceEnumerationMemberVariable" ordered="false" lowerBound="1" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceEnumerationLiteralParameters" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceEnumerationType" ordered="false" eType="//@eClassifiers.15" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseProperty" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="TemporalElement" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceTemporalType" ordered="false" eType="//@eClassifiers.19" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseParameter" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseProperty" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PersistentPackage" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaPersistenceTablePrefix" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseElement" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Manageable" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaManageableTablePagesize" ordered="false" lowerBound="1" defaultValueLiteral="20"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaManageableTableDisplayname" ordered="false" lowerBound="1"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaManageableTableMaxlistsize" ordered="false" lowerBound="1" defaultValueLiteral="250"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="andromdaManageableTableResolveable" ordered="false" lowerBound="1" eType="//@eClassifiers.22" defaultValueLiteral="default"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="baseClass" ordered="false" lowerBound="1"/>
+  </eClassifiers>
+</ecore:EPackage>

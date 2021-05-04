@@ -75,11 +75,11 @@ public class TestCollege {
 
 //		getM0();
 //		getBranches();
-		testMerge();
+//		testMerge();
 //		testEquality(m0URI, m1URI);
 		
 //		testEMFCompare();
-//		testEquality(m0URI, m2URI);
+		testEquality(m0URI, m2URI);
 
 	}
 

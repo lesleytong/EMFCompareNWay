@@ -3,6 +3,7 @@ package nway;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
 
@@ -108,29 +109,45 @@ public class ChangeTool {
 
 		EObject rContent = resource.getContents().get(0);
 		Random random = new Random();
-		Collection<EObject> dList = new ArrayList<>();
+		Collection<EObject> doNotDelete = new HashSet<>();
+		Collection<EObject> dList = new HashSet<>();
 
-		// 删除不作为父节点的对象，遍历一次
+		// 删除不影响其它的对象，遍历一次
 		rContent.eAllContents().forEachRemaining(e -> {
-			if (random.nextDouble() >= 0.9) {
-				EList<EReference> eAllContainments = e.eClass().getEAllContainments();
-				if (eAllContainments.size() == 0) {
-					dList.add(e);
-					System.out.println("删除的对象：" + e);
-				} else {
-					eAllContainments.forEach(r -> {
-						Collection<EObject> targets = (Collection<EObject>) e.eGet(r);
-						if (targets.size() == 0) {
-							dList.add(e);
-							System.out.println("删除的对象：" + e);
-						}
-					});
-				}
 
+			EList<EReference> eAllReferences = e.eClass().getEAllReferences();
+			EList<EReference> eAllContainments = e.eClass().getEAllContainments();
+			// 说明有Containment为false的关联边
+			if (eAllReferences.size() > eAllContainments.size()) {
+
+				eAllReferences.forEach(r -> {
+					if (r.isContainment() == false) {
+						Collection<EObject> targets = (Collection<EObject>) e.eGet(r);
+						if (targets.size() != 0) {
+							doNotDelete.add(e); // 必须写这行
+							doNotDelete.addAll(targets);
+						}
+					}
+				});
+
+			} 
+			
+			else if (random.nextDouble() >= 0.9) {
+				dList.add(e);
 			}
 
 		});
+		
+		doNotDelete.forEach(e -> {
+			System.out.println(e);
+		});
+		System.out.println("doNotDelete.size(): " + doNotDelete.size());
+
 		// 统一删除
+		dList.removeAll(doNotDelete);
+		dList.forEach(e -> {
+			System.out.println("删除的对象：" + e);
+		});
 		EcoreUtil.removeAll(dList);
 
 		// 再遍历一次
@@ -138,27 +155,29 @@ public class ChangeTool {
 
 			EClass eClass = e.eClass();
 
-			int size = eClass.getEAllContainments().size();
 			eClass.getEAllAttributes().forEach(a -> {
 				// 修改属性值，给定一个概率
+				// 只修改没有关联的，不然匹配有问题
 				// 只修改不作为container的，不然匹配有问题
 				// 只修改不移动的，不然匹配有问题
-				if (size == 0 && random.nextDouble() >= 0.9) {
-					setAttribute(e, a);
-					changeSize++;
-				} else if (a.isMany() && random.nextDouble() >= 0.9) {
-					// 移动多值属性
-					// A B C -> C B A
-					List<Object> targets = (List<Object>) e.eGet(a); // 注意要用Object
-					if (targets.size() >= 3) {
-						Object removeA = targets.remove(0);
-						targets.add(2, removeA);
-						Object removeB = targets.remove(1);
-						targets.add(0, removeB);
-						System.out.println("移动后的多值属性：" + targets);
-						moveSize += 3;
-					}
+				if (doNotDelete.contains(e) == false) {
+					if (eClass.getEAllContainments().size() == 0 && random.nextDouble() >= 0.9) {
+						setAttribute(e, a);
+					} 
+					else if (a.isMany() && random.nextDouble() >= 0.9) {
+						// 移动多值属性
+						// A B C -> C B A
+						List<Object> targets = (List<Object>) e.eGet(a); // 注意要用Object
+						if (targets.size() >= 3) {
+							Object removeA = targets.remove(0);
+							targets.add(2, removeA);
+							Object removeB = targets.remove(1);
+							targets.add(0, removeB);
+							System.out.println("移动后的多值属性：" + targets);
+							moveSize += 3;
+						}
 
+					}
 				}
 
 			});
@@ -179,8 +198,8 @@ public class ChangeTool {
 							System.out.println("移动Containment为true的多值引用：" + targets);
 							moveSize += 3;
 						}
-						
-					} else if (r.isMany() && random.nextDouble() >= 0.9) { 
+
+					} else if (r.isMany() && random.nextDouble() >= 0.9) {
 						// 新加Contaiment为true的当前对象的“一对多关联”的子对象，给定一个概率
 						EClass eReferenceType = r.getEReferenceType(); // 关联的另一方
 						EObject create = EcoreUtil.create(eReferenceType);
@@ -193,7 +212,9 @@ public class ChangeTool {
 						addSize++;
 					}
 
-				} else {
+				}
+
+				else {
 					// 移动Containment为false的多值引用(例如friends)，给定一个概率
 					if (r.isMany() && random.nextDouble() >= 0.9) {
 						// A B C -> C B A
@@ -236,11 +257,14 @@ public class ChangeTool {
 				} else {
 					e.eSet(a, RandomStringUtils.randomAlphanumeric(5));
 				}
-			} else if (instanceTypeName.contains("int") || instanceTypeName.contains("Int")) {
-				Random random = new Random();
-				int nextInt = 18 + random.nextInt(20);
-				e.eSet(a, nextInt);
-			}
+				changeSize++;
+			} 
+			// 注释掉，不然（petrinet例子）无法识别为AttributeChange
+//			else if (instanceTypeName.contains("int") || instanceTypeName.contains("Int")) {
+//				Random random = new Random();
+//				int nextInt = 18 + random.nextInt(20);
+//				e.eSet(a, nextInt);
+//			}
 			System.out.println("修改/设置后的属性：" + e.eGet(a));
 		}
 		// PENDING：多值属性
