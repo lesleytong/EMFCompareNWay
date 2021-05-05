@@ -114,32 +114,47 @@ public class ChangeTool {
 
 		// 删除不影响其它的对象，遍历一次
 		rContent.eAllContents().forEachRemaining(e -> {
-
+			
 			EList<EReference> eAllReferences = e.eClass().getEAllReferences();
 			EList<EReference> eAllContainments = e.eClass().getEAllContainments();
-			// 说明有Containment为false的关联边
-			if (eAllReferences.size() > eAllContainments.size()) {
-
-				eAllReferences.forEach(r -> {
-					if (r.isContainment() == false) {
-						Collection<EObject> targets = (Collection<EObject>) e.eGet(r);
-						if (targets.size() != 0) {
-							doNotDelete.add(e); // 必须写这行
-							doNotDelete.addAll(targets);
-						}
-					}
-				});
-
-			} 
 			
-			else if (random.nextDouble() >= 0.9) {
+			if(eAllContainments.size() == 0 && random.nextDouble()>=0.9) {
 				dList.add(e);
 			}
-
+						
+			eAllReferences.forEach(r -> {
+				if(r.isContainment()) {
+					if(r.isMany()) {
+						Collection<EObject> targets = (Collection<EObject>) e.eGet(r);
+						if(targets.size() != 0) {
+							doNotDelete.add(e);
+						} 
+					} else {
+						EObject target = (EObject)e.eGet(r);
+						if(target != null) {
+							doNotDelete.add(e);
+						} 
+					}
+					
+				} else {
+					if(r.isMany()) {
+						Collection<EObject> targets = (Collection<EObject>) e.eGet(r);
+						if (targets.size() != 0) {
+							doNotDelete.addAll(targets);
+						} 
+					} else {
+						EObject target = (EObject)e.eGet(r);
+						if(target != null) {
+							doNotDelete.add(target);
+						}
+					}
+				}
+			});
+			
 		});
 		
 		doNotDelete.forEach(e -> {
-			System.out.println(e);
+			System.out.println("doNotDelete e: " + e);
 		});
 		System.out.println("doNotDelete.size(): " + doNotDelete.size());
 
@@ -157,7 +172,7 @@ public class ChangeTool {
 
 			eClass.getEAllAttributes().forEach(a -> {
 				// 修改属性值，给定一个概率
-				// 只修改没有关联的，不然匹配有问题
+				// 只修改没有被关联的，不然匹配有问题
 				// 只修改不作为container的，不然匹配有问题
 				// 只修改不移动的，不然匹配有问题
 				if (doNotDelete.contains(e) == false) {
@@ -184,13 +199,12 @@ public class ChangeTool {
 
 			eClass.getEAllReferences().forEach(r -> {
 				if (r.isContainment()) {
-
 					// 移动Containment为true的多值引用(例如colleges)，给定一个概率
 					// 移动的不新加
 					if (r.isMany() && random.nextDouble() >= 0.9) {
 						// A B C -> C B A
 						List<EObject> targets = (List<EObject>) e.eGet(r);
-						if (targets.size() >= 5) {
+						if (targets.size() >= 3) {
 							EObject removeA = targets.remove(0);
 							targets.add(2, removeA);
 							EObject removeB = targets.remove(1);
@@ -257,6 +271,7 @@ public class ChangeTool {
 				} else {
 					e.eSet(a, RandomStringUtils.randomAlphanumeric(5));
 				}
+				System.out.println("修改/设置后的属性：" + e.eGet(a));
 				changeSize++;
 			} 
 			// 注释掉，不然（petrinet例子）无法识别为AttributeChange
@@ -265,7 +280,7 @@ public class ChangeTool {
 //				int nextInt = 18 + random.nextInt(20);
 //				e.eSet(a, nextInt);
 //			}
-			System.out.println("修改/设置后的属性：" + e.eGet(a));
+
 		}
 		// PENDING：多值属性
 
