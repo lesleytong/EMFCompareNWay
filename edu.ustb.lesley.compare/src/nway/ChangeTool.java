@@ -6,6 +6,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Random;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.RandomStringUtils;
 import org.eclipse.emf.common.util.EList;
@@ -114,45 +115,29 @@ public class ChangeTool {
 
 		// 删除不影响其它的对象，遍历一次
 		rContent.eAllContents().forEachRemaining(e -> {
-			
+
 			EList<EReference> eAllReferences = e.eClass().getEAllReferences();
-			EList<EReference> eAllContainments = e.eClass().getEAllContainments();
-			
-			if(eAllContainments.size() == 0 && random.nextDouble()>=0.9) {
+
+			if (eAllReferences.size() == 0 && random.nextDouble() >= 0.9) {
 				dList.add(e);
 			}
-						
+
 			eAllReferences.forEach(r -> {
-				if(r.isContainment()) {
-					if(r.isMany()) {
-						Collection<EObject> targets = (Collection<EObject>) e.eGet(r);
-						if(targets.size() != 0) {
-							doNotDelete.add(e);
-						} 
-					} else {
-						EObject target = (EObject)e.eGet(r);
-						if(target != null) {
-							doNotDelete.add(e);
-						} 
+				if (r.isMany()) {
+					Collection<EObject> targets = (Collection<EObject>) e.eGet(r);
+					if (targets.size() != 0) {
+						doNotDelete.addAll(targets);
 					}
-					
 				} else {
-					if(r.isMany()) {
-						Collection<EObject> targets = (Collection<EObject>) e.eGet(r);
-						if (targets.size() != 0) {
-							doNotDelete.addAll(targets);
-						} 
-					} else {
-						EObject target = (EObject)e.eGet(r);
-						if(target != null) {
-							doNotDelete.add(target);
-						}
+					EObject target = (EObject) e.eGet(r);
+					if (target != null) {
+						doNotDelete.add(e);
 					}
 				}
 			});
-			
+
 		});
-		
+
 		doNotDelete.forEach(e -> {
 			System.out.println("doNotDelete e: " + e);
 		});
@@ -176,21 +161,20 @@ public class ChangeTool {
 				// 只修改不作为container的，不然匹配有问题
 				// 只修改不移动的，不然匹配有问题
 				if (doNotDelete.contains(e) == false) {
-					if (eClass.getEAllContainments().size() == 0 && random.nextDouble() >= 0.9) {
+					if (eClass.getEAllReferences().size() == 0 && random.nextDouble() >= 0.9) {
 						setAttribute(e, a);
-					} 
-					else if (a.isMany() && random.nextDouble() >= 0.9) {
-						// 移动多值属性
-						// A B C -> C B A
-						List<Object> targets = (List<Object>) e.eGet(a); // 注意要用Object
-						if (targets.size() >= 3) {
-							Object removeA = targets.remove(0);
-							targets.add(2, removeA);
-							Object removeB = targets.remove(1);
-							targets.add(0, removeB);
-							System.out.println("移动后的多值属性：" + targets);
-							moveSize += 3;
-						}
+					} else if (a.isMany() && random.nextDouble() >= 0.9) {
+//						// 移动多值属性
+//						// A B C -> C B A
+//						List<Object> targets = (List<Object>) e.eGet(a); // 注意要用Object
+//						if (targets.size() >= 3) {
+//							Object removeA = targets.remove(0);
+//							targets.add(2, removeA);
+//							Object removeB = targets.remove(1);
+//							targets.add(0, removeB);
+//							System.out.println("移动后的多值属性：" + targets);
+//							moveSize += 2;
+//						}
 
 					}
 				}
@@ -202,17 +186,12 @@ public class ChangeTool {
 					// 移动Containment为true的多值引用(例如colleges)，给定一个概率
 					// 移动的不新加
 					if (r.isMany() && random.nextDouble() >= 0.9) {
-						// A B C -> C B A
+						// 随机打乱
 						List<EObject> targets = (List<EObject>) e.eGet(r);
-						if (targets.size() >= 3) {
-							EObject removeA = targets.remove(0);
-							targets.add(2, removeA);
-							EObject removeB = targets.remove(1);
-							targets.add(0, removeB);
-							System.out.println("移动Containment为true的多值引用：" + targets);
-							moveSize += 3;
+						int N = targets.size();
+						if (N >= 5) {
+							shuffle(targets, N);
 						}
-
 					} else if (r.isMany() && random.nextDouble() >= 0.9) {
 						// 新加Contaiment为true的当前对象的“一对多关联”的子对象，给定一个概率
 						EClass eReferenceType = r.getEReferenceType(); // 关联的另一方
@@ -226,9 +205,7 @@ public class ChangeTool {
 						addSize++;
 					}
 
-				}
-
-				else {
+				} else {
 					// 移动Containment为false的多值引用(例如friends)，给定一个概率
 					if (r.isMany() && random.nextDouble() >= 0.9) {
 						// A B C -> C B A
@@ -239,11 +216,11 @@ public class ChangeTool {
 							EObject removeB = targets.remove(1);
 							targets.add(0, removeB);
 							System.out.println("移动Containment为false的多值引用：" + targets);
-							moveSize += 3;
+							moveSize += 2;
 						}
 					}
-
 				}
+
 			});
 
 			System.out.println("--------------------------------------------------");
@@ -257,6 +234,27 @@ public class ChangeTool {
 
 		ChangeTool.save(resource, m0URI);
 
+	}
+
+	public static void shuffle(List<EObject> targets, int N) {
+		Random random = new Random();
+		// a list of non-repeating N random integers in range (a, b), where b is
+		// exclusive
+		List<Integer> randomNumbers = random.ints(0, N).distinct().limit(N).boxed().collect(Collectors.toList());
+
+		List<EObject> shuffleList = new ArrayList<>();
+		randomNumbers.forEach(i -> {
+			shuffleList.add(targets.get(i));
+		});
+		// otherwise, it will report validating duplicate exception
+		targets.clear();
+		targets.addAll(shuffleList);
+		// count moveSize
+		for (int i = 0; i < N; i++) {
+			if (i != randomNumbers.get(i)) {
+				moveSize++;
+			}
+		}
 	}
 
 	/** 修改或设置新加的属性 */
@@ -273,14 +271,7 @@ public class ChangeTool {
 				}
 				System.out.println("修改/设置后的属性：" + e.eGet(a));
 				changeSize++;
-			} 
-			// 注释掉，不然（petrinet例子）无法识别为AttributeChange
-//			else if (instanceTypeName.contains("int") || instanceTypeName.contains("Int")) {
-//				Random random = new Random();
-//				int nextInt = 18 + random.nextInt(20);
-//				e.eSet(a, nextInt);
-//			}
-
+			}
 		}
 		// PENDING：多值属性
 

@@ -2,24 +2,34 @@ package test;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.collections4.map.MultiKeyMap;
 import org.eclipse.emf.common.util.EList;
 import org.eclipse.emf.common.util.URI;
 import org.eclipse.emf.compare.Comparison;
 import org.eclipse.emf.compare.Conflict;
 import org.eclipse.emf.compare.ConflictKind;
 import org.eclipse.emf.compare.Diff;
+import org.eclipse.emf.compare.DifferenceKind;
 import org.eclipse.emf.compare.DifferenceSource;
+import org.eclipse.emf.compare.DifferenceState;
 import org.eclipse.emf.compare.EMFCompare;
+import org.eclipse.emf.compare.Match;
+import org.eclipse.emf.compare.internal.spec.AttributeChangeSpec;
+import org.eclipse.emf.compare.internal.spec.ReferenceChangeSpec;
 import org.eclipse.emf.compare.merge.BatchMerger;
 import org.eclipse.emf.compare.merge.IBatchMerger;
 import org.eclipse.emf.compare.merge.IMerger;
 import org.eclipse.emf.compare.scope.DefaultComparisonScope;
 import org.eclipse.emf.compare.scope.IComparisonScope;
+import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EPackage;
+import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
 import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
@@ -37,6 +47,9 @@ import nway.ChangeTool;
 import nway.NWay;
 
 public class TestCollege {
+
+	// 辅助cache()
+	static int cacheStartIndex;
 
 	static String NsURIName = "https://edu/ustb/lesley/college";
 	static EPackage ep = CollegePackage.eINSTANCE;
@@ -73,11 +86,11 @@ public class TestCollege {
 		uriList.add(branch2URI);
 		uriList.add(branch3URI);
 
-		getM0();
+//		getM0();
 //		getBranches();
 //		testMerge();
 //		testEquality(m0URI, m1URI);
-		
+
 //		testEMFCompare();
 //		testEquality(m0URI, m2URI);
 
@@ -96,6 +109,8 @@ public class TestCollege {
 
 		Random random = new Random();
 
+		int N = uriList.size();
+
 		// 利用EMF Compare比较得到m0与base之间的diffs
 		Resource m0Resource = resourceSet.getResource(m0URI, true);
 		IComparisonScope scope = new DefaultComparisonScope(baseResource, m0Resource, null);
@@ -107,6 +122,75 @@ public class TestCollege {
 			System.out.println(d);
 		});
 
+		List<EObject> moveEObjects = new ArrayList<>();
+		Map<EObject, EObject> eObjectMap = new HashMap<>();
+		Map<EObject, Diff> eObjectDiffMap = new HashMap<>();
+		Map<Diff, EObject> diffEObjectMap = new HashMap<>();
+		MultiKeyMap<EObject, Boolean> checkNotMap = new MultiKeyMap<>(); // 其实可以没有true作为value，但如果用HashMap的话key只能唯一
+		MultiKeyMap<EObject, Boolean> checkExistMap = new MultiKeyMap<>();
+
+		diffs.forEach(d -> {
+			if (d.getKind() == DifferenceKind.MOVE) {
+				if (d instanceof AttributeChangeSpec) {
+					// PENDING: 还未处理AttributeChangeSpec的MOVE
+				} else if (d instanceof ReferenceChangeSpec) {
+					ReferenceChangeSpec dr = (ReferenceChangeSpec) d;
+					EReference reference = dr.getReference();
+					if (reference.isContainment()) {
+						Match match = d.getMatch().getComparison().getMatch(dr.getValue());
+						EObject left = match.getLeft(); // baseResource中的元素
+						EObject right = match.getRight();
+						moveEObjects.add(left);
+						eObjectMap.put(left, right);
+						eObjectDiffMap.put(left, d);
+						diffEObjectMap.put(d, left);
+					}
+				}
+			}
+		});
+
+		if (moveEObjects.size() != 0) {
+			// baseResource
+			cacheStartIndex = 0;
+			Map<EObject, Integer> baseIndex = new HashMap<>();
+			baseResource.getContents().forEach(e -> {
+				cache(e, baseIndex);
+			});
+
+			// m0Resource
+			cacheStartIndex = 0;
+			Map<EObject, Integer> m0Index = new HashMap<>();
+			m0Resource.getContents().forEach(e -> {
+				cache(e, m0Index);
+			});
+
+			for (int i = 0; i < moveEObjects.size() - 1; i++) {
+				EObject first = moveEObjects.get(i);
+				Integer firstIndexInBase = baseIndex.get(first); // base中的index
+				Integer firstIndexInM0 = m0Index.get(eObjectMap.get(first)); // m0中的index
+				for (int j = i + 1; j < moveEObjects.size(); j++) {
+					EObject second = moveEObjects.get(j);
+					Integer secondIndexInBase = baseIndex.get(second); // base中的index
+					Integer secondIndexInM0 = m0Index.get(eObjectMap.get(second)); // m0中的index
+					// base和m0中都是<x, y>，之后检查每个分支都不存在<y, x>
+					// base中是<x, y>，m0中是<y, x>，之后检查任一分支中存在<y, x>
+					int fsInBase = firstIndexInBase - secondIndexInBase;
+					int fsInM0 = firstIndexInM0 - secondIndexInM0;
+					if (fsInBase < 0 && fsInM0 < 0) {
+						checkNotMap.put(first, second, true);
+					} else if (fsInBase > 0 && fsInM0 > 0) {
+						checkNotMap.put(second, first, true);
+					} else if (fsInBase < 0 && fsInM0 > 0) {
+						checkExistMap.put(second, first, false);
+					} else if (fsInBase > 0 && fsInM0 < 0) {
+						checkExistMap.put(first, second, false);
+					}
+
+				}
+			}
+		}
+
+		// 分配diffs
 		Collection<Collection<Diff>> collections = new HashSet<>();
 		Collection<Diff> other = new HashSet<>();
 
@@ -124,19 +208,22 @@ public class TestCollege {
 			}
 		});
 
-		ArrayList<Diff> diff1 = new ArrayList();
-		ArrayList<Diff> diff2 = new ArrayList();
-		ArrayList<Diff> diff3 = new ArrayList();
+		// diffList的初始化
+		List<List<Diff>> diffList = new ArrayList<>();
+		for (int i = 0; i < N; i++) {
+			List<Diff> diff = new ArrayList<>();
+			diffList.add(diff);
+		}
 
 		// 将collections中的group随机分配给分支版本
 		collections.forEach(group -> {
 			double flag = random.nextDouble();
 			if (flag >= 0.7) {
-				diff1.addAll(group);
+				diffList.get(1).addAll(group);
 			} else if (flag <= 0.3) {
-				diff2.addAll(group);
+				diffList.get(2).addAll(group);
 			} else {
-				diff3.addAll(group);
+				diffList.get(3).addAll(group);
 			}
 		});
 
@@ -144,29 +231,138 @@ public class TestCollege {
 		other.forEach(d -> {
 			double flag = random.nextDouble();
 			if (flag >= 0.7) {
-				diff1.add(d);
+				diffList.get(1).add(d);
 			} else if (flag <= 0.3) {
-				diff2.add(d);
+				diffList.get(2).add(d);
 			} else {
-				diff3.add(d);
+				diffList.get(3).add(d);
 			}
 		});
 
-		// 在base上应用diff1，得到branch1
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diff1");
-		applyDiff(diff1, branch1URI);
-		// 恢复原来的base
-		backup();
+		for (int i = 1; i < N; i++) {
+			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diffBranch" + i);
 
-		// 在base上应用diff2，得到branch2
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diff2");
-		applyDiff(diff2, branch2URI);
-		// 恢复原来的base
-		backup();
+			// 应用diff到相应的分支
+			List<Diff> diffBranch = diffList.get(i);
+			int originalSize = diffBranch.size();
+			applyDiff(diffBranch, uriList.get(i));
 
-		// 在base上应用diff3，得到branch3
-		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diff3");
-		applyDiff(diff3, branch3URI);
+			if (moveEObjects.size() != 0) {
+				cacheStartIndex = 0;
+				Map<EObject, Integer> branchIndex = new HashMap<>();
+				baseResource.getContents().forEach(e -> {
+					cache(e, branchIndex);
+				});
+
+				// 检查不能存在的
+				checkNotMap.forEach((key, value) -> {
+					Integer firstIndex = branchIndex.get(key.getKey(0));
+					Integer secondIndex = branchIndex.get(key.getKey(1));
+					if (firstIndex > secondIndex) {
+						Diff boundDiff1 = eObjectDiffMap.get(key.getKey(0));
+						Diff boundDiff2 = eObjectDiffMap.get(key.getKey(1));
+						if (diffBranch.contains(boundDiff1) == false) {
+							boundDiff1.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
+							diffBranch.add(boundDiff1);
+						}
+						if (diffBranch.contains(boundDiff2) == false) {
+							boundDiff2.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
+							diffBranch.add(boundDiff2);
+						}
+
+					}
+				});
+
+				// 再次apply
+				if (diffBranch.size() > originalSize) {
+					applyDiff(diffBranch, uriList.get(i));
+				}
+
+				// 检查需要在一个分支中存在的
+				checkExistMap.forEach((key, value) -> {
+					// value为true后，之后就不用检查此键值对
+					if (value == false) {
+						EObject first = key.getKey(0);
+						EObject second = key.getKey(1);
+						Integer firstIndex = branchIndex.get(first);
+						Integer secondIndex = branchIndex.get(second);
+						if (firstIndex < secondIndex) {
+							checkExistMap.put(key, true);
+						}
+					}
+				});
+			}
+
+			// 恢复
+			if (i != N - 1) {
+				backup();
+			}
+
+		}
+
+		if (moveEObjects.size() != 0) {
+			// 若任何一个分支都不存在<y, x>，则在最后一个分支加入boundDiff
+			List<Diff> diffBranch = diffList.get(N - 1);
+			List<Diff> help = new ArrayList<>();
+			int originalSize = diffBranch.size();
+			checkExistMap.forEach((key, value) -> {
+				if (value == false) {
+					Diff boundDiff1 = eObjectDiffMap.get(key.getKey(0));
+					Diff boundDiff2 = eObjectDiffMap.get(key.getKey(1));
+					if (diffBranch.contains(boundDiff1) == false) {
+						boundDiff1.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
+						diffBranch.add(boundDiff1);
+						help.add(boundDiff1);
+					}
+					if (diffBranch.contains(boundDiff2) == false) {
+						boundDiff2.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
+						diffBranch.add(boundDiff2);
+						help.add(boundDiff2);
+					}
+
+				}
+			});
+
+			if (diffBranch.size() > originalSize) {
+				// 最后一个分支再次apply
+				applyDiff(diffBranch, uriList.get(N - 1));
+			}
+
+			// baseResource未恢复，因此为最后一个分支
+			cacheStartIndex = 0;
+			Map<EObject, Integer> branchIndex = new HashMap<>();
+			baseResource.getContents().forEach(e -> {
+				cache(e, branchIndex);
+			});
+
+			// 还要检查不能存在的
+			checkNotMap.forEach((key, value) -> {
+				Integer firstIndex = branchIndex.get(key.getKey(0));
+				Integer secondIndex = branchIndex.get(key.getKey(1));
+				if (firstIndex > secondIndex) {
+					Diff boundDiff1 = eObjectDiffMap.get(key.getKey(0));
+					Diff boundDiff2 = eObjectDiffMap.get(key.getKey(1));
+
+					if (diffBranch.contains(boundDiff1) == false) {
+						boundDiff1.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
+						diffBranch.add(boundDiff1);
+					} else if (help.contains(boundDiff1) == false) {
+						boundDiff1.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
+					}
+
+					if (diffBranch.contains(boundDiff2) == false) {
+						boundDiff2.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
+						diffBranch.add(boundDiff2);
+					} else if (help.contains(boundDiff2) == false) {
+						boundDiff2.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
+					}
+
+				}
+			});
+
+			// 最后一个分支再次apply
+			applyDiff(diffBranch, uriList.get(N - 1));
+		}
 
 		System.out.println("done");
 	}
@@ -218,25 +414,25 @@ public class TestCollege {
 	}
 
 	public static void testEMFCompare() {
-		
+
 		long start = System.currentTimeMillis();
-		
+
 		// 第一次leftResource为第一个分支
 		Resource leftResource = resourceSet.getResource(branch1URI, true);
 		Resource rightResource = null;
-		
-		for(int i = 2; i<uriList.size(); i++) {
+
+		for (int i = 2; i < uriList.size(); i++) {
 			rightResource = resourceSet.getResource(uriList.get(i), true);
 			leftResource = threeWay(leftResource, rightResource, baseResource);
 		}
-		
+
 		long end = System.currentTimeMillis();
 		System.out.println("迭代式三向合并总耗时：" + (end - start) + " ms.");
-		
+
 		ChangeTool.save(leftResource, m2URI);
-				
+
 		System.out.println("done");
-		
+
 	}
 
 	public static Resource threeWay(Resource leftResource, Resource rightResource, Resource baseResource) {
@@ -281,10 +477,13 @@ public class TestCollege {
 	}
 
 	/** 将分配给分支的diff应用到base上，得到branch */
-	public static void applyDiff(ArrayList<Diff> diff, URI branchURI) {
+	public static void applyDiff(List<Diff> diff, URI branchURI) {
 		diff.forEach(d -> {
-			System.out.println(d);
+			if (d.getState() == DifferenceState.UNRESOLVED) {
+				System.out.println(d);
+			}
 		});
+		System.out.println("------------------------------");
 		merger.copyAllRightToLeft(diff, null);
 		ChangeTool.save(baseResource, branchURI);
 	}
@@ -296,6 +495,15 @@ public class TestCollege {
 		Comparison backupComparison = EMFCompare.builder().build().compare(backupScope);
 		EList<Diff> backupDiffs = backupComparison.getDifferences();
 		merger.copyAllRightToLeft(backupDiffs, null);
+	}
+
+	public static void cache(EObject e, Map<EObject, Integer> map) {
+		map.put(e, cacheStartIndex++);
+		if (e.eContents().size() != 0) {
+			e.eContents().forEach(ec -> {
+				cache(ec, map);
+			});
+		}
 	}
 
 }

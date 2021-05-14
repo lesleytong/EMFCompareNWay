@@ -145,7 +145,7 @@ public class NWay extends XmuProgram {
 
 			// 为了处理ADD元素（base与其它分支的）
 			for (Diff diff : branchComparison.getDifferences()) { // 这里是branchComparison
-				if (diff.getKind() == DifferenceKind.ADD) {
+				if (diff.getKind() == DifferenceKind.ADD) {								
 					ReferenceChangeSpec diffADD = (ReferenceChangeSpec) diff;
 					EObject left = diffADD.getValue();
 					// 已经是ADD的diff了，EObject right一定为null，不用多此一举去判断它
