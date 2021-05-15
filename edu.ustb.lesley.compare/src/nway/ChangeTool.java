@@ -189,7 +189,7 @@ public class ChangeTool {
 						// 随机打乱
 						List<EObject> targets = (List<EObject>) e.eGet(r);
 						int N = targets.size();
-						if (N >= 5) {
+						if (N >= 4) {
 							shuffle(targets, N);
 						}
 					} else if (r.isMany() && random.nextDouble() >= 0.9) {
@@ -208,15 +208,11 @@ public class ChangeTool {
 				} else {
 					// 移动Containment为false的多值引用(例如friends)，给定一个概率
 					if (r.isMany() && random.nextDouble() >= 0.9) {
-						// A B C -> C B A
+						// 随机打乱
 						List<EObject> targets = (List<EObject>) e.eGet(r);
-						if (targets.size() >= 3) {
-							EObject removeA = targets.remove(0);
-							targets.add(2, removeA);
-							EObject removeB = targets.remove(1);
-							targets.add(0, removeB);
-							System.out.println("移动Containment为false的多值引用：" + targets);
-							moveSize += 2;
+						int N = targets.size();
+						if (N >= 4) {
+							shuffle(targets, N);
 						}
 					}
 				}

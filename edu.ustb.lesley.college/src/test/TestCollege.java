@@ -7,6 +7,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
+import java.util.Set;
 
 import org.apache.commons.collections4.map.MultiKeyMap;
 import org.eclipse.emf.common.util.EList;
@@ -50,6 +51,8 @@ public class TestCollege {
 
 	// 辅助cache()
 	static int cacheStartIndex;
+	// 统计真正的moveSize
+	static int moveSize = 0;
 
 	static String NsURIName = "https://edu/ustb/lesley/college";
 	static EPackage ep = CollegePackage.eINSTANCE;
@@ -104,6 +107,8 @@ public class TestCollege {
 	}
 
 	public static void getBranches() {
+		
+
 
 		backupResource = resourceSet.getResource(backupURI, true);
 
@@ -111,7 +116,7 @@ public class TestCollege {
 
 		int N = uriList.size();
 
-		// 利用EMF Compare比较得到m0与base之间的diffs
+		// 利用EMF Compare得到m0与base之间的diffs
 		Resource m0Resource = resourceSet.getResource(m0URI, true);
 		IComparisonScope scope = new DefaultComparisonScope(baseResource, m0Resource, null);
 		Comparison comparison = EMFCompare.builder().build().compare(scope);
@@ -122,72 +127,89 @@ public class TestCollege {
 			System.out.println(d);
 		});
 
-		List<EObject> moveEObjects = new ArrayList<>();
 		Map<EObject, EObject> eObjectMap = new HashMap<>();
 		Map<EObject, Diff> eObjectDiffMap = new HashMap<>();
-		Map<Diff, EObject> diffEObjectMap = new HashMap<>();
-		MultiKeyMap<EObject, Boolean> checkNotMap = new MultiKeyMap<>(); // 其实可以没有true作为value，但如果用HashMap的话key只能唯一
-		MultiKeyMap<EObject, Boolean> checkExistMap = new MultiKeyMap<>();
+		Map<List<EObject>, List<EObject>> targetsMap = new HashMap<>();
+
+		MultiKeyMap<Object, List<EObject>> moveForTargets = new MultiKeyMap<>();
+		MultiKeyMap<Object, List<EObject>> leftTargetsMap = new MultiKeyMap<>();
+		MultiKeyMap<Object, Boolean> checkNotMap = new MultiKeyMap<>();
+		MultiKeyMap<Object, Boolean> checkExistMap = new MultiKeyMap<>();
 
 		diffs.forEach(d -> {
 			if (d.getKind() == DifferenceKind.MOVE) {
+				
+				moveSize++;
+				
 				if (d instanceof AttributeChangeSpec) {
 					// PENDING: 还未处理AttributeChangeSpec的MOVE
 				} else if (d instanceof ReferenceChangeSpec) {
 					ReferenceChangeSpec dr = (ReferenceChangeSpec) d;
-					EReference reference = dr.getReference();
-					if (reference.isContainment()) {
-						Match match = d.getMatch().getComparison().getMatch(dr.getValue());
-						EObject left = match.getLeft(); // baseResource中的元素
-						EObject right = match.getRight();
-						moveEObjects.add(left);
-						eObjectMap.put(left, right);
-						eObjectDiffMap.put(left, d);
-						diffEObjectMap.put(d, left);
+					// 适用所有的reference
+					EReference r = dr.getReference();
+					Match match = d.getMatch().getComparison().getMatch(dr.getValue());
+					EObject left = match.getLeft(); // baseResource中的元素
+					EObject right = match.getRight(); // m0中的元素
+					eObjectMap.put(left, right);
+					eObjectDiffMap.put(left, d);
+
+					EObject leftContainer = d.getMatch().getLeft();
+					// 保存baseResource中move的元素
+					List<EObject> list = (List<EObject>) moveForTargets.get(leftContainer, r);
+					if (list == null) {
+						list = new ArrayList<>();
+						moveForTargets.put(leftContainer, r, list);
 					}
+					list.add(left);
+
+					List<EObject> leftTargets = (List<EObject>) leftContainer.eGet(r);
+					leftTargetsMap.put(leftContainer, r, leftTargets);
+
+					EObject rightContainer = d.getMatch().getRight();
+					List<EObject> rightTargets = (List<EObject>) rightContainer.eGet(r);
+
+					targetsMap.put(leftTargets, rightTargets);
+
 				}
 			}
 		});
 
-		if (moveEObjects.size() != 0) {
-			// baseResource
-			cacheStartIndex = 0;
-			Map<EObject, Integer> baseIndex = new HashMap<>();
-			baseResource.getContents().forEach(e -> {
-				cache(e, baseIndex);
-			});
+		if (moveForTargets.size() != 0) {
 
-			// m0Resource
-			cacheStartIndex = 0;
-			Map<EObject, Integer> m0Index = new HashMap<>();
-			m0Resource.getContents().forEach(e -> {
-				cache(e, m0Index);
-			});
+			moveForTargets.forEach((key, value) -> {
 
-			for (int i = 0; i < moveEObjects.size() - 1; i++) {
-				EObject first = moveEObjects.get(i);
-				Integer firstIndexInBase = baseIndex.get(first); // base中的index
-				Integer firstIndexInM0 = m0Index.get(eObjectMap.get(first)); // m0中的index
-				for (int j = i + 1; j < moveEObjects.size(); j++) {
-					EObject second = moveEObjects.get(j);
-					Integer secondIndexInBase = baseIndex.get(second); // base中的index
-					Integer secondIndexInM0 = m0Index.get(eObjectMap.get(second)); // m0中的index
-					// base和m0中都是<x, y>，之后检查每个分支都不存在<y, x>
-					// base中是<x, y>，m0中是<y, x>，之后检查任一分支中存在<y, x>
-					int fsInBase = firstIndexInBase - secondIndexInBase;
-					int fsInM0 = firstIndexInM0 - secondIndexInM0;
-					if (fsInBase < 0 && fsInM0 < 0) {
-						checkNotMap.put(first, second, true);
-					} else if (fsInBase > 0 && fsInM0 > 0) {
-						checkNotMap.put(second, first, true);
-					} else if (fsInBase < 0 && fsInM0 > 0) {
-						checkExistMap.put(second, first, false);
-					} else if (fsInBase > 0 && fsInM0 < 0) {
-						checkExistMap.put(first, second, false);
+				for (int i = 0; i < value.size() - 1; i++) {
+					Object container = key.getKey(0);
+					Object r = key.getKey(1);
+					EObject first = value.get(i);
+					List<EObject> leftTargets = leftTargetsMap.get(container, r);
+					Integer firstIndexInBase = leftTargets.indexOf(first);
+					List<EObject> rightTargets = targetsMap.get(leftTargets);
+					Integer firstIndexInM0 = rightTargets.indexOf(eObjectMap.get(first));
+
+					for (int j = i + 1; j < value.size(); j++) {
+						EObject second = value.get(j);
+						Integer secondIndexInBase = leftTargets.indexOf(second);
+						Integer secondIndexInM0 = rightTargets.indexOf(eObjectMap.get(second));
+						// base和m0中都是<x, y>，之后检查每个分支都不存在<y, x>
+						// base中是<x, y>，m0中是<y, x>，之后检查任一分支中存在<y, x>
+						int fsInBase = firstIndexInBase - secondIndexInBase;
+						int fsInM0 = firstIndexInM0 - secondIndexInM0;
+						if (fsInBase < 0 && fsInM0 < 0) {
+							checkNotMap.put(container, r, first, second, true);
+						} else if (fsInBase > 0 && fsInM0 > 0) {
+							checkNotMap.put(container, r, second, first, true);
+						} else if (fsInBase < 0 && fsInM0 > 0) {
+							checkExistMap.put(container, r, second, first, false);
+						} else if (fsInBase > 0 && fsInM0 < 0) {
+							checkExistMap.put(container, r, first, second, false);
+						}
+
 					}
-
 				}
-			}
+
+			});
+
 		}
 
 		// 分配diffs
@@ -244,53 +266,65 @@ public class TestCollege {
 
 			// 应用diff到相应的分支
 			List<Diff> diffBranch = diffList.get(i);
-			int originalSize = diffBranch.size();
+			Set<Diff> help = new HashSet<>();
+			diffBranch.forEach(d -> {
+				if (d.getState() == DifferenceState.DISCARDED) {
+					help.add(d);
+				}
+			});
 			applyDiff(diffBranch, uriList.get(i));
 
-			if (moveEObjects.size() != 0) {
-				cacheStartIndex = 0;
-				Map<EObject, Integer> branchIndex = new HashMap<>();
-				baseResource.getContents().forEach(e -> {
-					cache(e, branchIndex);
-				});
+			if (moveForTargets.size() != 0) {
 
 				// 检查不能存在的
 				checkNotMap.forEach((key, value) -> {
-					Integer firstIndex = branchIndex.get(key.getKey(0));
-					Integer secondIndex = branchIndex.get(key.getKey(1));
+					EObject container = (EObject) key.getKey(0);
+					EReference r = (EReference) key.getKey(1);
+					EObject first = (EObject) key.getKey(2);
+					EObject second = (EObject) key.getKey(3);
+					// targets就是apply后baseResource中的序
+					List<EObject> targets = leftTargetsMap.get(container, r);
+					Integer firstIndex = targets.indexOf(first);
+					Integer secondIndex = targets.indexOf(second);
 					if (firstIndex > secondIndex) {
-						Diff boundDiff1 = eObjectDiffMap.get(key.getKey(0));
-						Diff boundDiff2 = eObjectDiffMap.get(key.getKey(1));
+						Diff boundDiff1 = eObjectDiffMap.get(first);
+						Diff boundDiff2 = eObjectDiffMap.get(second);
 						if (diffBranch.contains(boundDiff1) == false) {
 							boundDiff1.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
 							diffBranch.add(boundDiff1);
+						} else if (help.contains(boundDiff1)) {
+							boundDiff1.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
 						}
+
 						if (diffBranch.contains(boundDiff2) == false) {
 							boundDiff2.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
 							diffBranch.add(boundDiff2);
+						} else if (help.contains(boundDiff2)) {
+							boundDiff2.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
 						}
-
 					}
 				});
 
-				// 再次apply
-				if (diffBranch.size() > originalSize) {
-					applyDiff(diffBranch, uriList.get(i));
-				}
+				applyDiff(diffBranch, uriList.get(i));
 
-				// 检查需要在一个分支中存在的
+				// 检查需要在任一分支中存在的
 				checkExistMap.forEach((key, value) -> {
 					// value为true后，之后就不用检查此键值对
 					if (value == false) {
-						EObject first = key.getKey(0);
-						EObject second = key.getKey(1);
-						Integer firstIndex = branchIndex.get(first);
-						Integer secondIndex = branchIndex.get(second);
+						EObject container = (EObject) key.getKey(0);
+						EReference r = (EReference) key.getKey(1);
+						EObject first = (EObject) key.getKey(2);
+						EObject second = (EObject) key.getKey(3);
+						// targets就是apply后baseResource中的序
+						List<EObject> targets = leftTargetsMap.get(container, r);
+						Integer firstIndex = targets.indexOf(first);
+						Integer secondIndex = targets.indexOf(second);
 						if (firstIndex < secondIndex) {
 							checkExistMap.put(key, true);
 						}
 					}
 				});
+
 			}
 
 			// 恢复
@@ -300,70 +334,70 @@ public class TestCollege {
 
 		}
 
-		if (moveEObjects.size() != 0) {
-			// 若任何一个分支都不存在<y, x>，则在最后一个分支加入boundDiff
-			List<Diff> diffBranch = diffList.get(N - 1);
+		if (moveForTargets.size() != 0) {
+			List<Diff> diffLast = diffList.get(N - 1);
 			List<Diff> help = new ArrayList<>();
-			int originalSize = diffBranch.size();
+
+			// 若任何一个分支都不存在<y, x>，则在最后一个分支加入boundDiff
 			checkExistMap.forEach((key, value) -> {
 				if (value == false) {
-					Diff boundDiff1 = eObjectDiffMap.get(key.getKey(0));
-					Diff boundDiff2 = eObjectDiffMap.get(key.getKey(1));
-					if (diffBranch.contains(boundDiff1) == false) {
+					Diff boundDiff1 = eObjectDiffMap.get(key.getKey(2));
+					Diff boundDiff2 = eObjectDiffMap.get(key.getKey(3));
+					if (diffLast.contains(boundDiff1) == false) {
 						boundDiff1.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
-						diffBranch.add(boundDiff1);
+						diffLast.add(boundDiff1);
 						help.add(boundDiff1);
 					}
-					if (diffBranch.contains(boundDiff2) == false) {
+					if (diffLast.contains(boundDiff2) == false) {
 						boundDiff2.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
-						diffBranch.add(boundDiff2);
+						diffLast.add(boundDiff2);
 						help.add(boundDiff2);
 					}
-
 				}
 			});
 
-			if (diffBranch.size() > originalSize) {
-				// 最后一个分支再次apply
-				applyDiff(diffBranch, uriList.get(N - 1));
-			}
+			// 最后一个分支再次apply
+			applyDiff(diffLast, uriList.get(N - 1));
 
-			// baseResource未恢复，因此为最后一个分支
-			cacheStartIndex = 0;
-			Map<EObject, Integer> branchIndex = new HashMap<>();
-			baseResource.getContents().forEach(e -> {
-				cache(e, branchIndex);
-			});
-
-			// 还要检查不能存在的
+			// 最后一个分支还要检查不能存在的
 			checkNotMap.forEach((key, value) -> {
-				Integer firstIndex = branchIndex.get(key.getKey(0));
-				Integer secondIndex = branchIndex.get(key.getKey(1));
-				if (firstIndex > secondIndex) {
-					Diff boundDiff1 = eObjectDiffMap.get(key.getKey(0));
-					Diff boundDiff2 = eObjectDiffMap.get(key.getKey(1));
+				EObject container = (EObject) key.getKey(0);
+				EReference r = (EReference) key.getKey(1);
+				EObject first = (EObject) key.getKey(2);
+				EObject second = (EObject) key.getKey(3);
+				// targets就是最近apply后baseResource中的序
+				List<EObject> targets = leftTargetsMap.get(container, r);
+				Integer firstIndex = targets.indexOf(first);
+				Integer secondIndex = targets.indexOf(second);
 
-					if (diffBranch.contains(boundDiff1) == false) {
+				if (firstIndex > secondIndex) {
+					Diff boundDiff1 = eObjectDiffMap.get(key.getKey(2));
+					Diff boundDiff2 = eObjectDiffMap.get(key.getKey(3));
+
+					if (diffLast.contains(boundDiff1) == false) {
 						boundDiff1.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
-						diffBranch.add(boundDiff1);
+						diffLast.add(boundDiff1);
 					} else if (help.contains(boundDiff1) == false) {
 						boundDiff1.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
 					}
 
-					if (diffBranch.contains(boundDiff2) == false) {
+					if (diffLast.contains(boundDiff2) == false) {
 						boundDiff2.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
-						diffBranch.add(boundDiff2);
+						diffLast.add(boundDiff2);
 					} else if (help.contains(boundDiff2) == false) {
 						boundDiff2.setState(org.eclipse.emf.compare.DifferenceState.UNRESOLVED);
 					}
 
 				}
+
 			});
 
 			// 最后一个分支再次apply
-			applyDiff(diffBranch, uriList.get(N - 1));
+			applyDiff(diffLast, uriList.get(N - 1));
+
 		}
 
+		System.out.println("moveSize: " + moveSize);
 		System.out.println("done");
 	}
 
