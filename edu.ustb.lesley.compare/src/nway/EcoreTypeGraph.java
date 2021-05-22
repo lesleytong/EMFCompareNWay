@@ -149,10 +149,10 @@ public class EcoreTypeGraph extends XmuProgram {
 			typeGraph_ecore.declare("@eGenericType:ETypedElement->EGenericType");
 			typeGraph_ecore.declare("@eUpperBound:EGenericType->EGenericType");
 			typeGraph_ecore.declare("@eTypeArguments:EGenericType->EGenericType*");
-//			typeGraph_ecore.declare("eRawType:EGenericType->EClassifier");
+			typeGraph_ecore.declare("eRawType:EGenericType->EClassifier");
 			typeGraph_ecore.declare("@eLowerBound:EGenericType->EGenericType");
 			typeGraph_ecore.declare("eTypeParameter:EGenericType->ETypeParameter");
-//			typeGraph_ecore.declare("eClassifier:EGenericType->EClassifier");
+			typeGraph_ecore.declare("eClassifier:EGenericType->EClassifier");
 			typeGraph_ecore.declare("@eBounds:ETypeParameter->EGenericType*");
 		}
 		return typeGraph_ecore;

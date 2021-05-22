@@ -39,13 +39,9 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EObject;
-import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
-import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
-import org.eclipse.emf.ecore.resource.impl.ResourceSetImpl;
-import org.eclipse.emf.ecore.xmi.impl.XMIResourceFactoryImpl;
 
 import com.google.common.collect.HashBasedTable;
 import com.google.common.collect.Table;
@@ -73,8 +69,6 @@ import my.impl.MatchNImpl;
 @SuppressWarnings("restriction")
 public class NWay extends XmuProgram {
 
-	private String NsURIName = EcorePackage.eNS_URI;
-	private EPackage ep = null;
 	private TypeGraph typeGraph = null;
 	private ArrayList<Resource> resources = new ArrayList<>();
 
@@ -82,19 +76,7 @@ public class NWay extends XmuProgram {
 		this.typeGraph = typeGraph;
 	}
 
-	public NWay(String NsURIName, EPackage ep, TypeGraph typeGraph) {
-		this.NsURIName = NsURIName;
-		this.ep = ep;
-		this.typeGraph = typeGraph;
-	}
-
-	public List<MatchN> nMatch(ArrayList<URI> uriList) {
-
-		Resource.Factory.Registry.INSTANCE.getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
-		ResourceSet resourceSet = new ResourceSetImpl();
-		if (ep != null) {
-			resourceSet.getPackageRegistry().put(NsURIName, ep);
-		}
+	public List<MatchN> nMatch(ResourceSet resourceSet, List<URI> uriList) {
 
 		Resource baseResource = resourceSet.getResource(uriList.get(0), true);
 		Resource branchResource1 = resourceSet.getResource(uriList.get(1), true);
@@ -145,7 +127,7 @@ public class NWay extends XmuProgram {
 
 			// 为了处理ADD元素（base与其它分支的）
 			for (Diff diff : branchComparison.getDifferences()) { // 这里是branchComparison
-				if (diff.getKind() == DifferenceKind.ADD) {								
+				if (diff.getKind() == DifferenceKind.ADD) {
 					ReferenceChangeSpec diffADD = (ReferenceChangeSpec) diff;
 					EObject left = diffADD.getValue();
 					// 已经是ADD的diff了，EObject right一定为null，不用多此一举去判断它
@@ -566,16 +548,6 @@ public class NWay extends XmuProgram {
 		for (EReference r : tmp) {
 			TypeEdge typeEdge = typeGraph.getTypeEdge(typeNode, r.getName());
 
-			if (typeEdge == null) {
-				continue;
-			}
-
-//			if (ep == null) {
-//				if (typeEdge.getName().equals("eRawType") || typeEdge.getName().equals("eClassifier")) {
-//					continue;
-//				}
-//			}
-
 			if (r.isMany()) { // multi-reference
 				Collection<EObject> targets = (Collection<EObject>) b.eGet(r);
 				targets.forEach(t -> {
@@ -627,16 +599,6 @@ public class NWay extends XmuProgram {
 		for (EReference r : tmp) {
 
 			TypeEdge typeEdge = typeGraph.getTypeEdge(typeNode, r.getName());
-
-			if (typeEdge == null) {
-				continue;
-			}
-
-//			if (ep == null) {
-//				if (typeEdge.getName().equals("eRawType") || typeEdge.getName().equals("eClassifier")) {
-//					continue;
-//				}
-//			}
 
 			if (r.isMany()) { // multi-reference
 
@@ -800,11 +762,11 @@ public class NWay extends XmuProgram {
 
 	}
 
-	public void saveModel(URI metaModelURI, URI m1URI, TypedGraph graph) throws NothingReturnedException {
+	public void saveModel(String NsURIName, URI metaModelURI, URI m1URI, TypedGraph graph) throws NothingReturnedException {
 		registerPackage(NsURIName, metaModelURI);
 		EcoreModelUtil.save(m1URI, graph, null, getPackage(NsURIName));
 	}
-	
+
 	public void print(TypedGraph typedGraph) {
 		System.out.println("TypedNodes: " + typedGraph.getAllTypedNodes().size());
 		System.out.println("ValueNodes: " + typedGraph.getAllValueNodes().size());

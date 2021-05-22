@@ -17,6 +17,7 @@ import org.eclipse.emf.ecore.EObject;
 import org.eclipse.emf.ecore.EOperation;
 import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
+import org.eclipse.emf.ecore.EStructuralFeature;
 import org.eclipse.emf.ecore.EcoreFactory;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.util.EcoreUtil;
@@ -24,89 +25,126 @@ import org.eclipse.emf.ecore.util.EcoreUtil;
 public class ChangeTool {
 
 	static int changeSize = 0;
-	static int moveSize = 0;
 	static int addSize = 0;
+	static boolean moveFlag = false;
 
 	public static void changeForEcore(Resource resource, URI m0URI) {
+
+		changeSize = 0;
+		addSize = 0;
 
 		ArrayList<EObject> dList = new ArrayList<>();
 		EPackage rContent = (EPackage) resource.getContents().get(0);
 		Random random = new Random();
 
-		rContent.eAllContents().forEachRemaining(e -> {
+		rContent.eContents().forEach(e -> {
 
 			if (e instanceof EClass) {
+
 				EClass c = (EClass) e;
-				// 修改类的名称
-				if (random.nextDouble() >= 0.8) {
-					c.setName(c.getName() + "_" + RandomStringUtils.randomAlphanumeric(3));
-					System.out.println("修改后类的名称为：" + c.getName());
-				}
-				// 新加属性，如果还要指定类型的话，之前需要缓存下EDataType
-				if (random.nextDouble() >= 0.8) {
-					EAttribute createEAttribute = EcoreFactory.eINSTANCE.createEAttribute();
-					createEAttribute.setName(RandomStringUtils.randomAlphanumeric(3));
-					c.getEStructuralFeatures().add(createEAttribute);
-					System.out.println("新加的属性名：" + createEAttribute.getName());
-				}
-				// 新加方法
-				if (random.nextDouble() >= 0.8) {
-					EOperation createEOperation = EcoreFactory.eINSTANCE.createEOperation();
-					createEOperation.setName(RandomStringUtils.randomAlphanumeric(3));
-					c.getEOperations().add(createEOperation);
-					System.out.println("新加的方法名：" + createEOperation.getName());
+
+				if (random.nextBoolean() == true) {
+
+					// 修改类的名称
+					if (random.nextDouble() >= 0.9) {
+						c.setName(c.getName() + "_");
+						System.out.println("修改后类的名称为：" + c.getName());
+						changeSize++;
+					}
+
+					// 删除某些属性
+					c.getEAttributes().forEach(a -> {
+						if (random.nextDouble() >= 0.9) {
+							dList.add(a);
+							System.out.println("删除的属性为：" + a);
+						}
+					});
+
+					// 修改引用的名称
+					c.getEReferences().forEach(r -> {
+						if (random.nextDouble() >= 0.9) {
+							r.setName(r.getName() + "_" + RandomStringUtils.randomAlphanumeric(3));
+							System.out.println("修改后引用的名称为：" + r.getName());
+							changeSize++;
+						}
+					});
+
+					// 删除某些操作
+					c.getEOperations().forEach(o -> {
+						if (random.nextDouble() >= 0.9) {
+							dList.add(o);
+							System.out.println("删除的操作为：" + o);
+						}
+					});
+
+					// 新加属性，如果还要指定类型的话，之前需要缓存下EDataType
+					if (random.nextDouble() >= 0.9) {
+						EAttribute createEAttribute = EcoreFactory.eINSTANCE.createEAttribute();
+						createEAttribute.setName(RandomStringUtils.randomAlphanumeric(5));
+						c.getEStructuralFeatures().add(createEAttribute);
+						System.out.println("新加的属性：" + createEAttribute.getName());
+						addSize++;
+					}
+
+					// 新加操作
+					if (random.nextDouble() >= 0.9) {
+						EOperation createEOperation = EcoreFactory.eINSTANCE.createEOperation();
+						createEOperation.setName(RandomStringUtils.randomAlphanumeric(5));
+						c.getEOperations().add(createEOperation);
+						System.out.println("新加的操作：" + createEOperation.getName());
+						addSize++;
+					}
+
+				} else { // 一个类下只能选择上面的增删改，或者下面的移动
+
+					// 移动序：属性和引用
+					if (random.nextDouble() >= 0.9) {
+						EList<EStructuralFeature> eStructuralFeatures = c.getEStructuralFeatures();
+						int N = eStructuralFeatures.size();
+						if (N >= 3) {
+							for (int i = 0; i < N; i++) {
+								int randomIndexToSwap = random.nextInt(N);
+								eStructuralFeatures.move(randomIndexToSwap, i);
+							}
+							moveFlag = true;
+						}
+					}
+
+					// 移动序：操作
+					if (random.nextDouble() >= 0.9) {
+						EList<EOperation> eOperations = c.getEOperations();
+						int M = eOperations.size();
+						if (M >= 3) {
+							for (int i = 0; i < M; i++) {
+								int randomIndexToSwap = random.nextInt(M);
+								eOperations.move(randomIndexToSwap, i);
+							}
+							moveFlag = true;
+						}
+					}
 				}
 			}
-
-			else if (e instanceof EAttribute) {
-				// 删除某些属性
-				if (random.nextDouble() >= 0.8) {
-					dList.add(e);
-					System.out.println("删除的属性为：" + e);
-				} else if (random.nextDouble() >= 0.7) {
-					// 修改某些属性
-					EAttribute a = (EAttribute) e;
-					a.setName(a.getName() + "_" + RandomStringUtils.randomAlphanumeric(3));
-					System.out.println("修改后的属性名称为：" + a.getName());
-				}
-			}
-
-			else if (e instanceof EReference) {
-				// 修改关联的名称
-				if (random.nextDouble() >= 0.8) {
-					EReference r = (EReference) e;
-					r.setName(r.getName() + "_" + RandomStringUtils.randomAlphanumeric(3));
-					System.out.println("修改后关联的名称为：" + r.getName());
-				}
-			}
-
-			else if (e instanceof EOperation) {
-				// 删除某些方法
-				if (random.nextDouble() >= 0.8) {
-					dList.add(e);
-					System.out.println("删除的方法为：" + e);
-				}
-			}
-
-			// 新加类
-			if (random.nextDouble() >= 0.9) {
-				EClass createEClass = EcoreFactory.eINSTANCE.createEClass();
-				createEClass.setName(RandomStringUtils.randomAlphanumeric(3));
-				rContent.getEClassifiers().add(createEClass);
-				System.out.println("新加的类：" + createEClass);
-			}
-
-			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 		});
 
 		// 调用EcoreUtil的方法进行删除
 		EcoreUtil.removeAll(dList);
+
+		System.out.println("\n");
+		System.out.println("总共删除的个数：" + dList.size());
+		System.out.println("总共新加的个数：" + addSize);
+		System.out.println("总共修改的个数：" + changeSize);
+		if (moveFlag == true) {
+			System.out.println("存在序的移动");
+		}
 
 		ChangeTool.save(resource, m0URI);
 
 	}
 
 	public static void changeForXMI(Resource resource, URI m0URI) {
+
+		addSize = 0;
+		changeSize = 0;
 
 		EObject rContent = resource.getContents().get(0);
 		Random random = new Random();
@@ -156,8 +194,21 @@ public class ChangeTool {
 			EClass eClass = e.eClass();
 
 			eClass.getEAllAttributes().forEach(a -> {
+
+//				if (a.isMany() == false ) {
+//					if (random.nextDouble() >= 0.9) {
+//						setAttribute(e, a);
+//					}
+//				}
+
+				if (eClass.getEAllReferences().size() == 0 && a.isMany() == false) {
+					if (random.nextDouble() >= 0.9) {
+						setAttribute(e, a);
+					}
+				}
+
 				// 修改属性值，给定一个概率
-				// 只修改没有被关联的，不然匹配有问题
+				// 只修改没有被引用的，不然匹配有问题
 				// 只修改不作为container的，不然匹配有问题
 				// 只修改不移动的，不然匹配有问题
 				if (doNotDelete.contains(e) == false) {
@@ -188,13 +239,13 @@ public class ChangeTool {
 					if (r.isMany() && random.nextDouble() >= 0.9) {
 						// 随机打乱
 						List<EObject> targets = (List<EObject>) e.eGet(r);
-						int N = targets.size();
-						if (N >= 4) {
-							shuffle(targets, N);
+						if (targets.size() >= 4) {
+							shuffle(targets);
+							moveFlag = true;
 						}
 					} else if (r.isMany() && random.nextDouble() >= 0.9) {
-						// 新加Contaiment为true的当前对象的“一对多关联”的子对象，给定一个概率
-						EClass eReferenceType = r.getEReferenceType(); // 关联的另一方
+						// 新加Contaiment为true的当前对象的“一对多引用”的子对象，给定一个概率
+						EClass eReferenceType = r.getEReferenceType(); // 引用的另一方
 						EObject create = EcoreUtil.create(eReferenceType);
 						eReferenceType.getEAllAttributes().forEach(a -> {
 							setAttribute(create, a); // 设置单值属性
@@ -210,9 +261,9 @@ public class ChangeTool {
 					if (r.isMany() && random.nextDouble() >= 0.9) {
 						// 随机打乱
 						List<EObject> targets = (List<EObject>) e.eGet(r);
-						int N = targets.size();
-						if (N >= 4) {
-							shuffle(targets, N);
+						if (targets.size() >= 4) {
+							shuffle(targets);
+							moveFlag = true;
 						}
 					}
 				}
@@ -226,13 +277,16 @@ public class ChangeTool {
 		System.out.println("总共删除的个数：" + dList.size());
 		System.out.println("总共新加的个数：" + addSize);
 		System.out.println("总共修改属性值的个数：" + changeSize);
-		System.out.println("总共移动序的个数：" + moveSize);
+		if (moveFlag == true) {
+			System.out.println("存在序的移动");
+		}
 
 		ChangeTool.save(resource, m0URI);
 
 	}
 
-	public static void shuffle(List<EObject> targets, int N) {
+	public static void shuffle(List<EObject> targets) {
+		int N = targets.size();
 		Random random = new Random();
 		// a list of non-repeating N random integers in range (a, b), where b is
 		// exclusive
@@ -245,12 +299,6 @@ public class ChangeTool {
 		// otherwise, it will report validating duplicate exception
 		targets.clear();
 		targets.addAll(shuffleList);
-		// count moveSize
-		for (int i = 0; i < N; i++) {
-			if (i != randomNumbers.get(i)) {
-				moveSize++;
-			}
-		}
 	}
 
 	/** 修改或设置新加的属性 */

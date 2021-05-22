@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="ASCII"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" xsi:schemaLocation="http://www.eclipse.org/emf/2002/Ecore ../../../edu.ustb.lesley.compare/model/Ecore.ecore" name="siteWeb" nsURI="https://github.com/M2TIIL2016-2017/SiteWeb/" nsPrefix="siteWeb">
+  <eClassifiers xsi:type="ecore:EClass" name="Contact" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="nom" eType="//@eClassifiers.10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="prenom" eType="//@eClassifiers.10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="adresse" eType="//@eClassifiers.10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="mail" eType="//@eClassifiers.10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="telephone" eType="//@eClassifiers.10"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Photo" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="taille" eType="//@eClassifiers.11"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="extension" eType="//@eClassifiers.10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="nom" eType="//@eClassifiers.10"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Rubriques" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="texte" eType="//@eClassifiers.10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lien" eType="//@eClassifiers.10"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Liens" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="adresseWeb" eType="//@eClassifiers.10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="pageInterne" eType="//@eClassifiers.10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="zom1D"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PageInterne" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="types" eType="//@eClassifiers.5" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="liens" eType="//@eClassifiers.3" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="photo" lowerBound="1" eType="//@eClassifiers.1" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="titrePage" eType="//@eClassifiers.10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="texte" eType="//@eClassifiers.10"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Types" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="italique" eType="//@eClassifiers.9"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Fichiers" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="type" eType="//@eClassifiers.10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="taille" eType="//@eClassifiers.12"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="nom" eType="//@eClassifiers.10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="emplacement" eType="//@eClassifiers.10"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ConfigurationPage" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="couleurFond" eType="//@eClassifiers.10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="auteurs" eType="//@eClassifiers.10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="couleurPolice" eType="//@eClassifiers.10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="titreSite" eType="//@eClassifiers.10"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="taillePolice" eType="//@eClassifiers.12"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="PagePrincipale" eSuperTypes="" eGenericSuperTypes="">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="contacts" lowerBound="1" upperBound="-1" eType="//@eClassifiers.0" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="rubriques" eType="//@eClassifiers.2" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="fichiers" upperBound="-1" eType="//@eClassifiers.6" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="configurationPage" lowerBound="1" eType="//@eClassifiers.7" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="pages" lowerBound="1" upperBound="-1" eType="//@eClassifiers.4" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="EBoolean" instanceClassName="boolean" instanceTypeName="boolean">
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="baseType" value="http://www.w3.org/2001/XMLSchema#boolean"/>
+    </eAnnotations>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="EString" instanceClassName="java.lang.String" instanceTypeName="java.lang.String">
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="baseType" value="http://www.w3.org/2001/XMLSchema#string"/>
+    </eAnnotations>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="EFloat" instanceClassName="float" instanceTypeName="float">
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="baseType" value="http://www.w3.org/2001/XMLSchema#float"/>
+    </eAnnotations>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="EInt" instanceClassName="int" instanceTypeName="int">
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="baseType" value="http://www.w3.org/2001/XMLSchema#int"/>
+    </eAnnotations>
+  </eClassifiers>
+</ecore:EPackage>
