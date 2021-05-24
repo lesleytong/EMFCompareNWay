@@ -19,7 +19,6 @@
     <eOperations name="login"/>
     <eOperations name="logout"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="secondName" eType="#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="firstName" eType="#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="age" eType="#//EInt"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EDataType" name="EString" instanceTypeName="String"/>

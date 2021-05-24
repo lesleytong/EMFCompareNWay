@@ -23,20 +23,16 @@ public class TestCollege {
 
 		ResourceSet resourceSet = new ResourceSetImpl();
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("xmi", new XMIResourceFactoryImpl());
-		
-		String NsURIName = "https://edu/ustb/lesley/college";
+
 		EPackage ep = CollegePackage.eINSTANCE;
-		resourceSet.getPackageRegistry().put(NsURIName, ep);
-		
+
 		URI baseURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\college.xmi");
 		Resource baseResource = resourceSet.getResource(baseURI, true);
 
-		URI metaModelURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\model\\college.ecore");
 		URI backupURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\college_backup.xmi");
 		URI m0URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\college_m0.xmi");
 		URI m1URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\college_m1.xmi");
 		URI m2URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\college_m2.xmi");
-
 
 		URI branch1URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\college1.xmi");
 		URI branch2URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\college2.xmi");
@@ -49,18 +45,19 @@ public class TestCollege {
 		uriList.add(branch3URI);
 
 		TypeGraph typeGraph = EcoreModelUtil.load(ep);
-		
-		// 指定了需要排序的边类型TypeEdge
-		List<TypeEdge> typeEdgeList = typeGraph.getAllTypeEdges();
-		// 指定了需要排序的边类型ValueEdge
-		PropertyEdge propertyEdge = typeGraph.getPropertyEdge(typeGraph.getTypeNode("College"), "title");
+
+		// 指定需要排序的边类型(TypeEdge)
+		List<TypeEdge> typeEdgeList = new ArrayList<>();
+		typeEdgeList.addAll(typeGraph.getAllTypeEdges());
+		// 指定需要排序的边类型(PropertyEdge)
 		List<PropertyEdge> propertyEdgeList = new ArrayList<>();
+		PropertyEdge propertyEdge = typeGraph.getPropertyEdge(typeGraph.getTypeNode("College"), "title");
 		propertyEdgeList.add(propertyEdge);
 
-//		ChangeEngine.getM0(baseResource, m0URI, true);			
+		ChangeEngine.getM0(baseResource, m0URI, true);			
 //		ChangeEngine.getBranches(baseResource, resourceSet, backupURI, m0URI, uriList);
 
-//		ChangeEngine.testMerge(typeGraph, resourceSet, uriList, typeEdgeList, propertyEdgeList, NsURIName, metaModelURI, m1URI);
+//		ChangeEngine.testMerge(typeGraph, resourceSet, uriList, typeEdgeList, propertyEdgeList, m1URI, ep);
 //		ChangeEngine.testEquality(resourceSet, m0URI, m1URI);
 
 //		ChangeEngine.testEMFCompare(resourceSet, uriList, m2URI);

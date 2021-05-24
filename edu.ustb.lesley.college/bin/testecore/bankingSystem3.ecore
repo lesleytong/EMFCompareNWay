@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="bankingSystem" nsURI="http:///bankingSystem.ecore" nsPrefix="bankingSystem">
+  <eClassifiers xsi:type="ecore:EClass" name="Bank">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="clients" ordered="false"
+        upperBound="-1" eType="#//Client" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="accounts" ordered="false"
+        upperBound="-1" eType="#//Account" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Client" abstract="true">
+    <eOperations name="addAccount" ordered="false" lowerBound="1">
+      <eParameters name="account" ordered="false" lowerBound="1" eType="#//Account"/>
+    </eOperations>
+    <eOperations name="3Yj0M"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" ordered="false" lowerBound="1"
+        eType="#//String"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="accounts" ordered="false"
+        lowerBound="1" upperBound="-1" eType="#//Account"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="String" instanceClassName="String"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Account">
+    <eOperations name="withDraw" ordered="false" lowerBound="1">
+      <eParameters name="amount" ordered="false" lowerBound="1" eType="#//UnlimitedNatural"/>
+    </eOperations>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="id" ordered="false" lowerBound="1"
+        eType="#//Integer"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="credit" ordered="false"
+        lowerBound="1" eType="#//UnlimitedNatural"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="owner" ordered="false"
+        lowerBound="1" eType="#//Client"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="Integer" instanceClassName="Integer"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="UnlimitedNatural" instanceClassName="UnlimitedNatural"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="Boolean" instanceClassName="Boolean"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="Real" instanceClassName="Real"/>
+  <eClassifiers xsi:type="ecore:EClass" name="Person" eSuperTypes="#//Client">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="taxNr" ordered="false"
+        lowerBound="1" eType="#//Integer"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Company" eSuperTypes="#//Client">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="vatNr" ordered="false"
+        lowerBound="1" eType="#//Integer"/>
+  </eClassifiers>
+</ecore:EPackage>

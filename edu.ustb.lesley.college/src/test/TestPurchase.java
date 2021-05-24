@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.eclipse.emf.common.util.URI;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EcorePackage;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -17,20 +18,18 @@ import nway.EcoreTypeGraph;
 public class TestPurchase {
 
 	public static void main(String[] args) {
-		
 
 		ResourceSet resourceSet = new ResourceSetImpl();
 		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("ecore", new EcoreResourceFactoryImpl());
-		
-		String NsURIName = EcorePackage.eNS_URI;
-		
-		URI metaModelURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.compare\\model\\Ecore.ecore");
-		URI baseURI =  URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase.ecore");
-		URI backupURI =  URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_backup.ecore");
-		URI m0URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_m0.ecore"); 
-		URI m1URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_m1.ecore"); 
-		URI m2URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_m2.ecore"); 
-		
+
+		EPackage ep = EcorePackage.eINSTANCE;
+
+		URI baseURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase.ecore");
+		URI backupURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_backup.ecore");
+		URI m0URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_m0.ecore");
+		URI m1URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_m1.ecore");
+		URI m2URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase_m2.ecore");
+
 		Resource baseResource = resourceSet.getResource(baseURI, true);
 
 		URI branch1URI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\test\\purchase1.ecore");
@@ -42,21 +41,21 @@ public class TestPurchase {
 		uriList.add(branch1URI);
 		uriList.add(branch2URI);
 		uriList.add(branch3URI);
-		
+
 		EcoreTypeGraph et = new EcoreTypeGraph();
 		TypeGraph typeGraph = et.getTypeGraph_Ecore();
-		
-		// typeEdgeList指定需要进行排序的边类型
+
+		// 指定需要排序的边类型(TypeEdge)
+		List<TypeEdge> typeEdgeList = new ArrayList<>();
 		TypeEdge typeEdge1 = typeGraph.getTypeEdge(typeGraph.getTypeNode("EClass"), "eStructuralFeatures");
 		TypeEdge typeEdge2 = typeGraph.getTypeEdge(typeGraph.getTypeNode("EClass"), "eOperations");
-		List<TypeEdge> typeEdgeList = new ArrayList<>();
 		typeEdgeList.add(typeEdge1);
 		typeEdgeList.add(typeEdge2);
 
 //		ChangeEngine.getM0(baseResource, m0URI, false);			
 //		ChangeEngine.getBranches(baseResource, resourceSet, backupURI, m0URI, uriList);
 
-//		ChangeEngine.testMerge(typeGraph, resourceSet, uriList, typeEdgeList, null, NsURIName, metaModelURI, m1URI);
+//		ChangeEngine.testMerge(typeGraph, resourceSet, uriList, typeEdgeList, null, m1URI, ep);
 //		ChangeEngine.testEquality(resourceSet, m0URI, m1URI);
 
 //		ChangeEngine.testEMFCompare(resourceSet, uriList, m2URI);

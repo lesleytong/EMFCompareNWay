@@ -19,10 +19,12 @@ public class PreTreat {
 	public static void main(String[] args) {
 
 		ResourceSet resourceSet = new ResourceSetImpl();
-		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("ecore", new EcoreResourceFactoryImpl());
+		resourceSet.getResourceFactoryRegistry().getExtensionToFactoryMap().put("ecore",
+				new EcoreResourceFactoryImpl());
 
-		URI originURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\pretreat\\website_origin.ecore");
-		URI baseURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\pretreat\\website.ecore");
+		URI originURI = URI
+				.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\pretreat\\benchmark_origin.ecore");
+		URI baseURI = URI.createFileURI("E:\\git\\n-way\\edu.ustb.lesley.college\\src\\pretreat\\benchmark.ecore");
 
 		Resource originResource = resourceSet.getResource(originURI, true);
 

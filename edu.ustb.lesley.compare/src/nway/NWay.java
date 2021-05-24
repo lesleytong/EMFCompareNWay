@@ -39,6 +39,7 @@ import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EClass;
 import org.eclipse.emf.ecore.EEnum;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -762,9 +763,8 @@ public class NWay extends XmuProgram {
 
 	}
 
-	public void saveModel(String NsURIName, URI metaModelURI, URI m1URI, TypedGraph graph) throws NothingReturnedException {
-		registerPackage(NsURIName, metaModelURI);
-		EcoreModelUtil.save(m1URI, graph, null, getPackage(NsURIName));
+	public void saveModel(URI m1URI, TypedGraph graph, EPackage ep) throws NothingReturnedException {
+		EcoreModelUtil.save(m1URI, graph, null, ep);
 	}
 
 	public void print(TypedGraph typedGraph) {

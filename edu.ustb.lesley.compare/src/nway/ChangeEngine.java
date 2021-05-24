@@ -30,6 +30,7 @@ import org.eclipse.emf.compare.scope.DefaultComparisonScope;
 import org.eclipse.emf.compare.scope.IComparisonScope;
 import org.eclipse.emf.ecore.EAttribute;
 import org.eclipse.emf.ecore.EObject;
+import org.eclipse.emf.ecore.EPackage;
 import org.eclipse.emf.ecore.EReference;
 import org.eclipse.emf.ecore.resource.Resource;
 import org.eclipse.emf.ecore.resource.ResourceSet;
@@ -397,9 +398,9 @@ public class ChangeEngine {
 //		System.out.println("done");
 //
 //	}
-
+	
 	public static void testMerge(TypeGraph typeGraph, ResourceSet resourceSet, List<URI> uriList, List<TypeEdge> typeEdgeList,
-			List<PropertyEdge> propertyEdgeList, String NsURIName, URI metaModelURI, URI m1URI) {
+			List<PropertyEdge> propertyEdgeList, URI m1URI, EPackage ep) {
 	
 		long start = System.currentTimeMillis();
 		NWay nWay = new NWay(typeGraph);
@@ -408,12 +409,13 @@ public class ChangeEngine {
 	
 		TypedGraph mergeModel = nWay.nMerge(matches, typeEdgeList, propertyEdgeList);
 		long end = System.currentTimeMillis();
+		
 		System.out.println("匹配耗时：" + (endMatch - start) + " ms.");
 		System.out.println("差分和合并耗时：" + (end - endMatch) + " ms.");
 		System.out.println("总耗时： " + (end - start) + " ms.");
 	
 		try {
-			nWay.saveModel(NsURIName, metaModelURI, m1URI, mergeModel);
+			nWay.saveModel(m1URI, mergeModel, ep);
 			System.out.println("done");
 		} catch (NothingReturnedException e) {
 			e.printStackTrace();

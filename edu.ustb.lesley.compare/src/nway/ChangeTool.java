@@ -34,10 +34,10 @@ public class ChangeTool {
 		addSize = 0;
 
 		ArrayList<EObject> dList = new ArrayList<>();
-		EPackage rContent = (EPackage) resource.getContents().get(0);
+		EPackage ep = (EPackage) resource.getContents().get(0);
 		Random random = new Random();
 
-		rContent.eContents().forEach(e -> {
+		ep.eContents().forEach(e -> {
 
 			if (e instanceof EClass) {
 
@@ -95,7 +95,7 @@ public class ChangeTool {
 						addSize++;
 					}
 
-				} else { // 一个类下只能选择上面的增删改，或者下面的移动
+				} else { // 一个类下只能选择上面的增删改，或者下面的移动序
 
 					// 移动序：属性和引用
 					if (random.nextDouble() >= 0.9) {
@@ -194,18 +194,6 @@ public class ChangeTool {
 			EClass eClass = e.eClass();
 
 			eClass.getEAllAttributes().forEach(a -> {
-
-//				if (a.isMany() == false ) {
-//					if (random.nextDouble() >= 0.9) {
-//						setAttribute(e, a);
-//					}
-//				}
-
-				if (eClass.getEAllReferences().size() == 0 && a.isMany() == false) {
-					if (random.nextDouble() >= 0.9) {
-						setAttribute(e, a);
-					}
-				}
 
 				// 修改属性值，给定一个概率
 				// 只修改没有被引用的，不然匹配有问题
