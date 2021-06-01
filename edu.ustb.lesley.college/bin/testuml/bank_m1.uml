@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="ASCII"?>
+<uml:Model xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" name="BankingSystem" visibility="public">
+  <packagedElement xsi:type="uml:Class" name="Bank" visibility="public">
+    <ownedAttribute name="clients" visibility="public" type="//Client" aggregation="composite" association="//@packagedElement.10">
+      <lowerValue xsi:type="uml:LiteralInteger" visibility="public"/>
+      <upperValue xsi:type="uml:LiteralUnlimitedNatural" visibility="public" value="*"/>
+    </ownedAttribute>
+    <ownedAttribute name="accounts" visibility="public" type="//Account" aggregation="composite" association="//@packagedElement.11">
+      <lowerValue xsi:type="uml:LiteralInteger" visibility="public"/>
+      <upperValue xsi:type="uml:LiteralUnlimitedNatural" visibility="public" value="*"/>
+    </ownedAttribute>
+  </packagedElement>
+  <packagedElement xsi:type="uml:Class" name="Client" visibility="public" isAbstract="true">
+    <ownedAttribute name="name" visibility="public" type="//String"/>
+    <ownedAttribute name="accounts_" visibility="public" type="//Account" association="//@packagedElement.12">
+      <upperValue xsi:type="uml:LiteralUnlimitedNatural" visibility="public" value="*"/>
+    </ownedAttribute>
+    <ownedOperation name="addAccount" visibility="public">
+      <ownedParameter name="account" visibility="public" type="//Account" effect="create"/>
+    </ownedOperation>
+  </packagedElement>
+  <packagedElement xsi:type="uml:Class" name="Account" visibility="public">
+    <ownedAttribute name="credit" visibility="public" type="//UnlimitedNatural"/>
+    <ownedAttribute name="id" visibility="public" type="//Integer"/>
+    <ownedAttribute name="owner" visibility="public" type="//Client" association="//@packagedElement.13"/>
+    <ownedOperation name="withDraw" visibility="public">
+      <ownedParameter name="amount" visibility="public" type="//UnlimitedNatural" effect="create"/>
+    </ownedOperation>
+  </packagedElement>
+  <packagedElement xsi:type="uml:PrimitiveType" name="Boolean" visibility="public"/>
+  <packagedElement xsi:type="uml:PrimitiveType" name="Integer" visibility="public"/>
+  <packagedElement xsi:type="uml:PrimitiveType" name="String" visibility="public"/>
+  <packagedElement xsi:type="uml:PrimitiveType" name="UnlimitedNatural" visibility="public"/>
+  <packagedElement xsi:type="uml:PrimitiveType" name="Real" visibility="public"/>
+  <packagedElement xsi:type="uml:Class" name="Person" visibility="public">
+    <generalization general="//Client"/>
+    <ownedAttribute name="taxNr" visibility="public" type="//Integer"/>
+  </packagedElement>
+  <packagedElement xsi:type="uml:Class" name="Company" visibility="public">
+    <generalization general="//Client"/>
+    <ownedAttribute name="vatNr" visibility="public" type="//Integer"/>
+  </packagedElement>
+  <packagedElement xsi:type="uml:Association" visibility="public" memberEnd="//Bank/clients //@packagedElement.10/@ownedEnd.0">
+    <ownedEnd visibility="public" type="//Bank" association="//@packagedElement.10"/>
+  </packagedElement>
+  <packagedElement xsi:type="uml:Association" visibility="public" memberEnd="//Bank/accounts //@packagedElement.11/@ownedEnd.0">
+    <ownedEnd visibility="public" type="//Bank" association="//@packagedElement.11"/>
+  </packagedElement>
+  <packagedElement xsi:type="uml:Association" visibility="public" memberEnd="//Client/accounts_ //@packagedElement.12/@ownedEnd.0">
+    <ownedEnd visibility="public" type="//Client" association="//@packagedElement.12"/>
+  </packagedElement>
+  <packagedElement xsi:type="uml:Association" visibility="public" memberEnd="//Account/owner //@packagedElement.13/@ownedEnd.0">
+    <ownedEnd visibility="public" type="//Account" association="//@packagedElement.13"/>
+  </packagedElement>
+</uml:Model>

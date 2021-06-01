@@ -5,15 +5,16 @@
   <eClassifiers xsi:type="ecore:EClass" name="Benchmark" abstract="true">
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="jvmMaxHeapInMiB" eType="#//ELong"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="processorName" eType="#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="processorDescription" eType="#//EString"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="processorCount" eType="#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="processorCacheSize" eType="#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="systemMemory" eType="#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="osName" eType="#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="osVersion" eType="#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="processorDescription" eType="#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="processorCount" eType="#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="osArchitecture" eType="#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Discovery">
+    <eOperations name="wK7kR"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="dicoveryDate" eType="#//EDate"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="algorithmVariant" eType="#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="discovererId" eType="#//EString"/>
@@ -30,16 +31,16 @@
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="discoveryError" eType="#//EString"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Project">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="totalLines" eType="#//ELong"
         changeable="false" volatile="true" transient="true" derived="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="files" upperBound="-1"
         eType="#//File" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="averageFileSizeInBytes"
         eType="#//ELong" changeable="false" volatile="true" transient="true" derived="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="averageLinesPerFile" eType="#//ELong"
-        changeable="false" volatile="true" transient="true" derived="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="totalSizeInBytes" eType="#//ELong"
+        changeable="false" volatile="true" transient="true" derived="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="averageLinesPerFile" eType="#//ELong"
         changeable="false" volatile="true" transient="true" derived="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="File">
@@ -74,10 +75,10 @@
         eType="#//EDouble" changeable="false" volatile="true" transient="true" derived="true"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="executionTimeStandardDeviation"
         eType="#//EDouble" changeable="false" volatile="true" transient="true" derived="true"/>
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="saveTimeStandardDeviation"
-        eType="#//EDouble" changeable="false" volatile="true" transient="true" derived="true"/>
     <eStructuralFeatures xsi:type="ecore:EReference" name="occurrences" upperBound="-1"
         eType="#//ProjectDiscovery" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="saveTimeStandardDeviation"
+        eType="#//EDouble" changeable="false" volatile="true" transient="true" derived="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EDataType" name="EInt" instanceClassName="int">
     <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">

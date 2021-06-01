@@ -3,8 +3,8 @@
     xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="benchmark" nsURI="http://www.eclipse.org/MoDisco/Benchmark/0.9.0/benchmark"
     nsPrefix="benchmark">
   <eClassifiers xsi:type="ecore:EClass" name="Benchmark" abstract="true">
-    <eStructuralFeatures xsi:type="ecore:EAttribute" name="jvmMaxHeapInMiB" eType="#//ELong"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="processorName" eType="#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="jvmMaxHeapInMiB" eType="#//ELong"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="processorDescription" eType="#//EString"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="processorCount" eType="#//EInt"/>
     <eStructuralFeatures xsi:type="ecore:EAttribute" name="processorCacheSize" eType="#//EString"/>

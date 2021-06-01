@@ -4,7 +4,7 @@
   <eClassifiers xsi:type="ecore:EClass" name="Bank">
     <eStructuralFeatures xsi:type="ecore:EReference" name="clients" ordered="false"
         upperBound="-1" eType="#//Client" containment="true"/>
-    <eStructuralFeatures xsi:type="ecore:EReference" name="accounts" ordered="false"
+    <eStructuralFeatures xsi:type="ecore:EReference" name="accounts_SNW" ordered="false"
         upperBound="-1" eType="#//Account" containment="true"/>
   </eClassifiers>
   <eClassifiers xsi:type="ecore:EClass" name="Client" abstract="true">

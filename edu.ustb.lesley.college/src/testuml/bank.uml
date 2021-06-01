@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_dVxngDf3Eei-c6aWY1m2WA" name="BankingSystem">
+  <packagedElement xmi:type="uml:Class" name="Bank">
+    <ownedAttribute name="clients" type="//Client" aggregation="composite" association="//@packagedElement.10">
+      <lowerValue xmi:type="uml:LiteralInteger"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" value="*"/>
+    </ownedAttribute>
+    <ownedAttribute name="accounts" type="//Account" aggregation="composite" association="//@packagedElement.11">
+      <lowerValue xmi:type="uml:LiteralInteger"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" value="*"/>
+    </ownedAttribute>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" name="Client" isAbstract="true">
+    <ownedAttribute name="name" type="//String"/>
+    <ownedAttribute name="accounts" type="//Account" association="//@packagedElement.12">
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" value="*"/>
+    </ownedAttribute>
+    <ownedOperation name="addAccount">
+      <ownedParameter name="account" type="//Account"/>
+    </ownedOperation>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" name="Account">
+    <ownedAttribute name="id" type="//Integer"/>
+    <ownedAttribute name="credit" type="//UnlimitedNatural"/>
+    <ownedAttribute name="owner" type="//Client" association="//@packagedElement.13"/>
+    <ownedOperation name="withDraw">
+      <ownedParameter name="amount" type="//UnlimitedNatural"/>
+    </ownedOperation>
+  </packagedElement>
+  <packagedElement xmi:type="uml:PrimitiveType" name="Boolean"/>
+  <packagedElement xmi:type="uml:PrimitiveType" name="Integer"/>
+  <packagedElement xmi:type="uml:PrimitiveType" name="String"/>
+  <packagedElement xmi:type="uml:PrimitiveType" name="UnlimitedNatural"/>
+  <packagedElement xmi:type="uml:PrimitiveType" name="Real"/>
+  <packagedElement xmi:type="uml:Class" name="Person">
+    <generalization general="//Client"/>
+    <ownedAttribute name="taxNr" type="//Integer"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" name="Company">
+    <generalization general="//Client"/>
+    <ownedAttribute name="vatNr" type="//Integer"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" memberEnd="//Bank/clients //@packagedElement.10/@ownedEnd.0">
+    <ownedEnd type="//Bank" association="//@packagedElement.10"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" memberEnd="//Bank/accounts //@packagedElement.11/@ownedEnd.0">
+    <ownedEnd type="//Bank" association="//@packagedElement.11"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" memberEnd="//Client/accounts //@packagedElement.12/@ownedEnd.0">
+    <ownedEnd type="//Client" association="//@packagedElement.12"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" memberEnd="//Account/owner //@packagedElement.13/@ownedEnd.0">
+    <ownedEnd type="//Account" association="//@packagedElement.13"/>
+  </packagedElement>
+</uml:Model>

@@ -16,6 +16,7 @@ import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 import edu.ustb.sei.mde.graph.type.TypeEdge;
 import edu.ustb.sei.mde.graph.type.TypeGraph;
 import nway.EcoreTypeGraph;
+import nway.EvaluateEngine;
 
 public class TestBankingSystem {
 
@@ -60,14 +61,14 @@ public class TestBankingSystem {
 		filterDiffMap.put("eSuperTypes", true);
 		filterDiffMap.put("instanceClassName", true);
 
-//		ChangeEngine.getM0(baseResource, m0URI, false);			
-//		ChangeEngine.getBranches(baseResource, resourceSet, backupURI, m0URI, uriList);
+		EvaluateEngine.getM0(baseResource, m0URI, 2);			
+//		EvaluateEngine.getBranches(baseResource, resourceSet, backupURI, m0URI, uriList);
 
-//		ChangeEngine.testMerge(typeGraph, resourceSet, uriList, typeEdgeList, null, m1URI, ep);
-//		ChangeEngine.testEquality(resourceSet, m0URI, m1URI, filterDiffMap);
+//		EvaluateEngine.testMerge(typeGraph, resourceSet, uriList, typeEdgeList, null, m1URI, ep);
+//		EvaluateEngine.testEquality(resourceSet, m0URI, m1URI, filterDiffMap);
 
-//		ChangeEngine.testEMFCompare(resourceSet, uriList, m2URI);
-//		ChangeEngine.testEquality(resourceSet, m0URI, m2URI);
+//		EvaluateEngine.testEMFCompare(resourceSet, uriList, m2URI);
+//		EvaluateEngine.testEquality(resourceSet, m0URI, m2URI);
 
 	}
 

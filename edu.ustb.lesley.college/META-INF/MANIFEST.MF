@@ -11,7 +11,7 @@ Bundle-RequiredExecutionEnvironment: JavaSE-1.8
 Export-Package: college,
  college.impl,
  college.util,
- test
+ testxmi
 Bundle-ActivationPolicy: lazy
 Import-Package: edu.ustb.sei.mde.bxcore.exceptions,
  edu.ustb.sei.mde.bxcore.util,

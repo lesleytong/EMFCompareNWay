@@ -48,10 +48,10 @@ public class TestBenchMark {
 		EcoreTypeGraph et = new EcoreTypeGraph();
 		TypeGraph typeGraph = et.getTypeGraph_Ecore();
 		
-		// 指定需要进行排序的边类型(TypeEdge)
+		// 指定需要排序的边类型(TypeEdge)
+		List<TypeEdge> typeEdgeList = new ArrayList<>();
 		TypeEdge typeEdge1 = typeGraph.getTypeEdge(typeGraph.getTypeNode("EClass"), "eStructuralFeatures");
 		TypeEdge typeEdge2 = typeGraph.getTypeEdge(typeGraph.getTypeNode("EClass"), "eOperations");
-		List<TypeEdge> typeEdgeList = new ArrayList<>();
 		typeEdgeList.add(typeEdge1);
 		typeEdgeList.add(typeEdge2);
 		
@@ -59,14 +59,14 @@ public class TestBenchMark {
 		Map<String, Boolean> filterDiffMap = new HashMap<>();
 		filterDiffMap.put("eSuperTypes", true);
 
-//		ChangeEngine.getM0(baseResource, m0URI, false);			
-//		ChangeEngine.getBranches(baseResource, resourceSet, backupURI, m0URI, uriList);
+//		EvaluateEngine.getM0(baseResource, m0URI, 2);			
+//		EvaluateEngine.getBranches(baseResource, resourceSet, backupURI, m0URI, uriList);
 
-//		ChangeEngine.testMerge(typeGraph, resourceSet, uriList, typeEdgeList, null, m1URI, ep);
-//		ChangeEngine.testEquality(resourceSet, m0URI, m1URI, filterDiffMap);
+//		EvaluateEngine.testMerge(typeGraph, resourceSet, uriList, typeEdgeList, null, m1URI, ep);
+//		EvaluateEngine.testEquality(resourceSet, m0URI, m1URI, filterDiffMap);
 
-//		ChangeEngine.testEMFCompare(resourceSet, uriList, m2URI);
-//		ChangeEngine.testEquality(resourceSet, m0URI, m2URI);
+//		EvaluateEngine.testEMFCompare(resourceSet, uriList, m2URI);
+//		EvaluateEngine.testEquality(resourceSet, m0URI, m2URI);
 
 	}
 

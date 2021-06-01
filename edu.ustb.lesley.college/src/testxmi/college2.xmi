@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<edu.ustb.lesley.college:AddressBook
+    xmi:version="2.0"
+    xmlns:xmi="http://www.omg.org/XMI"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:edu.ustb.lesley.college="https://edu/ustb/lesley/college"
+    xsi:schemaLocation="https://edu/ustb/lesley/college file:/E:/git/n-way/edu.ustb.lesley.college/model/college.ecore"
+    name="smn">
+  <persons name="A"
+      age="22"/>
+</edu.ustb.lesley.college:AddressBook>
