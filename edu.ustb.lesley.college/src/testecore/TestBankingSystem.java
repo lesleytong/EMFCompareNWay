@@ -61,10 +61,10 @@ public class TestBankingSystem {
 		filterDiffMap.put("eSuperTypes", true);
 		filterDiffMap.put("instanceClassName", true);
 
-		EvaluateEngine.getM0(baseResource, m0URI, 2);			
+//		EvaluateEngine.getM0(baseResource, m0URI, 2);			
 //		EvaluateEngine.getBranches(baseResource, resourceSet, backupURI, m0URI, uriList);
 
-//		EvaluateEngine.testMerge(typeGraph, resourceSet, uriList, typeEdgeList, null, m1URI, ep);
+		EvaluateEngine.testMerge(typeGraph, resourceSet, uriList, typeEdgeList, null, m1URI, ep);
 //		EvaluateEngine.testEquality(resourceSet, m0URI, m1URI, filterDiffMap);
 
 //		EvaluateEngine.testEMFCompare(resourceSet, uriList, m2URI);

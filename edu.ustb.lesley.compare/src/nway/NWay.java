@@ -78,6 +78,8 @@ public class NWay extends XmuProgram {
 	}
 
 	public List<MatchN> nMatch(ResourceSet resourceSet, List<URI> uriList) {
+		
+		long start = System.currentTimeMillis();
 
 		Resource baseResource = resourceSet.getResource(uriList.get(0), true);
 		Resource branchResource1 = resourceSet.getResource(uriList.get(1), true);
@@ -95,21 +97,26 @@ public class NWay extends XmuProgram {
 
 		// 此comparison是第一个分支与base比较的结果，作为全局的comparison，之后会向其中添加信息
 		Comparison comparison = EMFCompare.builder().setMatchEngineFactoryRegistry(registry).build().compare(scope);
-
+		
 		// 保存类型为ADD的所有diff
 		Map<EObject, Diff> addDiffsMap = new HashMap<>();
 
 		// 为了处理ADD元素（base与第一个分支的）
 		for (Diff diff : comparison.getDifferences()) {
 			if (diff.getKind() == DifferenceKind.ADD) {
-				ReferenceChangeSpec diffADD = (ReferenceChangeSpec) diff;
-				EObject left = diffADD.getValue();
-				// 已经是ADD的diff了，EObject right一定为null，不用多此一举去判断它
-				// 不一定，例如添加了新的继承关系，但没有新加类
-				EObject right = diffADD.getMatch().getComparison().getMatch(left).getRight();
-				if (right == null) { // 只有涉及到新加EObject的才能加入到addDiffsMap
-					addDiffsMap.put(left, diff); // 保存一下此EObject对应的ADD diff
+				try {
+					ReferenceChangeSpec diffADD = (ReferenceChangeSpec) diff;
+					EObject left = diffADD.getValue();
+					// 已经是ADD的diff了，EObject right一定为null，不用多此一举去判断它
+					// 不一定，例如添加了新的继承关系，但没有新加类
+					EObject right = diffADD.getMatch().getComparison().getMatch(left).getRight();
+					if (right == null) { // 只有涉及到新加EObject的才能加入到addDiffsMap
+						addDiffsMap.put(left, diff); // 保存一下此EObject对应的ADD diff
+					}
+				} catch (Exception e) {
+					System.out.println("NWay line 118");
 				}
+
 
 			}
 		}
@@ -129,15 +136,18 @@ public class NWay extends XmuProgram {
 			// 为了处理ADD元素（base与其它分支的）
 			for (Diff diff : branchDiffs) { // 这里是branchComparison
 				if (diff.getKind() == DifferenceKind.ADD) {
-					ReferenceChangeSpec diffADD = (ReferenceChangeSpec) diff;
-					EObject left = diffADD.getValue();
-					// 已经是ADD的diff了，EObject right一定为null，不用多此一举去判断它
-					// 不一定，例如添加了新的继承关系，但没有新加类
-					EObject right = diffADD.getMatch().getComparison().getMatch(left).getRight();
-					if (right == null) { // 只有涉及到新加EObject的才能加入到addDiffsMap
-						addDiffsMap.put(left, diff); // 保存一下此EObject对应的ADD diff
+					try {
+						ReferenceChangeSpec diffADD = (ReferenceChangeSpec) diff;
+						EObject left = diffADD.getValue();
+						// 已经是ADD的diff了，EObject right一定为null，不用多此一举去判断它
+						// 不一定，例如添加了新的继承关系，但没有新加类
+						EObject right = diffADD.getMatch().getComparison().getMatch(left).getRight();
+						if (right == null) { // 只有涉及到新加EObject的才能加入到addDiffsMap
+							addDiffsMap.put(left, diff); // 保存一下此EObject对应的ADD diff
+						}
+					} catch (Exception e) {
+						System.out.println("NWay line 150");
 					}
-
 				}
 			}
 
@@ -148,7 +158,7 @@ public class NWay extends XmuProgram {
 			comparison.getMatches().addAll(branchMatches);
 
 		}
-
+		
 		// 用comparisonN保存base与各个分支的元素匹配信息
 		ComparisonN comparisonN = new ComparisonNImpl();
 		Map<EObject, List<EObject>> haveBaseMap = new HashMap<>();
@@ -164,6 +174,11 @@ public class NWay extends XmuProgram {
 			comparisonN.getMatches().add(matchN);
 		});
 
+		long end = System.currentTimeMillis();
+		System.out.println("base与各个分支的匹配耗时：" + (end - start) + " ms.");
+		
+		start = System.currentTimeMillis();
+		
 		// 利用haveBaseMap
 		MultiKeyMap<Integer, List<Match>> pre = new MultiKeyMap<>();
 		for (List<EObject> value : haveBaseMap.values()) {
@@ -215,17 +230,16 @@ public class NWay extends XmuProgram {
 							.create(UseIdentifiers.NEVER);
 					Comparison comparisonADD = engine.matchN(scope, preMatches, addDiffsMap, new BasicMonitor());
 
-					// tmp
-					System.out.println("i, j: " + i + "," + j);
-
 					// 将新得到的关于ADD元素的匹配，放到allADDMatches中
 					filerADDMatches(allADDMatches, comparisonADD.getMatches(), preMatches);
 
-					// tmp
-					System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
-
 				}
 			}
+			
+			end = System.currentTimeMillis();
+			System.out.println("各分支ADD元素匹配耗时：" + (end - start) + " ms.");
+			
+			start = System.currentTimeMillis();
 
 			/** 成团 */
 			// BKWithPivot
@@ -271,6 +285,9 @@ public class NWay extends XmuProgram {
 			});
 
 		}
+		
+		end = System.currentTimeMillis();
+		System.out.println("成团耗时：" + (end - start) + " ms.");
 
 		return comparisonN.getMatches();
 	}

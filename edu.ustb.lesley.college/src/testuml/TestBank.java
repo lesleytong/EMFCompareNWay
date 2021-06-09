@@ -14,6 +14,7 @@ import org.eclipse.uml2.uml.resource.UMLResource;
 import edu.ustb.sei.mde.bxcore.util.EcoreModelUtil;
 import edu.ustb.sei.mde.graph.type.TypeEdge;
 import edu.ustb.sei.mde.graph.type.TypeGraph;
+import nway.EvaluateEngine;
 
 public class TestBank {
 
@@ -54,7 +55,7 @@ public class TestBank {
 		typeEdgeList.add(typeEdge2);
 //		typeEdgeList.add(typeEdge3);
 
-//		EvaluateEngine.getM0(baseResource, m0URI, 1);			
+		EvaluateEngine.getM0(baseResource, m0URI, 1);			
 //		EvaluateEngine.getBranches(baseResource, resourceSet, backupURI, m0URI, uriList);
 
 //		EvaluateEngine.testMerge(typeGraph, resourceSet, uriList, typeEdgeList, null, m1URI, ep);

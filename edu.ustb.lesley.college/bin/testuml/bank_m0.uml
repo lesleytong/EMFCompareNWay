@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<uml:Model xmi:version="20131001" xmlns:xmi="http://www.omg.org/spec/XMI/20131001" xmlns:uml="http://www.eclipse.org/uml2/5.0.0/UML" xmi:id="_dVxngDf3Eei-c6aWY1m2WA" name="BankingSystem">
+  <packagedElement xmi:type="uml:Class" xmi:id="_eIcYsMK5Eeu0r9MH3ZCU6A" name="Bank">
+    <ownedAttribute xmi:id="_eIhRMMK5Eeu0r9MH3ZCU6A" name="clients" type="_eIk7lMK5Eeu0r9MH3ZCU6A" aggregation="composite" association="_eIxI0MK5Eeu0r9MH3ZCU6A">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_eIjtcMK5Eeu0r9MH3ZCU6A"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_eIk7kMK5Eeu0r9MH3ZCU6A" value="*"/>
+    </ownedAttribute>
+    <ownedAttribute xmi:id="_eIk7kcK5Eeu0r9MH3ZCU6A" name="accounts" type="_eIsQUcK5Eeu0r9MH3ZCU6A" aggregation="composite" association="_eIxv4cK5Eeu0r9MH3ZCU6A">
+      <lowerValue xmi:type="uml:LiteralInteger" xmi:id="_eIk7ksK5Eeu0r9MH3ZCU6A"/>
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_eIk7k8K5Eeu0r9MH3ZCU6A" value="*"/>
+    </ownedAttribute>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_eIk7lMK5Eeu0r9MH3ZCU6A" name="Client" isAbstract="true">
+    <ownedAttribute xmi:id="_eIk7lcK5Eeu0r9MH3ZCU6A" name="name" type="_eIuFgsK5Eeu0r9MH3ZCU6A"/>
+    <ownedAttribute xmi:id="_eIk7lsK5Eeu0r9MH3ZCU6A" name="accounts_" type="_eIsQUcK5Eeu0r9MH3ZCU6A" association="_eIxv48K5Eeu0r9MH3ZCU6A">
+      <upperValue xmi:type="uml:LiteralUnlimitedNatural" xmi:id="_eIk7l8K5Eeu0r9MH3ZCU6A" value="*"/>
+    </ownedAttribute>
+    <ownedOperation xmi:id="_eIol8MK5Eeu0r9MH3ZCU6A" name="addAccount">
+      <ownedParameter xmi:id="_eIsQUMK5Eeu0r9MH3ZCU6A" name="account" type="_eIsQUcK5Eeu0r9MH3ZCU6A"/>
+    </ownedOperation>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_eIsQUcK5Eeu0r9MH3ZCU6A" name="Account">
+    <ownedAttribute xmi:id="_eIsQU8K5Eeu0r9MH3ZCU6A" name="credit" type="_eIuFg8K5Eeu0r9MH3ZCU6A"/>
+    <ownedAttribute xmi:id="_eIsQUsK5Eeu0r9MH3ZCU6A" name="id" type="_eIuFgcK5Eeu0r9MH3ZCU6A"/>
+    <ownedAttribute xmi:id="_eIsQVMK5Eeu0r9MH3ZCU6A" name="owner" type="_eIk7lMK5Eeu0r9MH3ZCU6A" association="_eIxv5cK5Eeu0r9MH3ZCU6A"/>
+    <ownedOperation xmi:id="_eIsQVcK5Eeu0r9MH3ZCU6A" name="withDraw">
+      <ownedParameter xmi:id="_eIsQVsK5Eeu0r9MH3ZCU6A" name="amount" type="_eIuFg8K5Eeu0r9MH3ZCU6A"/>
+    </ownedOperation>
+  </packagedElement>
+  <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_eIuFgMK5Eeu0r9MH3ZCU6A" name="Boolean"/>
+  <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_eIuFgcK5Eeu0r9MH3ZCU6A" name="Integer"/>
+  <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_eIuFgsK5Eeu0r9MH3ZCU6A" name="String"/>
+  <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_eIuFg8K5Eeu0r9MH3ZCU6A" name="UnlimitedNatural"/>
+  <packagedElement xmi:type="uml:PrimitiveType" xmi:id="_eIuFhMK5Eeu0r9MH3ZCU6A" name="Real"/>
+  <packagedElement xmi:type="uml:Class" xmi:id="_eIuFhcK5Eeu0r9MH3ZCU6A" name="Person">
+    <generalization xmi:id="_eIvToMK5Eeu0r9MH3ZCU6A" general="_eIk7lMK5Eeu0r9MH3ZCU6A"/>
+    <ownedAttribute xmi:id="_eIvTocK5Eeu0r9MH3ZCU6A" name="taxNr" type="_eIuFgcK5Eeu0r9MH3ZCU6A"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Class" xmi:id="_eIvTosK5Eeu0r9MH3ZCU6A" name="Company">
+    <generalization xmi:id="_eIvTo8K5Eeu0r9MH3ZCU6A" general="_eIk7lMK5Eeu0r9MH3ZCU6A"/>
+    <ownedAttribute xmi:id="_eIv6sMK5Eeu0r9MH3ZCU6A" name="vatNr" type="_eIuFgcK5Eeu0r9MH3ZCU6A"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_eIxI0MK5Eeu0r9MH3ZCU6A" memberEnd="_eIhRMMK5Eeu0r9MH3ZCU6A _eIxv4MK5Eeu0r9MH3ZCU6A">
+    <ownedEnd xmi:id="_eIxv4MK5Eeu0r9MH3ZCU6A" type="_eIcYsMK5Eeu0r9MH3ZCU6A" association="_eIxI0MK5Eeu0r9MH3ZCU6A"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_eIxv4cK5Eeu0r9MH3ZCU6A" memberEnd="_eIk7kcK5Eeu0r9MH3ZCU6A _eIxv4sK5Eeu0r9MH3ZCU6A">
+    <ownedEnd xmi:id="_eIxv4sK5Eeu0r9MH3ZCU6A" type="_eIcYsMK5Eeu0r9MH3ZCU6A" association="_eIxv4cK5Eeu0r9MH3ZCU6A"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_eIxv48K5Eeu0r9MH3ZCU6A" memberEnd="_eIk7lsK5Eeu0r9MH3ZCU6A _eIxv5MK5Eeu0r9MH3ZCU6A">
+    <ownedEnd xmi:id="_eIxv5MK5Eeu0r9MH3ZCU6A" type="_eIk7lMK5Eeu0r9MH3ZCU6A" association="_eIxv48K5Eeu0r9MH3ZCU6A"/>
+  </packagedElement>
+  <packagedElement xmi:type="uml:Association" xmi:id="_eIxv5cK5Eeu0r9MH3ZCU6A" memberEnd="_eIsQVMK5Eeu0r9MH3ZCU6A _eIxv5sK5Eeu0r9MH3ZCU6A">
+    <ownedEnd xmi:id="_eIxv5sK5Eeu0r9MH3ZCU6A" type="_eIsQUcK5Eeu0r9MH3ZCU6A" association="_eIxv5cK5Eeu0r9MH3ZCU6A"/>
+  </packagedElement>
+</uml:Model>

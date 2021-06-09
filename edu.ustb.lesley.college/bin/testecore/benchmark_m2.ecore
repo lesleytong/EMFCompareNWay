@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<ecore:EPackage xmi:version="2.0" xmlns:xmi="http://www.omg.org/XMI" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xmlns:ecore="http://www.eclipse.org/emf/2002/Ecore" name="benchmark" nsURI="http://www.eclipse.org/MoDisco/Benchmark/0.9.0/benchmark"
+    nsPrefix="benchmark">
+  <eClassifiers xsi:type="ecore:EClass" name="Benchmark" abstract="true">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="processorName" eType="#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="jvmMaxHeapInMiB" eType="#//ELong"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="processorCacheSize" eType="#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="osArchitecture" eType="#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="systemMemory" eType="#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="osName" eType="#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="osVersion" eType="#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="processorDescription" eType="#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="processorCount" eType="#//EInt"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Discovery">
+    <eOperations name="wK7kR"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="dicoveryDate" eType="#//EDate"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="algorithmVariant" eType="#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="discovererId" eType="#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="saveTimeInSeconds" eType="#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="totalExecutionTimeInSeconds"
+        eType="#//EDouble"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="metaModelVariant" eType="#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="maxUsedMemoryInBytes" eType="#//ELong"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="numberOfModelElements"
+        eType="#//ELong"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="discoveryError" eType="#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="Project">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="totalLines" eType="#//ELong"
+        changeable="false" volatile="true" transient="true" derived="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="files" upperBound="-1"
+        eType="#//File" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="name" eType="#//EString"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="averageFileSizeInBytes"
+        eType="#//ELong" changeable="false" volatile="true" transient="true" derived="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="totalSizeInBytes" eType="#//ELong"
+        changeable="false" volatile="true" transient="true" derived="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="averageLinesPerFile" eType="#//ELong"
+        changeable="false" volatile="true" transient="true" derived="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="File">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="sizeInBytes" eType="#//ELong"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="lines" eType="#//ELong"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="filepath" eType="#//EString"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MultiProjectBenchmark" eSuperTypes="#//Benchmark">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="projects" upperBound="-1"
+        eType="#//DiscoveredProject" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="MultiDiscoveryBenchmark" eSuperTypes="#//Benchmark">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="discoveries" upperBound="-1"
+        eType="#//ProjectDiscovery" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="ProjectDiscovery" eSuperTypes="#//Discovery">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="projects" upperBound="-1"
+        eType="#//Project" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="DiscoveredProject" eSuperTypes="#//Project">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="discoveries" upperBound="-1"
+        eType="#//Discovery" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AveragedMultiDiscoveryBenchmark" eSuperTypes="#//Benchmark">
+    <eStructuralFeatures xsi:type="ecore:EReference" name="discoveries" upperBound="-1"
+        eType="#//AveragedProjectDiscovery" containment="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EClass" name="AveragedProjectDiscovery">
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="averageExecutionTimeInSeconds"
+        eType="#//EDouble" changeable="false" volatile="true" transient="true" derived="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="averageSaveTimeInSeconds"
+        eType="#//EDouble" changeable="false" volatile="true" transient="true" derived="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="executionTimeStandardDeviation"
+        eType="#//EDouble" changeable="false" volatile="true" transient="true" derived="true"/>
+    <eStructuralFeatures xsi:type="ecore:EReference" name="occurrences" upperBound="-1"
+        eType="#//ProjectDiscovery" containment="true"/>
+    <eStructuralFeatures xsi:type="ecore:EAttribute" name="saveTimeStandardDeviation"
+        eType="#//EDouble" changeable="false" volatile="true" transient="true" derived="true"/>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="EInt" instanceClassName="int">
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="baseType" value="http://www.w3.org/2001/XMLSchema#int"/>
+    </eAnnotations>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="ELong" instanceClassName="long">
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="baseType" value="http://www.w3.org/2001/XMLSchema#long"/>
+    </eAnnotations>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="EString" instanceClassName="java.lang.String">
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="baseType" value="http://www.w3.org/2001/XMLSchema#string"/>
+    </eAnnotations>
+  </eClassifiers>
+  <eClassifiers xsi:type="ecore:EDataType" name="EDate" instanceClassName="java.util.Date"/>
+  <eClassifiers xsi:type="ecore:EDataType" name="EDouble" instanceClassName="double">
+    <eAnnotations source="http:///org/eclipse/emf/ecore/util/ExtendedMetaData">
+      <details key="baseType" value="http://www.w3.org/2001/XMLSchema#double"/>
+    </eAnnotations>
+  </eClassifiers>
+</ecore:EPackage>

@@ -63,7 +63,7 @@ public class EvaluateEngine {
 			ChangeTool.changeForEcore(baseResource, m0URI);
 			break;
 		case 3:
-			ChangeTool.changeForXMI(baseResource, m0URI);
+			ChangeTool.changeForAll(baseResource, m0URI);
 			break;
 
 		default:
@@ -125,7 +125,7 @@ public class EvaluateEngine {
 					EObject rightContainer = d.getMatch().getRight();
 					if(rightContainer == null) {
 						System.out.println("line 127");
-						
+						continue;
 					}
 					
 					ReferenceChangeSpec dr = (ReferenceChangeSpec) d;								
@@ -265,29 +265,215 @@ public class EvaluateEngine {
 			diffList.add(diff);
 		}
 
-		// 将collections中的group随机分配给分支版本
-		collections.forEach(group -> {
-			double flag = random.nextDouble();
-			if (flag >= 0.7) {
-				diffList.get(1).addAll(group);
-			} else if (flag <= 0.3) {
-				diffList.get(2).addAll(group);
-			} else {
-				diffList.get(3).addAll(group);
-			}
-		});
+		int branchSize = N-1;
+		if(branchSize == 3) {
+			// 3个分支
+			collections.forEach(group -> {
+				double flag = random.nextDouble();
+				if (flag >= 0.7) {
+					diffList.get(1).addAll(group);
+				} else if (flag <= 0.3) {
+					diffList.get(2).addAll(group);
+				} else {
+					diffList.get(3).addAll(group);
+				}
+			});
+	
+			// 将other中的diff随机分配给分支版本
+			other.forEach(d -> {
+				double flag = random.nextDouble();
+				if (flag >= 0.7) {
+					diffList.get(1).add(d);
+				} else if (flag <= 0.3) {
+					diffList.get(2).add(d);
+				} else {
+					diffList.get(3).add(d);
+				}
+			});
+		} else if(branchSize == 5) {
+			// 5个分支
+			collections.forEach(group -> {
+				double flag = random.nextDouble();
+				if (flag >= 0.8) {
+					diffList.get(1).addAll(group);
+				} else if (flag >= 0.6) {
+					diffList.get(2).addAll(group);
+				} else if(flag >= 0.4){
+					diffList.get(3).addAll(group);
+				} else if(flag >= 0.2){
+					diffList.get(4).addAll(group);
+				} else {
+					diffList.get(5).addAll(group);
+				}
+			});
+	
+			// 将other中的diff随机分配给分支版本
+			other.forEach(d -> {
+				double flag = random.nextDouble();
+				if (flag >= 0.8) {
+					diffList.get(1).add(d);
+				} else if (flag >= 0.6) {
+					diffList.get(2).add(d);
+				} else if (flag >= 0.4){
+					diffList.get(3).add(d);
+				} else if(flag >= 0.2) {
+					diffList.get(4).add(d);
+				} else {
+					diffList.get(5).add(d);
+				}
+			});
+		} else if(branchSize == 7){
+			// 7个分支
+			collections.forEach(group -> {
+				double flag = random.nextDouble();
+				if (flag >= 0.86) {
+					diffList.get(1).addAll(group);
+				} else if (flag >= 0.72) {
+					diffList.get(2).addAll(group);
+				} else if(flag >= 0.58){
+					diffList.get(3).addAll(group);
+				} else if(flag >= 0.44){
+					diffList.get(4).addAll(group);
+				} else if(flag >= 0.3){
+					diffList.get(5).addAll(group);
+				} else if(flag >= 0.16) {
+					diffList.get(6).addAll(group);
+				} else {
+					diffList.get(7).addAll(group);
+				}
+			});
 
-		// 将other中的diff随机分配给分支版本
-		other.forEach(d -> {
-			double flag = random.nextDouble();
-			if (flag >= 0.7) {
+			// 将other中的diff随机分配给分支版本
+			other.forEach(d -> {
+				double flag = random.nextDouble();
+				if (flag >= 0.86) {
+					diffList.get(1).add(d);
+				} else if (flag >= 0.72) {
+					diffList.get(2).add(d);
+				} else if (flag >= 0.58){
+					diffList.get(3).add(d);
+				} else if(flag >= 0.44) {
+					diffList.get(4).add(d);
+				} else if(flag >= 0.3){
+					diffList.get(5).add(d);
+				} else if(flag >= 0.16) {
+					diffList.get(6).add(d);
+				} else {
+					diffList.get(7).add(d);
+				}
+			});
+		} else if(branchSize == 9) {
+			// 9个分支
+			collections.forEach(group -> {
+				double flag = random.nextDouble();
+				if (flag >= 0.89) {
+					diffList.get(1).addAll(group);
+				} else if (flag >= 0.78) {
+					diffList.get(2).addAll(group);
+				} else if(flag >= 0.67){
+					diffList.get(3).addAll(group);
+				} else if(flag >= 0.56){
+					diffList.get(4).addAll(group);
+				} else if(flag >= 0.45){
+					diffList.get(5).addAll(group);
+				} else if(flag >= 0.34) {
+					diffList.get(6).addAll(group);
+				} else if(flag >= 0.23){
+					diffList.get(7).addAll(group);
+				} else if(flag>= 0.12) {
+					diffList.get(8).addAll(group);
+				} else {
+					diffList.get(9).addAll(group);
+				}
+			});
+
+			// 将other中的diff随机分配给分支版本
+			other.forEach(d -> {
+				double flag = random.nextDouble();
+				if (flag >= 0.89) {
+					diffList.get(1).add(d);
+				} else if (flag >= 0.78) {
+					diffList.get(2).add(d);
+				} else if (flag >= 0.67){
+					diffList.get(3).add(d);
+				} else if(flag >= 0.56) {
+					diffList.get(4).add(d);
+				} else if(flag >= 0.45){
+					diffList.get(5).add(d);
+				} else if(flag >= 0.34) {
+					diffList.get(6).add(d);
+				} else if(flag >= 0.23){
+					diffList.get(7).add(d);
+				} else if(flag >= 0.12) {
+					diffList.get(8).add(d);
+				} else {
+					diffList.get(9).add(d);
+				}
+			});
+		} else if(branchSize == 11){
+			// 11个分支
+			collections.forEach(group -> {
+				double flag = random.nextDouble();
+				if (flag >= 0.91) {
+					diffList.get(1).addAll(group);
+				} else if (flag >= 0.82) {
+					diffList.get(2).addAll(group);
+				} else if(flag >= 0.73){
+					diffList.get(3).addAll(group);
+				} else if(flag >= 0.64){
+					diffList.get(4).addAll(group);
+				} else if(flag >= 0.55){
+					diffList.get(5).addAll(group);
+				} else if(flag >= 0.46) {
+					diffList.get(6).addAll(group);
+				} else if(flag >= 0.37){
+					diffList.get(7).addAll(group);
+				} else if(flag >= 0.28) {
+					diffList.get(8).addAll(group);
+				} else if(flag >= 0.19){
+					diffList.get(9).addAll(group);
+				} else if(flag >= 0.1) {
+					diffList.get(10).addAll(group);
+				} else {
+					diffList.get(11).addAll(group);
+				}
+			});
+
+			// 将other中的diff随机分配给分支版本
+			other.forEach(d -> {
+				double flag = random.nextDouble();
+				if (flag >= 0.91) {
+					diffList.get(1).add(d);
+				} else if (flag >= 0.82) {
+					diffList.get(2).add(d);
+				} else if (flag >= 0.73){
+					diffList.get(3).add(d);
+				} else if(flag >= 0.64) {
+					diffList.get(4).add(d);
+				} else if(flag >= 0.55){
+					diffList.get(5).add(d);
+				} else if(flag >= 0.46) {
+					diffList.get(6).add(d);
+				} else if(flag >= 0.37){
+					diffList.get(7).add(d);
+				} else if(flag >= 0.28) {
+					diffList.get(8).add(d);
+				} else if(flag >= 0.19){
+					diffList.get(9).add(d);
+				} else if(flag >= 0.1) {
+					diffList.get(10).add(d);
+				} else {
+					diffList.get(11).add(d);
+				}
+			});
+		} else {
+			collections.forEach(group -> {
+				diffList.get(1).addAll(group);
+			});
+			other.forEach(d -> {
 				diffList.get(1).add(d);
-			} else if (flag <= 0.3) {
-				diffList.get(2).add(d);
-			} else {
-				diffList.get(3).add(d);
-			}
-		});
+			});
+		}
 
 		for (int i = 1; i < N; i++) {
 			System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>diffBranch" + i);
@@ -461,16 +647,20 @@ public class EvaluateEngine {
 	public static void testMerge(TypeGraph typeGraph, ResourceSet resourceSet, List<URI> uriList,
 			List<TypeEdge> typeEdgeList, List<PropertyEdge> propertyEdgeList, URI m1URI, EPackage ep) {
 
-		long start = System.currentTimeMillis();
 		NWay nWay = new NWay(typeGraph);
+		long start = System.currentTimeMillis();	// start from this point?
 		List<MatchN> matches = nWay.nMatch(resourceSet, uriList);
 		long endMatch = System.currentTimeMillis();
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		System.out.println("匹配总耗时：" + (endMatch - start) + " ms.");
 
+		long startMerge = System.currentTimeMillis();
 		TypedGraph mergeModel = nWay.nMerge(matches, typeEdgeList, propertyEdgeList);
 		long end = System.currentTimeMillis();
-
-		System.out.println("匹配耗时：" + (endMatch - start) + " ms.");
-		System.out.println("差分和合并耗时：" + (end - endMatch) + " ms.");
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
+		System.out.println("差分与合并的总耗时：" + (end - startMerge) + " ms.");
+		
+		System.out.println(">>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>");
 		System.out.println("总耗时： " + (end - start) + " ms.");
 
 		try {

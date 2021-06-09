@@ -14,7 +14,7 @@ import org.eclipse.emf.ecore.xmi.impl.EcoreResourceFactoryImpl;
 
 import nway.ChangeTool;
 
-public class PreTreat {
+public class PreTreatEcore {
 
 	public static void main(String[] args) {
 

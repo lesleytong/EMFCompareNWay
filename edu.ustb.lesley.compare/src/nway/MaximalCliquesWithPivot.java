@@ -148,10 +148,10 @@ public class MaximalCliquesWithPivot {
 	void Bron_KerboschWithPivot(ArrayList<Vertex> R, ArrayList<Vertex> P, ArrayList<Vertex> X, String pre,
 			List<List<EObject>> maximalCliques) {
 
-		System.out.print(pre + " " + printSet(R) + ", " + printSet(P) + ", " + printSet(X));
+//		System.out.print(pre + " " + printSet(R) + ", " + printSet(P) + ", " + printSet(X));
 
 		if ((P.size() == 0) && (X.size() == 0)) {
-			printClique(R);
+//			printClique(R);
 			// lyt: ±£´æÒ»ÏÂ
 			EList<EObject> eList = new BasicEList<>();
 			R.forEach(v -> {
@@ -161,11 +161,11 @@ public class MaximalCliquesWithPivot {
 			return;
 		}
 
-		System.out.println();
+//		System.out.println();
 		ArrayList<Vertex> P1 = new ArrayList<Vertex>(P);
 		// Find Pivot
 		Vertex u = getMaxDegreeVertex(union(P, X));
-		System.out.println("" + pre + " Pivot is " + (u.x));
+//		System.out.println("" + pre + " Pivot is " + (u.x));
 
 		// P = P \ Nbrs(u)
 		P = removeNbrs(P, u);
